@@ -42,7 +42,7 @@ def train():
             loss = criterion(out, label)
             loss.backward()
             optimizer.step()
-            if (i + 1) % 10 == 0:
+            if (i + 1) % config.log_interval == 0:
                 print(f'epoch: {epoch + 1}, iter: {i + 1}, loss: {loss.item():.4f}')
             total_loss += loss.item()
             total_acc += torch.sum(torch.argmax(out, dim=1) == label).item()
@@ -51,6 +51,7 @@ def train():
         )
 
     torch.save(model.state_dict(), config.model_path)
+    model = model.cpu()
     model.eval()
     torch.onnx.export(model,
                       torch.randn(1, 3, 64, 64),

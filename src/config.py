@@ -17,8 +17,9 @@ def mkdir(path, remove=False):
 
 
 class config:
-    remv = True
-    data_path = os.path.join('..', 'data')
+    remv = False
+    task_name = 'seaplane'
+    data_path = os.path.join('..', 'data', task_name)
     labeled_data_path = os.path.join(data_path, 'labeled')
 
     mkdir(data_path)
@@ -33,8 +34,9 @@ class config:
     label_file_path = os.path.join(labeled_data_path, 'label.txt')
 
     lr = 0.005
-    epochs = 20
-    batch_size = 1
+    epochs = 100
+    batch_size = 16
+    log_interval = 100
 
     img_transform = torchvision.transforms.Compose([
         # torchvision.transforms.Grayscale(num_output_channels=1),
