@@ -34,7 +34,7 @@ class config:
     label_file_path = os.path.join(labeled_data_path, 'label.txt')
 
     lr = 0.005
-    epochs = 100
+    epochs = 20
     batch_size = 16
     log_interval = 100
 

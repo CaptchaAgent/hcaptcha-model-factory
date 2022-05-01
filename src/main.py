@@ -78,5 +78,17 @@ def test():
     model = ResNetMini(3, 2)
 
 
+def transfer_model():
+    model = ResNetMini(3, 2)
+    model.load_state_dict(torch.load(config.model_path))
+    model.eval()
+    torch.onnx.export(model,
+                      torch.randn(1, 3, 64, 64),
+                      config.model_onnx_path,
+                      verbose=False,
+                      export_params=True)
+
+
 if __name__ == '__main__':
     train()
+    transfer_model()
