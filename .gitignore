@@ -132,3 +132,5 @@ data/
 
 *.pth
 *.onnx
+
+.idea

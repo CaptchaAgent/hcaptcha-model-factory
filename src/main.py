@@ -1,34 +1,32 @@
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import shutil
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision
 
-import cv2
-from PIL import Image
-
-from config import config
-
 from nn.resnet_mini import ResNetMini
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from config import Config
 
 
 def train():
     model = ResNetMini(3, 2)
     model.train()
     model.cuda()
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=Config.lr)
     criterion = nn.CrossEntropyLoss()
 
-    print('model:', model)
+    print("model:", model)
 
-    data = torchvision.datasets.ImageFolder(config.labeled_data_path,
-                                            transform=config.img_transform)
-    data_loader = torch.utils.data.DataLoader(data, batch_size=config.batch_size, shuffle=True)
-    print(f'{len(data)} images')
-    epochs = config.epochs
+    data = torchvision.datasets.ImageFolder(
+        Config.labeled_data_path, transform=Config.img_transform
+    )
+    data_loader = torch.utils.data.DataLoader(data, batch_size=Config.batch_size, shuffle=True)
+    print(f"{len(data)} images")
+    epochs = Config.epochs
 
     # train with focal loss
     for epoch in range(epochs):
@@ -42,27 +40,24 @@ def train():
             loss = criterion(out, label)
             loss.backward()
             optimizer.step()
-            if (i + 1) % config.log_interval == 0:
-                print(f'epoch: {epoch + 1}, iter: {i + 1}, loss: {loss.item():.4f}')
+            if (i + 1) % Config.log_interval == 0:
+                print(f"epoch: {epoch + 1}, iter: {i + 1}, loss: {loss.item():.4f}")
             total_loss += loss.item()
             total_acc += torch.sum(torch.argmax(out, dim=1) == label).item()
         print(
-            f'epoch: {epoch + 1}, avg loss: {total_loss / len(data):.4f}, avg acc: {total_acc / len(data):.4f}'
+            f"epoch: {epoch + 1}, avg loss: {total_loss / len(data):.4f}, avg acc: {total_acc / len(data):.4f}"
         )
 
-    torch.save(model.state_dict(), config.model_path)
+    torch.save(model.state_dict(), Config.model_path)
     model = model.cpu()
     model.eval()
-    torch.onnx.export(model,
-                      torch.randn(1, 3, 64, 64),
-                      config.model_onnx_path,
-                      verbose=True,
-                      export_params=True)
+    torch.onnx.export(
+        model, torch.randn(1, 3, 64, 64), Config.model_onnx_path, verbose=True, export_params=True
+    )
 
 
 def test_single(model, img):
-
-    img = config.img_transform(img)
+    img = Config.img_transform(img)
     img = img.unsqueeze(0)
     img = img.cuda()
     out = model(img)
@@ -80,15 +75,13 @@ def test():
 
 def transfer_model():
     model = ResNetMini(3, 2)
-    model.load_state_dict(torch.load(config.model_path))
+    model.load_state_dict(torch.load(Config.model_path))
     model.eval()
-    torch.onnx.export(model,
-                      torch.randn(1, 3, 64, 64),
-                      config.model_onnx_path,
-                      verbose=False,
-                      export_params=True)
+    torch.onnx.export(
+        model, torch.randn(1, 3, 64, 64), Config.model_onnx_path, verbose=False, export_params=True
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     train()
     transfer_model()
