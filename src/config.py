@@ -1,6 +1,7 @@
 import os
 import shutil
 import sys
+from numpy import save
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
@@ -19,9 +20,13 @@ def mkdir(path, remove=False):
 
 class config:
     remv = False
-    task_name = "seaplane"
+    task_name = "domestic_cat"
     data_path = os.path.join("..", "data", task_name)
     labeled_data_path = os.path.join(data_path, "labeled")
+    val_data_path = os.path.join(data_path, "val")
+    test_data_path = os.path.join(data_path, "test")
+
+    use_best_model = False
 
     mkdir(data_path)
     mkdir(labeled_data_path, remove=remv)
@@ -35,8 +40,12 @@ class config:
     label_file_path = os.path.join(labeled_data_path, "label.txt")
 
     lr = 0.01
-    epochs = 100
+    lr_step_size = 30
+    lr_gamma = 0.9
+    epochs = 300
     batch_size = 16
+
+    save_interval = 100
     log_interval = 100
 
     # transform with data augmentation
@@ -57,5 +66,5 @@ class config:
         ]
     )
 
-    model_path = "model.pth"
-    model_onnx_path = "model.onnx"
+    model_path = f"{task_name}.pth"
+    model_onnx_path = f"{task_name}.onnx"
