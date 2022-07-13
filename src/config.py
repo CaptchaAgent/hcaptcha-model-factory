@@ -22,7 +22,7 @@ def mkdir(path, remove=False):
 
 
 class config:
-    remv = False
+    remv = True
     task_name = "bedroom"
     data_path = Path(os.path.join("..", "data", task_name))
 
@@ -34,8 +34,8 @@ class config:
 
     # split train/val/test data
     train_ratio = 0.8
-    val_ratio = 0.1
-    test_ratio = 0.1
+    val_ratio = 0.2
+    test_ratio = 0.0
 
     mkdir(data_path)
     mkdir(train_data_path, remove=remv)
@@ -59,7 +59,7 @@ class config:
 
     # training settings
     lr = 0.01
-    lr_step_size = 20
+    lr_step_size = 30
     lr_gamma = 0.6
     epochs = 200
     batch_size = 16
