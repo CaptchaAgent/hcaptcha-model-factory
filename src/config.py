@@ -61,9 +61,10 @@ class config:
     lr = 0.01
     lr_step_size = 20
     lr_gamma = 0.6
-    epochs = 100
+    epochs = 200
     batch_size = 16
 
+    # log and checkpoint settings
     save_interval = 100
     log_interval = 100
 
