@@ -20,6 +20,12 @@ from config import config
 from nn.resnet_mini import ResNetMini
 
 
+def split_data():
+    yes = Path(config.origin_data_path) / "yes"
+    no = Path(config.origin_data_path) / "no"
+    train = Path(config.labeled_data_path) / "train"
+
+
 def train():
     model = ResNetMini(3, 2)
     model.train()
@@ -30,7 +36,7 @@ def train():
 
     print("model:", model)
 
-    data = torchvision.datasets.ImageFolder(config.labeled_data_path, transform=config.img_transform)
+    data = torchvision.datasets.ImageFolder(config.train_data_path, transform=config.img_transform)
     data_loader = torch.utils.data.DataLoader(data, batch_size=config.batch_size, shuffle=True)
     print(f"{len(data)} images")
     epochs = config.epochs
@@ -127,7 +133,11 @@ def transfer_model():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", type=str, default="train")
+    parser.add_argument("--split", action="store_true")
     args = parser.parse_args()
+
+    if args.split:
+        split_data()
 
     if "train" in args.mode:
         train()

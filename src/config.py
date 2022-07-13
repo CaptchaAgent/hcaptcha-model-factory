@@ -10,6 +10,9 @@ import torch.nn.functional as F
 import torchvision
 
 
+from pathlib import Path
+
+
 def mkdir(path, remove=False):
     if not os.path.exists(path):
         os.makedirs(path)
@@ -21,24 +24,38 @@ def mkdir(path, remove=False):
 class config:
     remv = False
     task_name = "domestic_cat"
-    data_path = os.path.join("..", "data", task_name)
-    labeled_data_path = os.path.join(data_path, "labeled")
-    val_data_path = os.path.join(data_path, "val")
-    test_data_path = os.path.join(data_path, "test")
+    data_path = Path(os.path.join("..", "data", task_name))
 
-    use_best_model = False
+    origin_data_path = data_path / "origin"
+    # labeled_data_path = os.path.join(data_path, "labeled")
+    train_data_path = data_path / "train"
+    val_data_path = data_path / "val"
+    test_data_path = data_path / "test"
+
+    # split train/val/test data
+    train_ratio = 0.8
+    val_ratio = 0.1
+    test_ratio = 0.1
 
     mkdir(data_path)
-    mkdir(labeled_data_path, remove=remv)
+    mkdir(train_data_path, remove=remv)
+    mkdir(val_data_path, remove=remv)
+    mkdir(test_data_path, remove=remv)
 
+    # best model
+    use_best_model = False
+
+    # data classes
     n_classes = 2
     classes = [str(i) for i in range(n_classes)]
 
     for class_ in classes:
-        mkdir(os.path.join(labeled_data_path, class_), remove=remv)
+        mkdir(os.path.join(train_data_path, class_), remove=remv)
 
-    label_file_path = os.path.join(labeled_data_path, "label.txt")
+    # data label file
+    label_file_path = os.path.join(train_data_path, "label.txt")
 
+    # training settings
     lr = 0.01
     lr_step_size = 30
     lr_gamma = 0.9
@@ -48,7 +65,7 @@ class config:
     save_interval = 100
     log_interval = 100
 
-    # transform with data augmentation
+    # data augmentation
     data_augmentation_tr = [
         torchvision.transforms.RandomHorizontalFlip(),
         torchvision.transforms.RandomVerticalFlip(),
@@ -58,6 +75,7 @@ class config:
         torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
     ]
 
+    # transform with data augmentation
     img_transform = torchvision.transforms.Compose(
         [
             torchvision.transforms.RandomChoice(data_augmentation_tr),
@@ -66,5 +84,6 @@ class config:
         ]
     )
 
+    # model path
     model_path = f"{task_name}.pth"
     model_onnx_path = f"{task_name}.onnx"
