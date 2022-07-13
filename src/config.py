@@ -23,7 +23,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = False
-    task_name = "domestic_cat"
+    task_name = "bedroom"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -51,15 +51,17 @@ class config:
 
     for class_ in classes:
         mkdir(os.path.join(train_data_path, class_), remove=remv)
+        mkdir(os.path.join(val_data_path, class_), remove=remv)
+        mkdir(os.path.join(test_data_path, class_), remove=remv)
 
     # data label file
     label_file_path = os.path.join(train_data_path, "label.txt")
 
     # training settings
     lr = 0.01
-    lr_step_size = 30
-    lr_gamma = 0.9
-    epochs = 300
+    lr_step_size = 20
+    lr_gamma = 0.6
+    epochs = 100
     batch_size = 16
 
     save_interval = 100

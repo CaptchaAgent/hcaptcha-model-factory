@@ -1,6 +1,8 @@
 import os
 import sys
 
+import numpy as np
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import argparse
@@ -21,9 +23,30 @@ from nn.resnet_mini import ResNetMini
 
 
 def split_data():
-    yes = Path(config.origin_data_path) / "yes"
-    no = Path(config.origin_data_path) / "no"
-    train = Path(config.labeled_data_path) / "train"
+    yes_path = config.origin_data_path / "yes"
+    bad_path = config.origin_data_path / "bad"
+
+    train_path = config.train_data_path
+    val_path = config.val_data_path
+    test_path = config.test_data_path
+
+    for img in yes_path.iterdir():
+        p_rand = np.random.rand()
+        if p_rand < config.train_ratio:
+            shutil.copy(img, train_path / "0")
+        elif p_rand < config.train_ratio + config.val_ratio:
+            shutil.copy(img, val_path / "0")
+        else:
+            shutil.copy(img, test_path / "0")
+
+    for img in bad_path.iterdir():
+        p_rand = np.random.rand()
+        if p_rand < config.train_ratio:
+            shutil.copy(img, train_path / "1")
+        elif p_rand < config.train_ratio + config.val_ratio:
+            shutil.copy(img, val_path / "1")
+        else:
+            shutil.copy(img, test_path / "1")
 
 
 def train():
