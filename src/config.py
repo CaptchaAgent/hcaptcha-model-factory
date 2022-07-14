@@ -23,7 +23,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "bridge"
+    task_name = "lion"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -61,7 +61,7 @@ class config:
     lr = 0.01
     lr_step_size = 30
     lr_gamma = 0.6
-    epochs = 100
+    epochs = 200
     batch_size = 16
 
     # log and checkpoint settings
@@ -85,6 +85,11 @@ class config:
             torchvision.transforms.Resize(size=64),
             torchvision.transforms.ToTensor(),
         ]
+    )
+
+    # transform without data augmentation
+    img_transform_no_augment = torchvision.transforms.Compose(
+        [torchvision.transforms.Resize(size=64), torchvision.transforms.ToTensor()]
     )
 
     # model path

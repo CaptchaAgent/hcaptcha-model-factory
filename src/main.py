@@ -109,7 +109,7 @@ def val():
     model.load_state_dict(torch.load(config.model_path))
     model.eval()
     model = model.cuda()
-    data = torchvision.datasets.ImageFolder(config.val_data_path, transform=config.img_transform)
+    data = torchvision.datasets.ImageFolder(config.val_data_path, transform=config.img_transform_no_augment)
     data_loader = torch.utils.data.DataLoader(data, batch_size=config.batch_size, shuffle=False)
     print(f"{len(data)} images")
     total_acc = 0
