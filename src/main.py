@@ -93,7 +93,7 @@ def train():
 
         if (epoch + 1) % config.save_interval == 0:
             torch.save(best_model.state_dict(), config.model_path.split(".")[0] + f"_{epoch + 1}.pth")
-            print(f"save model to {config.model_path}")
+            print(f"save model to {config.model_path.split('.')[0]}_{epoch + 1}.pth")
 
     if config.use_best_model:
         model = best_model

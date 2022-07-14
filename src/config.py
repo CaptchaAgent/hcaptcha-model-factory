@@ -23,7 +23,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "bedroom"
+    task_name = "bridge"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -61,7 +61,7 @@ class config:
     lr = 0.01
     lr_step_size = 30
     lr_gamma = 0.6
-    epochs = 200
+    epochs = 100
     batch_size = 16
 
     # log and checkpoint settings
