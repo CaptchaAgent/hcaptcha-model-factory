@@ -51,13 +51,17 @@ def split_data():
 
 def train():
     model = ResNetMini(3, 2)
+    total_params = sum(p.numel() for p in model.parameters())
+
     model.train()
     model.cuda()
+
+    print("model:", model)
+    print("total params:", total_params)
+
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)
     criterion = nn.CrossEntropyLoss()
     lrs = torch.optim.lr_scheduler.StepLR(optimizer, step_size=config.lr_step_size, gamma=config.lr_gamma)
-
-    print("model:", model)
 
     data = torchvision.datasets.ImageFolder(config.train_data_path, transform=config.img_transform)
     data_loader = torch.utils.data.DataLoader(data, batch_size=config.batch_size, shuffle=True)
