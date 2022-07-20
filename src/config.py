@@ -23,7 +23,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "lion"
+    task_name = "living_room"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -74,7 +74,9 @@ class config:
         torchvision.transforms.RandomVerticalFlip(),
         torchvision.transforms.RandomRotation(30),
         torchvision.transforms.GaussianBlur(3),
-        torchvision.transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
+        torchvision.transforms.ColorJitter(
+            brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2
+        ),
         torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
     ]
 
