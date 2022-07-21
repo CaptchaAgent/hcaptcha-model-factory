@@ -61,10 +61,16 @@ def train():
 
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)
     criterion = nn.CrossEntropyLoss()
-    lrs = torch.optim.lr_scheduler.StepLR(optimizer, step_size=config.lr_step_size, gamma=config.lr_gamma)
+    lrs = torch.optim.lr_scheduler.StepLR(
+        optimizer, step_size=config.lr_step_size, gamma=config.lr_gamma
+    )
 
-    data = torchvision.datasets.ImageFolder(config.train_data_path, transform=config.img_transform)
-    data_loader = torch.utils.data.DataLoader(data, batch_size=config.batch_size, shuffle=True)
+    data = torchvision.datasets.ImageFolder(
+        config.train_data_path, transform=config.img_transform
+    )
+    data_loader = torch.utils.data.DataLoader(
+        data, batch_size=config.batch_size, shuffle=True
+    )
     print(f"{len(data)} images")
     epochs = config.epochs
 
@@ -89,15 +95,20 @@ def train():
             total_acc += torch.sum(torch.argmax(out, dim=1) == label).item()
 
         lrs.step()
-        print(f"epoch: {epoch + 1}, avg loss: {total_loss / len(data):.4f}, avg acc: {total_acc / len(data):.4f}")
+        print(
+            f"epoch: {epoch + 1}, avg loss: {total_loss / len(data):.4f}, avg acc: {total_acc / len(data):.4f}"
+        )
 
         if total_acc / len(data) >= best_acc:
             best_acc = total_acc / len(data)
             best_model = copy.deepcopy(model)
 
         if (epoch + 1) % config.save_interval == 0:
-            torch.save(best_model.state_dict(), config.model_path.split(".")[0] + f"_{epoch + 1}.pth")
-            print(f"save model to {config.model_path.split('.')[0]}_{epoch + 1}.pth")
+            _path = config.model_path.parent / (
+                config.model_path.stem.split(".")[0] + f"_{epoch + 1}.pth"
+            )
+            torch.save(best_model.state_dict(), _path)
+            print(f"save model to {_path}")
 
     if config.use_best_model:
         model = best_model
@@ -105,7 +116,13 @@ def train():
     torch.save(model.state_dict(), config.model_path)
     model = model.cpu()
     model.eval()
-    torch.onnx.export(model, torch.randn(1, 3, 64, 64), config.model_onnx_path, verbose=True, export_params=True)
+    torch.onnx.export(
+        model,
+        torch.randn(1, 3, 64, 64),
+        config.model_onnx_path,
+        verbose=True,
+        export_params=True,
+    )
 
 
 def val():
@@ -113,8 +130,12 @@ def val():
     model.load_state_dict(torch.load(config.model_path))
     model.eval()
     model = model.cuda()
-    data = torchvision.datasets.ImageFolder(config.val_data_path, transform=config.img_transform_no_augment)
-    data_loader = torch.utils.data.DataLoader(data, batch_size=config.batch_size, shuffle=False)
+    data = torchvision.datasets.ImageFolder(
+        config.val_data_path, transform=config.img_transform_no_augment
+    )
+    data_loader = torch.utils.data.DataLoader(
+        data, batch_size=config.batch_size, shuffle=False
+    )
     print(f"{len(data)} images")
     total_acc = 0
     for i, (img, label) in enumerate(data_loader):
@@ -154,7 +175,13 @@ def transfer_model():
     model = ResNetMini(3, 2)
     model.load_state_dict(torch.load(config.model_path))
     model.eval()
-    torch.onnx.export(model, torch.randn(1, 3, 64, 64), config.model_onnx_path, verbose=False, export_params=True)
+    torch.onnx.export(
+        model,
+        torch.randn(1, 3, 64, 64),
+        config.model_onnx_path,
+        verbose=False,
+        export_params=True,
+    )
 
 
 if __name__ == "__main__":

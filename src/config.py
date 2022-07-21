@@ -23,7 +23,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "horse"
+    task_name = "giraffe"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -95,5 +95,7 @@ class config:
     )
 
     # model path
-    model_path = f"{task_name}.pth"
-    model_onnx_path = f"{task_name}.onnx"
+    model_dir = Path(os.path.join("..", "model"))
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = model_dir / f"{task_name}.pth"
+    model_onnx_path = model_dir / f"{task_name}.onnx"
