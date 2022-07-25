@@ -23,7 +23,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "horse_made_of_clouds"
+    task_name = "elephant_made_of_clouds"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -61,8 +61,13 @@ class config:
     lr = 0.01
     lr_step_size = 30
     lr_gamma = 0.6
+    lr_weight_decay = 0.0005
+    lr_momentum = 0.9
     epochs = 200
     batch_size = 16
+    loss_fn = "focal" # "focal" or "cross_entropy"
+    optimizer = "adam" # "sgd" | "adam"
+    focal_loss_gamma = 2.0
 
     # log and checkpoint settings
     save_interval = 100

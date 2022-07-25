@@ -20,6 +20,7 @@ from PIL import Image
 from config import config
 
 from nn.resnet_mini import ResNetMini
+from losses import FocalLoss
 
 
 def split_data():
@@ -59,8 +60,29 @@ def train():
     print("model:", model)
     print("total params:", total_params)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)
-    criterion = nn.CrossEntropyLoss()
+    if config.optimizer == "sgd":
+        optimizer = torch.optim.SGD(
+            model.parameters(),
+            lr=config.lr,
+            momentum=config.lr_momentum,
+            weight_decay=config.lr_weight_decay,
+        )
+    elif config.optimizer == "adam":
+        optimizer = torch.optim.Adam(
+            model.parameters(),
+            lr=config.lr,
+            weight_decay=config.lr_weight_decay,
+        )
+    else:
+        raise ValueError("optimizer must be sgd or adam")
+    
+    if config.loss_fn == "focal":
+        criterion = FocalLoss(gamma=config.focal_loss_gamma)
+    elif config.loss_fn == "cross_entropy":
+        criterion = nn.CrossEntropyLoss()
+    else:
+        raise ValueError("loss must be focal or cross_entropy")
+
     lrs = torch.optim.lr_scheduler.StepLR(
         optimizer, step_size=config.lr_step_size, gamma=config.lr_gamma
     )
