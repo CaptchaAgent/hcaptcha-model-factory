@@ -1,13 +1,14 @@
 import os
 import shutil
 import sys
-from numpy import save
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
+import random
 
 
 from pathlib import Path
@@ -23,7 +24,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "elephant_made_of_clouds"
+    task_name = "horse_made_of_clouds"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -31,6 +32,16 @@ class config:
     train_data_path = data_path / "train"
     val_data_path = data_path / "val"
     test_data_path = data_path / "test"
+
+    seed = 233
+    
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 
     # split train/val/test data
     train_ratio = 0.8

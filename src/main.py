@@ -212,7 +212,7 @@ if __name__ == "__main__":
     parser.add_argument("--split", action="store_true")
     args = parser.parse_args()
 
-    if args.split:
+    if args.split and "train" in args.mode:
         split_data()
 
     if "train" in args.mode:
