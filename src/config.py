@@ -23,7 +23,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "dog"
+    task_name = "horse_made_of_clouds"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
