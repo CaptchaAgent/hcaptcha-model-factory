@@ -55,7 +55,7 @@ def train():
     total_params = sum(p.numel() for p in model.parameters())
 
     model.train()
-    model.cuda()
+    model.to(config.device)
 
     print("model:", model)
     print("total params:", total_params)
@@ -104,8 +104,8 @@ def train():
         total_loss = 0
         total_acc = 0
         for i, (img, label) in enumerate(data_loader):
-            img = img.cuda()
-            label = label.cuda()
+            img = img.to(config.device)
+            label = label.to(config.device)
             optimizer.zero_grad()
             out = model(img)
             loss = criterion(out, label)
@@ -151,7 +151,7 @@ def val():
     model = ResNetMini(3, 2)
     model.load_state_dict(torch.load(config.model_path))
     model.eval()
-    model = model.cuda()
+    model = model.to(config.device)
     data = torchvision.datasets.ImageFolder(
         config.val_data_path, transform=config.img_transform_no_augment
     )
@@ -161,8 +161,8 @@ def val():
     print(f"{len(data)} images")
     total_acc = 0
     for i, (img, label) in enumerate(data_loader):
-        img = img.cuda()
-        label = label.cuda()
+        img = img.to(config.device)
+        label = label.to(config.device)
         out = model(img)
         pred = torch.argmax(out, dim=1)
         total_acc += torch.sum(pred == label).item()
@@ -172,7 +172,7 @@ def val():
 def test_single_img(model, img):
     img = config.img_transform(img)
     img = img.unsqueeze(0)
-    img = img.cuda()
+    img = img.to(config.device)
     out = model(img)
     pred = torch.argmax(out, dim=1)
     # print(f'pred: {pred.item()}')
@@ -186,7 +186,7 @@ def test_single():
     model = ResNetMini(3, 2)
     model.load_state_dict(torch.load(config.model_path))
     model.eval()
-    model = model.cuda()
+    model = model.to(config.device)
     img = cv2.imread(config.test_img_path)
     img = cv2.resize(img, (64, 64))
     img = Image.fromarray(img)

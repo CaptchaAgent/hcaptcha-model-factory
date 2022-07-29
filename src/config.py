@@ -35,13 +35,14 @@ class config:
 
     seed = 233
     
+    # device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-
 
     # split train/val/test data
     train_ratio = 0.8
