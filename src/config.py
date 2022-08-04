@@ -24,7 +24,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "horse_made_of_clouds"
+    task_name = "parrot"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -75,7 +75,7 @@ class config:
     lr_gamma = 0.6
     lr_weight_decay = 0.0005
     lr_momentum = 0.9
-    epochs = 200
+    epochs = 300
     batch_size = 16
     loss_fn = "focal" # "focal" or "cross_entropy"
     optimizer = "adam" # "sgd" | "adam"
