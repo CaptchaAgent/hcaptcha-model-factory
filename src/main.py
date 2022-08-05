@@ -129,8 +129,9 @@ def train():
             _path = config.model_path.parent / (
                 config.model_path.stem.split(".")[0] + f"_{epoch + 1}.pth"
             )
-            torch.save(best_model.state_dict(), _path)
+            torch.save(model.state_dict(), _path)
             print(f"save model to {_path}")
+            val(_path)
 
     if config.use_best_model:
         model = best_model
@@ -147,9 +148,10 @@ def train():
     )
 
 
-def val():
+def val(model_path=None):
+    model_path = model_path or config.model_path
     model = ResNetMini(3, 2)
-    model.load_state_dict(torch.load(config.model_path))
+    model.load_state_dict(torch.load(model_path))
     model.eval()
     model = model.to(config.device)
     data = torchvision.datasets.ImageFolder(

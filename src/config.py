@@ -24,7 +24,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "parrot"
+    task_name = "dog_with_a_collar_on_its_neck"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -70,19 +70,19 @@ class config:
     label_file_path = os.path.join(train_data_path, "label.txt")
 
     # training settings
-    lr = 0.01
+    lr = 0.001
     lr_step_size = 30
     lr_gamma = 0.6
     lr_weight_decay = 0.0005
     lr_momentum = 0.9
     epochs = 300
-    batch_size = 16
+    batch_size = 4
     loss_fn = "focal" # "focal" or "cross_entropy"
     optimizer = "adam" # "sgd" | "adam"
     focal_loss_gamma = 2.0
 
     # log and checkpoint settings
-    save_interval = 100
+    save_interval = 50
     log_interval = 100
 
     # data augmentation
