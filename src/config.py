@@ -24,7 +24,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "dog_with_a_collar_on_its_neck"
+    task_name = "lion_with_mane_on_its_neck"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -34,7 +34,7 @@ class config:
     test_data_path = data_path / "test"
 
     seed = 233
-    
+
     # device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     random.seed(seed)
@@ -77,8 +77,8 @@ class config:
     lr_momentum = 0.9
     epochs = 300
     batch_size = 4
-    loss_fn = "focal" # "focal" or "cross_entropy"
-    optimizer = "adam" # "sgd" | "adam"
+    loss_fn = "focal"  # "focal" or "cross_entropy"
+    optimizer = "adam"  # "sgd" | "adam"
     focal_loss_gamma = 2.0
 
     # log and checkpoint settings
