@@ -24,7 +24,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "horse_facing_to_the_left"
+    task_name = "horse_facing_to_the_right"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
