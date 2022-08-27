@@ -24,7 +24,7 @@ def mkdir(path, remove=False):
 
 class config:
     remv = True
-    task_name = "lion_with_closed_eyes"
+    task_name = "lion_with_a_closed_mouth"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -87,8 +87,8 @@ class config:
 
     # data augmentation
     data_augmentation_tr = [
-        torchvision.transforms.RandomHorizontalFlip(),
-        torchvision.transforms.RandomVerticalFlip(),
+        # torchvision.transforms.RandomHorizontalFlip(),
+        # torchvision.transforms.RandomVerticalFlip(),
         torchvision.transforms.RandomRotation(30),
         torchvision.transforms.GaussianBlur(3),
         torchvision.transforms.ColorJitter(
