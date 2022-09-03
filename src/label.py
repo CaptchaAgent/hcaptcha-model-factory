@@ -1,5 +1,7 @@
 import os
+
 import cv2
+
 from config import config
 
 # Deprecated, I hope you know that.
@@ -11,7 +13,12 @@ if __name__ == "__main__":
     for i, img_name in enumerate(data):
         img_path = os.path.join(config.data_path, img_name)
 
-        if os.path.isdir(img_path) or img_name.startswith(".") or img_name.endswith("txt") or img_name.endswith("zip"):
+        if (
+            os.path.isdir(img_path)
+            or img_name.startswith(".")
+            or img_name.endswith("txt")
+            or img_name.endswith("zip")
+        ):
             continue
 
         img = cv2.imread(img_path)

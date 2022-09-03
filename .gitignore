@@ -134,3 +134,4 @@ data/
 *.onnx
 model/
 test*
+.idea

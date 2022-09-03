@@ -1,5 +1,6 @@
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import cv2
 import numpy as np
@@ -29,7 +30,7 @@ def val_cv2(img_path):
             acc += 1
         # break
 
-    print(f'{img_path}\n err: {len(img_list)-acc} acc: {acc / len(img_list)}')
+    print(f'{img_path}\n err: {len(img_list) - acc} acc: {acc / len(img_list)}')
 
 
 if __name__ == '__main__':

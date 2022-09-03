@@ -9,10 +9,8 @@ import argparse
 import shutil
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision
 import copy
-from pathlib import Path
 
 import cv2
 from PIL import Image
@@ -69,13 +67,11 @@ def train():
         )
     elif config.optimizer == "adam":
         optimizer = torch.optim.Adam(
-            model.parameters(),
-            lr=config.lr,
-            weight_decay=config.lr_weight_decay,
+            model.parameters(), lr=config.lr, weight_decay=config.lr_weight_decay
         )
     else:
         raise ValueError("optimizer must be sgd or adam")
-    
+
     if config.loss_fn == "focal":
         criterion = FocalLoss(gamma=config.focal_loss_gamma)
     elif config.loss_fn == "cross_entropy":
@@ -87,12 +83,8 @@ def train():
         optimizer, step_size=config.lr_step_size, gamma=config.lr_gamma
     )
 
-    data = torchvision.datasets.ImageFolder(
-        config.train_data_path, transform=config.img_transform
-    )
-    data_loader = torch.utils.data.DataLoader(
-        data, batch_size=config.batch_size, shuffle=True
-    )
+    data = torchvision.datasets.ImageFolder(config.train_data_path, transform=config.img_transform)
+    data_loader = torch.utils.data.DataLoader(data, batch_size=config.batch_size, shuffle=True)
     print(f"{len(data)} images")
     epochs = config.epochs
 
@@ -140,11 +132,7 @@ def train():
     model = model.cpu()
     model.eval()
     torch.onnx.export(
-        model,
-        torch.randn(1, 3, 64, 64),
-        config.model_onnx_path,
-        verbose=True,
-        export_params=True,
+        model, torch.randn(1, 3, 64, 64), config.model_onnx_path, verbose=True, export_params=True
     )
 
 
@@ -157,9 +145,7 @@ def val(model_path=None):
     data = torchvision.datasets.ImageFolder(
         config.val_data_path, transform=config.img_transform_no_augment
     )
-    data_loader = torch.utils.data.DataLoader(
-        data, batch_size=config.batch_size, shuffle=False
-    )
+    data_loader = torch.utils.data.DataLoader(data, batch_size=config.batch_size, shuffle=False)
     print(f"{len(data)} images")
     total_acc = 0
     for i, (img, label) in enumerate(data_loader):
@@ -200,11 +186,7 @@ def transfer_model():
     model.load_state_dict(torch.load(config.model_path))
     model.eval()
     torch.onnx.export(
-        model,
-        torch.randn(1, 3, 64, 64),
-        config.model_onnx_path,
-        verbose=False,
-        export_params=True,
+        model, torch.randn(1, 3, 64, 64), config.model_onnx_path, verbose=False, export_params=True
     )
 
 
