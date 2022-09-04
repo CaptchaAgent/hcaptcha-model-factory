@@ -11,7 +11,7 @@ class Params:
 
 
 class ModelFactory:
-    """Nothing is true；Everything is permitted."""
+    """Nothing is true; Everything is permitted."""
 
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
