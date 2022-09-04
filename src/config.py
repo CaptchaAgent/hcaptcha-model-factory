@@ -21,7 +21,7 @@ def mkdir(path, remove=False):
         os.makedirs(path)
 
 
-class config:
+class Config:
     remv = True
     task_name = "fish_jumping_over_the_water"
     data_path = Path(os.path.join("..", "data", task_name))
@@ -124,32 +124,6 @@ class ConfigT:
     DIR_MODEL = join(PROJECT_ROOT, "model")
     # hook to factory/logs/
     DIR_LOG = join(PROJECT_ROOT, "logs")
-
-    # hook to factory/data/[task]/
-    FLAG_ORIGIN = "origin"
-    FLAG_POSITIVE = "yes"
-    FLAG_POSITIVE_DIGIT = "0"
-    FLAG_NEGATIVE = "bad"
-    FLAG_NEGATIVE_DIGIT = "1"
-    FLAG_TRAIN = "train"
-    FLAG_VAL = "val"
-    FLAG_TEST = "test"
-
-    # fix wrong encoding
-    BADCODE = {
-        "а": "a",
-        "е": "e",
-        "e": "e",
-        "i": "i",
-        "і": "i",
-        "ο": "o",
-        "с": "c",
-        "ԁ": "d",
-        "ѕ": "s",
-        "һ": "h",
-        "у": "y",
-        "р": "p",
-    }
 
 
 logger = ToolBox.init_log(
