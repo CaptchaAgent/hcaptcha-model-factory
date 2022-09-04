@@ -5,13 +5,12 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torchvision
 import random
-
+from os.path import dirname, join
 
 from pathlib import Path
+from utils import ToolBox
 
 
 def mkdir(path, remove=False):
@@ -22,9 +21,9 @@ def mkdir(path, remove=False):
         os.makedirs(path)
 
 
-class config:
+class Config:
     remv = True
-    task_name = "smiling_dog"
+    task_name = "fish_jumping_over_the_water"
     data_path = Path(os.path.join("..", "data", task_name))
 
     origin_data_path = data_path / "origin"
@@ -91,9 +90,7 @@ class config:
         # torchvision.transforms.RandomVerticalFlip(),
         torchvision.transforms.RandomRotation(30),
         torchvision.transforms.GaussianBlur(3),
-        torchvision.transforms.ColorJitter(
-            brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2
-        ),
+        torchvision.transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
         torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
     ]
 
@@ -116,3 +113,19 @@ class config:
     os.makedirs(model_dir, exist_ok=True)
     model_path = model_dir / f"{task_name}.pth"
     model_onnx_path = model_dir / f"{task_name}.onnx"
+
+
+class ConfigT:
+    # hook to factory/
+    PROJECT_ROOT = dirname(dirname(__file__))
+    # hook to factory/data/
+    DIR_DATABASE = join(PROJECT_ROOT, "data")
+    # hook to factory/model/
+    DIR_MODEL = join(PROJECT_ROOT, "model")
+    # hook to factory/logs/
+    DIR_LOG = join(PROJECT_ROOT, "logs")
+
+
+logger = ToolBox.init_log(
+    error=join(ConfigT.DIR_LOG, "error.log"), runtime=join(ConfigT.DIR_LOG, "runtime.log")
+)
