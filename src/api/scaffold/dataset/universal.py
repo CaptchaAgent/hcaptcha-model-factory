@@ -4,10 +4,10 @@ import typing
 
 from loguru import logger
 import torch
-import torch.utils.data as data
+from torch.utils.data import Dataset
 
 
-class UniversalDataset(data.Dataset):
+class UniversalDataset(Dataset):
     """Universal dataset for classification"""
 
     def __init__(
