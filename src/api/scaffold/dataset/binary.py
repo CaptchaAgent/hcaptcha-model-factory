@@ -49,10 +49,16 @@ class BinaryDataset(data.Dataset):
             logger.error(f"{self._cfg_path} not found")
             raise FileNotFoundError
 
+        if self._flag not in ["train", "val", "test"]:
+            logger.error(f"Invalid flag: {self._flag}")
+            raise ValueError
+
         with open(self._cfg_path, "r") as f:
             self._cfg = yaml.load(f, Loader=yaml.FullLoader)
 
         self._data = self._cfg["data"]
+
+        logger.info(f"Dataset loaded: {self._cfg_path} with {len(self._data)} images")
 
     def __len__(self):
         return len(self._data)
