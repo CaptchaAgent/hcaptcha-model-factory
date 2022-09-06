@@ -1,10 +1,10 @@
 import os
-import yaml
 import typing
 
-from loguru import logger
 import torch
 import torch.utils.data as data
+import yaml
+from loguru import logger
 
 
 class BinaryDataset(data.Dataset):
@@ -15,7 +15,7 @@ class BinaryDataset(data.Dataset):
         dir_dataset: str,
         cfg_path: str = None,
         flag: str = "train",
-        classes: typing.Optional[typing.List[str]] = ["yes", "bad"],
+        classes: typing.Optional[typing.List[str]] = None,
         transform: typing.Optional[typing.Callable] = None,
     ):
         """
@@ -39,7 +39,7 @@ class BinaryDataset(data.Dataset):
         self._dir_dataset = dir_dataset
         self._cfg_path = cfg_path or os.path.join(self._dir_dataset, f"{flag}.yaml")
         self._flag = flag
-        self._classes = classes
+        self._classes = ["yes", "bad"] if classes is None else classes
         self._transform = transform
 
         self._init_cfg()

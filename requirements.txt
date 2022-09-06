@@ -7,3 +7,4 @@ pillow~=9.2.0
 # {{< pattern >}}
 fire~=0.4.0
 loguru~=0.6.0
+pyyaml~=6.0
