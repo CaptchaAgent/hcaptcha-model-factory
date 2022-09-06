@@ -1,4 +1,6 @@
+import re
 import sys
+import typing
 
 from loguru import logger
 
@@ -53,3 +55,16 @@ class ToolBox:
             flag_ += " ".join([f"{i[0]}={i[1]}" for i in params.items()])
 
         return flag_
+
+    @staticmethod
+    def split_prompt(prompt_message: str, lang: str = "en") -> typing.Optional[str]:
+        if prompt_message and isinstance(prompt_message, str):
+            prompt_message = prompt_message.strip()
+            return {
+                "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1].replace("的每", "")
+                if "包含" in prompt_message
+                else prompt_message,
+                "en": re.split(r"containing a", prompt_message)[-1][1:].strip().replace(".", "")
+                if "containing" in prompt_message
+                else prompt_message,
+            }.get(lang)

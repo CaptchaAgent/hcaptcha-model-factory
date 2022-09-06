@@ -5,11 +5,25 @@ from fire import Fire
 from api.scaffold import diagnose_task
 from api.scaffold.fatories import ResNet
 from config import ConfigT, logger
+from utils import ToolBox
 
 
 @logger.catch()
 class Scaffold:
     _model = None
+
+    @staticmethod
+    def new():
+        """
+        [dev for challenger] Initialize the project directory
+
+        Usage: python main.py new
+            prompt[en] --> Please click each image containing a dog-shaped cookie
+            task=`dog_shaped_cookie`
+
+        :return:
+        """
+        return Scaffold.train(ToolBox.split_prompt(input("prompt[en] --> "), lang="en"))
 
     @staticmethod
     def train(

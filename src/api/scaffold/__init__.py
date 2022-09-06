@@ -29,7 +29,7 @@ def diagnose_task(task_name: typing.Optional[str]) -> typing.Optional[str]:
         raise TypeError(f"({task_name})TASK contains invalid characters({s})")
 
     # Normalized separator
-    rnv = {",", "-"}
+    rnv = {" ", ",", "-"}
     for s in rnv:
         task_name = task_name.replace(s, "_")
 
