@@ -4,7 +4,7 @@ from fire import Fire
 
 from api.scaffold import diagnose_task
 from api.scaffold.fatories import ResNet
-from config import ConfigT, logger
+from config import Config, logger
 from utils import ToolBox
 
 
@@ -27,7 +27,9 @@ class Scaffold:
 
     @staticmethod
     def train(
-        task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
+        task: str,
+        epochs: typing.Optional[int] = None,
+        batch_size: typing.Optional[int] = None,
     ):
         """
         Train the specified model and output an ONNX object
@@ -46,8 +48,8 @@ class Scaffold:
             task_name=diagnose_task(task),
             epochs=epochs,
             batch_size=batch_size,
-            dir_dataset=ConfigT.DIR_DATABASE,
-            dir_model=ConfigT.DIR_MODEL,
+            dir_dataset=Config.DIR_DATABASE,
+            dir_model=Config.DIR_MODEL,
         )
         model.train()
         model.conv_pth2onnx(verbose=False)
@@ -66,14 +68,16 @@ class Scaffold:
         """
         model = Scaffold._model or ResNet(
             task_name=diagnose_task(task),
-            dir_dataset=ConfigT.DIR_DATABASE,
-            dir_model=ConfigT.DIR_MODEL,
+            dir_dataset=Config.DIR_DATABASE,
+            dir_model=Config.DIR_MODEL,
         )
         model.val()
 
     @staticmethod
     def trainval(
-        task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
+        task: str,
+        epochs: typing.Optional[int] = None,
+        batch_size: typing.Optional[int] = None,
     ):
         """
         Connect train and val

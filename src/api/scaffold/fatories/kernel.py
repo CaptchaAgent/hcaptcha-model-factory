@@ -22,14 +22,15 @@ class ModelFactory:
     DIR_MODEL = "model"
 
     # hook to factory/data/[task]/
-    FLAG_ORIGIN = "origin"
+    # FLAG_ORIGIN = "origin"
     FLAG_POSITIVE = "yes"
-    FLAG_POSITIVE_DIGIT = "0"
+    # FLAG_POSITIVE_DIGIT = "0"
     FLAG_NEGATIVE = "bad"
-    FLAG_NEGATIVE_DIGIT = "1"
-    FLAG_TRAIN = "train"
-    FLAG_VAL = "val"
-    FLAG_TEST = "test"
+    # FLAG_NEGATIVE_DIGIT = "1"
+    FLAG_ALL = "all.yaml"
+    FLAG_TRAIN = "train.yaml"
+    FLAG_VAL = "val.yaml"
+    FLAG_TEST = "test.yaml"
 
     def __init__(
         self,
