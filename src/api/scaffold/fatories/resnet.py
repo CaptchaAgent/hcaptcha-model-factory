@@ -169,7 +169,7 @@ class ResNet(ModelFactory):
         )
 
         transform_ = img_transform if with_augment else img_transform_no_augment
-        return BinaryDataset(root=dir_dataset, transform=transform_)
+        return BinaryDataset(root=dir_dataset, flag=flag, transform=transform_)
 
     def _get_optimizer(self, model: nn.Module, opt: str) -> Optimizer:
         opt_map = {
