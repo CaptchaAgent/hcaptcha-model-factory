@@ -89,8 +89,8 @@ class Scaffold:
         :param batch_size:
         :return:
         """
-        Scaffold.train(task, epochs, batch_size)
-        Scaffold.val(task)
+        Scaffold.train.__func__(task, epochs, batch_size)
+        Scaffold.val.__func__(task)
 
 
 if __name__ == "__main__":
