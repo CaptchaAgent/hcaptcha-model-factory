@@ -132,7 +132,7 @@ data*/
 
 *.pth
 *.onnx
-model/
+model*/
 test*
 .idea
 logs/
