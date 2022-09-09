@@ -7,7 +7,7 @@ import torch
 import random
 from os.path import dirname, join
 
-from utils import ToolBox
+from components.utils import ToolBox
 
 
 class Config:
@@ -15,7 +15,7 @@ class Config:
     SEED = 233
 
     # hook to factory/
-    PROJECT_ROOT = dirname(dirname(__file__))
+    PROJECT_ROOT = dirname(dirname(dirname(__file__)))
     # hook to factory/data/
     DIR_DATABASE = join(PROJECT_ROOT, "data")
     # hook to factory/model/

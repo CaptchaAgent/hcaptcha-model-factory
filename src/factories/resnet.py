@@ -15,10 +15,10 @@ from torch.optim.lr_scheduler import StepLR
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Dataset
 
-from api.scaffold.dataset import BinaryDataset
-from losses import FocalLoss
-from nn.resnet_mini import ResNetMini
-from utils import ToolBox
+from components.dataset import BinaryDataset
+from components.losses import FocalLoss
+from components.nn import ResNetMini
+from components.utils import ToolBox
 from .kernel import ModelFactory, Params
 
 _ACTION_NAME = "ResNetMini"
