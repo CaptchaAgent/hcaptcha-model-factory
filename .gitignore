@@ -128,10 +128,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+/data*/
+
 *.pth
 *.onnx
 model*/
 test*
 .idea
 logs/
-data/
+

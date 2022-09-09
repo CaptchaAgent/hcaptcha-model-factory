@@ -8,6 +8,8 @@ from loguru import logger
 class ToolBox:
     """Portable Toolbox"""
 
+    IMAGE_EXT = ["jpg", "jpeg", "png", "ppm", "bmp", "tif", "tiff", "webp", "jfif"]
+
     @staticmethod
     def init_log(**sink_path):
         """Initialize loguru log information"""
@@ -45,7 +47,9 @@ class ToolBox:
         return logger
 
     @staticmethod
-    def runtime_report(action_name: str, motive: str = "RUN", message: str = "", **params) -> str:
+    def runtime_report(
+        action_name: str, motive: str = "RUN", message: str = "", **params
+    ) -> str:
         """格式化输出"""
         flag_ = f">> {motive} [{action_name}]"
         if message != "":
@@ -64,7 +68,9 @@ class ToolBox:
                 "zh": re.split(r"[包含 图片]", prompt_message)[2][:-1].replace("的每", "")
                 if "包含" in prompt_message
                 else prompt_message,
-                "en": re.split(r"containing a", prompt_message)[-1][1:].strip().replace(".", "")
+                "en": re.split(r"containing a", prompt_message)[-1][1:]
+                .strip()
+                .replace(".", "")
                 if "containing" in prompt_message
                 else prompt_message,
             }.get(lang)
@@ -72,5 +78,5 @@ class ToolBox:
     @staticmethod
     def is_image(filename: str) -> typing.Optional[bool]:
         """Check if the file is an image file"""
-        ext = {"jpg", "jpeg", "png", "ppm", "bmp", "tif", "tiff", "webp", "jfif"}
-        return filename.split(".")[-1] in ext if filename else None
+
+        return filename.split(".")[-1] in ToolBox.IMAGE_EXT if filename else None
