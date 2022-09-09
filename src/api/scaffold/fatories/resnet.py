@@ -244,6 +244,7 @@ class ResNet(ModelFactory):
                 total_acc += torch.sum(torch.argmax(out, dim=1) == label).item()
 
             lrs.step()
+            dataset_length = len(data_loader.dataset)
             logger.debug(
                 ToolBox.runtime_report(
                     motive="TRAIN",
@@ -251,13 +252,13 @@ class ResNet(ModelFactory):
                     task=self._task_name,
                     device=self.DEVICE,
                     epoch=f"[{epoch + 1}/{epochs}]",
-                    avg_loss=f"{total_loss / len(data_loader.dataset):.4f}",
-                    avg_acc=f"{total_acc / len(data_loader.dataset):.4f}",
+                    avg_loss=f"{total_loss / dataset_length:.4f}",
+                    avg_acc=f"{total_acc / dataset_length:.4f}",
                 )
             )
 
-            if total_acc / len(data_loader.dataset) >= best_acc:
-                best_acc = total_acc / len(data_loader.dataset)
+            if total_acc / dataset_length >= best_acc:
+                best_acc = total_acc / dataset_length
                 best_model = copy.deepcopy(model)
 
             if (epoch + 1) % self.SAVE_INTERVAL == 0:
@@ -278,13 +279,15 @@ class ResNet(ModelFactory):
             out = model(img)
             pred = torch.argmax(out, dim=1)
             total_acc += torch.sum(pred == label).item()
+
+        dataset_length = len(data_loader.dataset)
         logger.success(
             ToolBox.runtime_report(
                 motive="VAL",
                 action_name=_ACTION_NAME,
                 task=self._task_name,
-                size=len(data_loader.dataset),
-                total_acc=f"{total_acc / len(data_loader.dataset):.4f}",
+                size=dataset_length,
+                total_acc=f"{total_acc / dataset_length:.4f}",
             )
         )
 
