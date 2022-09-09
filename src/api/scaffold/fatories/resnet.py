@@ -4,10 +4,10 @@ import random
 import shutil
 import time
 import typing
-import yaml
 
 import torch
 import torchvision
+import yaml
 from loguru import logger
 from torch import nn
 from torch.nn.modules.loss import CrossEntropyLoss
@@ -15,11 +15,11 @@ from torch.optim.lr_scheduler import StepLR
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader, Dataset
 
+from api.scaffold.dataset import BinaryDataset
 from losses import FocalLoss
 from nn.resnet_mini import ResNetMini
 from utils import ToolBox
 from .kernel import ModelFactory, Params
-from api.scaffold.dataset import BinaryDataset
 
 _ACTION_NAME = "ResNetMini"
 
@@ -51,9 +51,7 @@ class ResNet(ModelFactory):
 
     def _build_env(self):
         # Build ONNX output
-        last_work = os.path.join(
-            self._dir_model, self._task_name, f"{int(time.time())}"
-        )
+        last_work = os.path.join(self._dir_model, self._task_name, f"{int(time.time())}")
 
         ctx_dir = os.path.join(self._dir_model, self._task_name)
         os.makedirs(ctx_dir, exist_ok=True)
@@ -116,10 +114,7 @@ class ResNet(ModelFactory):
                 if not ToolBox.is_image(src_path_img):
                     raise ValueError(f"{src_path_img} is not a image file")
 
-                image_info = {
-                    "fname": src_path_img,
-                    "label": 1 if hook == _dir_dataset_yes else 0,
-                }
+                image_info = {"fname": src_path_img, "label": 1 if hook == _dir_dataset_yes else 0}
 
                 self._dict_dataset_all["data"].append(image_info)
 
@@ -153,9 +148,7 @@ class ResNet(ModelFactory):
                         torchvision.transforms.ColorJitter(
                             brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2
                         ),
-                        torchvision.transforms.RandomResizedCrop(
-                            size=64, scale=(0.8, 1.2)
-                        ),
+                        torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
                     ]
                 ),
                 torchvision.transforms.Resize(size=64),
@@ -335,9 +328,7 @@ class ResNet(ModelFactory):
 
         optimizer = self._get_optimizer(model, opt=self.OPT_FLAG)
         criterion = self._get_criterion(loss_fn=self.LOSS_FN)
-        lrs = torch.optim.lr_scheduler.StepLR(
-            optimizer, self.LR_STEP_SIZE, self.LR_GAMMA
-        )
+        lrs = torch.optim.lr_scheduler.StepLR(optimizer, self.LR_STEP_SIZE, self.LR_GAMMA)
         data = self._get_dataset(self._dir_dataset, "train", with_augment=True)
         data_loader = DataLoader(data, batch_size=self._batch_size, shuffle=True)
 
@@ -364,9 +355,5 @@ class ResNet(ModelFactory):
             model = model.cpu()
         model.eval()
         torch.onnx.export(
-            model,
-            torch.randn(1, 3, 64, 64),
-            path_model_onnx,
-            verbose=verbose,
-            export_params=True,
+            model, torch.randn(1, 3, 64, 64), path_model_onnx, verbose=verbose, export_params=True
         )
