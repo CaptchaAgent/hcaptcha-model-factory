@@ -11,12 +11,12 @@ class BinaryDataset(data.Dataset):
     """Binary dataset for classification"""
 
     def __init__(
-            self,
-            root: str,
-            cfg_path: str = None,
-            flag: str = "train",
-            classes: typing.Optional[typing.List[str]] = None,
-            transform: typing.Optional[typing.Callable] = None,
+        self,
+        root: str,
+        cfg_path: str = None,
+        flag: str = "train",
+        classes: typing.Optional[typing.List[str]] = None,
+        transform: typing.Optional[typing.Callable] = None,
     ):
         """
         :param root: hook to factory/data/[task]/
