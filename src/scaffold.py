@@ -1,14 +1,15 @@
+import os
 import typing
 
 from fire import Fire
 
 from api.scaffold import diagnose_task
 from api.scaffold.fatories import ResNet
+from api.scaffold.auto_label import ClusterLabeler
 from config import Config, logger
 from utils import ToolBox
 
 
-@logger.catch()
 class Scaffold:
     _model = None
 
@@ -23,11 +24,32 @@ class Scaffold:
 
         :return:
         """
-        return Scaffold.train(ToolBox.split_prompt(input("prompt[en] --> "), lang="en"))
+        task = ToolBox.split_prompt(input("prompt[en] --> "), lang="en")
+        auto_label = input("auto_label? [y/n] --> ")
+        if auto_label in ["y", "Y"]:
+            data_dir = os.path.join(Config.DIR_DATABASE, task)
+            unlabel_dir = os.path.join(data_dir, "unlabel")
+            if not os.path.exists(unlabel_dir):
+                os.makedirs(unlabel_dir)
+
+            os.system(f"start {unlabel_dir}")
+            input(
+                "please put all the images in the `unlabel` folder and press any key to continue..."
+            )
+
+            labeler = ClusterLabeler(data_dir=data_dir)
+            labeler.run()
+            logger.info("Auto labeling completed")
+
+        cmd_train = input("start to train now? [y/n] --> ")
+        if cmd_train in ["y", "Y"]:
+            Scaffold.train(task=task)
 
     @staticmethod
     def train(
-        task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
+        task: str,
+        epochs: typing.Optional[int] = None,
+        batch_size: typing.Optional[int] = None,
     ):
         """
         Train the specified model and output an ONNX object
@@ -72,8 +94,11 @@ class Scaffold:
         model.val()
 
     @staticmethod
+    @logger.catch()
     def trainval(
-        task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
+        task: str,
+        epochs: typing.Optional[int] = None,
+        batch_size: typing.Optional[int] = None,
     ):
         """
         Connect train and val
@@ -85,8 +110,23 @@ class Scaffold:
         :param batch_size:
         :return:
         """
-        Scaffold.train.__func__(task, epochs, batch_size)
-        Scaffold.val.__func__(task)
+        # Scaffold.train.__func__(task, epochs, batch_size)
+        # Scaffold.val.__func__(task)
+        Scaffold.train(task, epochs, batch_size)
+        Scaffold.val(task)
+
+    @staticmethod
+    def auto_label():
+        """
+        Automatically label the image
+
+        Usage: python main.py auto_label
+
+        :return:
+        """
+        from api.scaffold.auto_label import AutoLabel
+
+        AutoLabel().run()
 
 
 if __name__ == "__main__":
