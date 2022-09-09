@@ -12,7 +12,7 @@ from sklearn.decomposition import PCA
 from .base import BaseLabeler
 from .emb import *
 from .img2emb import Img2Emb
-from utils import ToolBox
+from components.utils import ToolBox
 
 
 class ClusterLabeler(BaseLabeler):
