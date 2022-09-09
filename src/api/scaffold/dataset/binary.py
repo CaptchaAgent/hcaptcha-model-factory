@@ -1,10 +1,9 @@
 import os
 import typing
 
-from PIL import Image
-import torch
 import torch.utils.data as data
 import yaml
+from PIL import Image
 from loguru import logger
 
 
@@ -12,12 +11,12 @@ class BinaryDataset(data.Dataset):
     """Binary dataset for classification"""
 
     def __init__(
-        self,
-        root: str,
-        cfg_path: str = None,
-        flag: str = "train",
-        classes: typing.Optional[typing.List[str]] = None,
-        transform: typing.Optional[typing.Callable] = None,
+            self,
+            root: str,
+            cfg_path: str = None,
+            flag: str = "train",
+            classes: typing.Optional[typing.List[str]] = None,
+            transform: typing.Optional[typing.Callable] = None,
     ):
         """
         :param root: hook to factory/data/[task]/

@@ -27,9 +27,7 @@ class Scaffold:
 
     @staticmethod
     def train(
-        task: str,
-        epochs: typing.Optional[int] = None,
-        batch_size: typing.Optional[int] = None,
+        task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
     ):
         """
         Train the specified model and output an ONNX object
@@ -75,9 +73,7 @@ class Scaffold:
 
     @staticmethod
     def trainval(
-        task: str,
-        epochs: typing.Optional[int] = None,
-        batch_size: typing.Optional[int] = None,
+        task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
     ):
         """
         Connect train and val
