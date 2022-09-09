@@ -58,7 +58,7 @@ class BinaryDataset(data.Dataset):
 
         self._data = self._cfg["data"]
 
-        logger.info(f"Dataset loaded: {self._cfg_path} with {len(self._data)} images")
+        logger.info(f"Dataset loaded {len(self._data)} images from {self._cfg_path}")
 
     def __len__(self):
         return len(self._data)

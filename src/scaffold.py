@@ -8,7 +8,6 @@ from config import Config, logger
 from utils import ToolBox
 
 
-@logger.catch()
 class Scaffold:
     _model = None
 
@@ -26,6 +25,7 @@ class Scaffold:
         return Scaffold.train(ToolBox.split_prompt(input("prompt[en] --> "), lang="en"))
 
     @staticmethod
+    @logger.catch()
     def train(
         task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
     ):
@@ -54,6 +54,7 @@ class Scaffold:
         Scaffold._model = model
 
     @staticmethod
+    @logger.catch()
     def val(task: str):
         """
         Detects the specified model object
@@ -85,8 +86,8 @@ class Scaffold:
         :param batch_size:
         :return:
         """
-        Scaffold.train.__func__(task, epochs, batch_size)
-        Scaffold.val.__func__(task)
+        Scaffold.train(task, epochs, batch_size)
+        Scaffold.val(task)
 
 
 if __name__ == "__main__":
