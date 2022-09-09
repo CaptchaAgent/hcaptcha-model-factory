@@ -11,11 +11,11 @@ class UniversalDataset(Dataset):
     """Universal dataset for classification"""
 
     def __init__(
-            self,
-            dir_dataset: str,
-            cfg_path: str = None,
-            flag: str = "test",
-            transform: typing.Optional[typing.Callable] = None,
+        self,
+        dir_dataset: str,
+        cfg_path: str = None,
+        flag: str = "test",
+        transform: typing.Optional[typing.Callable] = None,
     ):
         """
         :param dir_dataset: hook to factory/data/[task]/

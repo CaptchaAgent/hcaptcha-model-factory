@@ -11,12 +11,12 @@ class BinaryDataset(data.Dataset):
     """Binary dataset for classification"""
 
     def __init__(
-            self,
-            root: str,
-            cfg_path: str = None,
-            flag: str = "train",
-            classes: typing.Optional[typing.List[str]] = None,
-            transform: typing.Optional[typing.Callable] = None,
+        self,
+        root: str,
+        cfg_path: str = None,
+        flag: str = "train",
+        classes: typing.Optional[typing.List[str]] = None,
+        transform: typing.Optional[typing.Callable] = None,
     ):
         """
         :param root: hook to factory/data/[task]/
@@ -58,7 +58,7 @@ class BinaryDataset(data.Dataset):
 
         self._data = self._cfg["data"]
 
-        logger.info(f"Dataset loaded: {self._cfg_path} with {len(self._data)} images")
+        logger.info(f"Dataset loaded {len(self._data)} images from {self._cfg_path}")
 
     def __len__(self):
         return len(self._data)
