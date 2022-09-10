@@ -22,20 +22,16 @@ class ClusterLabeler(BaseLabeler):
         num_class: int = 2,
         labels: List[str] = None,
         num_feat: int = 128,
-        cuda: bool = True,  # TODO: auto detect
         model: str = "resnet-18",
         layer: str = "default",
         layer_output_size: int = 512,
-        gpu: int = 0,
         save: bool = False,
     ) -> None:
         super().__init__(data_dir, num_class, labels)
         self.img2emb = Img2Emb(
-            cuda=cuda,
             model=model,
             layer=layer,
             layer_output_size=layer_output_size,
-            gpu=gpu,
             save=save,
         )
         self.num_feat = num_feat
@@ -66,8 +62,8 @@ class ClusterLabeler(BaseLabeler):
             img = Image.open(img)
             emb = self.img2emb.get_emb(img)
             self.embs.append(emb)
-            if i % 100 == 0:
-                logger.info(f"Extracted {i} embeddings")
+            if (i + 1) % 100 == 0:
+                logger.info(f"Extracted {(i+1)} embeddings")
         logger.info("Embeddings extracted")
 
         self.embs = np.array(self.embs)

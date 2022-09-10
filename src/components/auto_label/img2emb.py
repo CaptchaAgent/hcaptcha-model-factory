@@ -31,11 +31,9 @@ class Img2Emb(object):
 
     def __init__(
         self,
-        cuda=False,
         model="resnet-18",
         layer="default",
         layer_output_size=512,
-        gpu=0,
         save=False,
     ):
         """Img2Emb
@@ -44,7 +42,7 @@ class Img2Emb(object):
         :param layer: String or Int depending on model.  See more docs: https://github.com/christiansafka/img2vec.git
         :param layer_output_size: Int depicting the output size of the requested layer
         """
-        self.device = torch.device(f"cuda:{gpu}" if cuda else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.layer_output_size = layer_output_size
         self.model_name = model
 
@@ -144,7 +142,7 @@ class Img2Emb(object):
         :param tensor: If True, get_vec will return a FloatTensor instead of Numpy array
         :returns: Numpy ndarray
         """
-        # TODO
+        # TODO: batch this
         return [self.get_emb(img, tensor) for img in imgs]
 
     def _get_model_and_layer(self, model_name, layer):
