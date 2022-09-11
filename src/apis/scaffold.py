@@ -79,6 +79,9 @@ class Scaffold:
             labeler = ClusterLabeler(data_dir=data_dir)
             labeler.run()
             logger.info("Auto labeling completed")
+            logger.info(
+                "Please manually check the results in the `class_i` folder, and rename the folder to `yes` or `bad`"
+            )
 
         cmd_train = input("start to train now? [y/n] --> ")
         if cmd_train in ["y", "Y"]:
