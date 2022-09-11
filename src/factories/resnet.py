@@ -118,7 +118,7 @@ class ResNet(ModelFactory):
 
                 image_info = {
                     "fname": src_path_img,
-                    "label": 1 if hook == _dir_dataset_yes else 0,
+                    "label": 0 if hook == _dir_dataset_yes else 1,
                 }
 
                 self._dict_dataset_all["data"].append(image_info)
