@@ -226,6 +226,11 @@ class ResNet(ModelFactory):
         for epoch in range(epochs):
             total_loss = 0
             total_acc = 0
+            total_tp = 0
+            total_tn = 0
+            total_fp = 0
+            total_fn = 0
+
             for i, (img, label) in enumerate(data_loader):
                 img = img.to(self.DEVICE)
                 label = label.to(self.DEVICE)
@@ -249,6 +254,18 @@ class ResNet(ModelFactory):
                     )
                 total_loss += loss.item()
                 total_acc += torch.sum(torch.argmax(out, dim=1) == label).item()
+                total_tp += torch.sum(
+                    (torch.argmax(out, dim=1) == 1) & (label == 1)
+                ).item()
+                total_tn += torch.sum(
+                    (torch.argmax(out, dim=1) == 0) & (label == 0)
+                ).item()
+                total_fp += torch.sum(
+                    (torch.argmax(out, dim=1) == 1) & (label == 0)
+                ).item()
+                total_fn += torch.sum(
+                    (torch.argmax(out, dim=1) == 0) & (label == 1)
+                ).item()
 
             lrs.step()
             dataset_length = len(data_loader.dataset)
@@ -261,6 +278,8 @@ class ResNet(ModelFactory):
                     epoch=f"[{epoch + 1}/{epochs}]",
                     avg_loss=f"{total_loss / dataset_length:.4f}",
                     avg_acc=f"{total_acc / dataset_length:.4f}",
+                    avg_f1=f"{2 * total_tp / (2 * total_tp + total_fp + total_fn):.4f}",
+                    avg_precision=f"{total_tp / (total_tp + total_fp):.4f}",
                 )
             )
 
@@ -280,12 +299,21 @@ class ResNet(ModelFactory):
 
     def _val(self, model: nn.modules, data_loader: DataLoader):
         total_acc = 0
+        total_tp = 0
+        total_tn = 0
+        total_fp = 0
+        total_fn = 0
+
         for i, (img, label) in enumerate(data_loader):
             img = img.to(self.DEVICE)
             label = label.to(self.DEVICE)
             out = model(img)
             pred = torch.argmax(out, dim=1)
             total_acc += torch.sum(pred == label).item()
+            total_tp += torch.sum((pred == 1) & (label == 1)).item()
+            total_tn += torch.sum((pred == 0) & (label == 0)).item()
+            total_fp += torch.sum((pred == 1) & (label == 0)).item()
+            total_fn += torch.sum((pred == 0) & (label == 1)).item()
 
         dataset_length = len(data_loader.dataset)
         logger.success(
@@ -295,6 +323,8 @@ class ResNet(ModelFactory):
                 task=self._task_name,
                 size=dataset_length,
                 total_acc=f"{total_acc / dataset_length:.4f}",
+                total_f1=f"{2 * total_tp / (2 * total_tp + total_fp + total_fn):.4f}",
+                total_precision=f"{total_tp / (total_tp + total_fp):.4f}",
             )
         )
 
