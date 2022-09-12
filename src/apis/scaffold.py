@@ -1,4 +1,6 @@
 import os
+import subprocess
+import sys
 import typing
 
 from loguru import logger
@@ -13,35 +15,66 @@ class Scaffold:
     _model = None
 
     @staticmethod
+    @logger.catch()
     def new():
         """
         [dev for challenger] Initialize the project directory
 
         Usage: python main.py new
-            prompt[en] --> Please click each image containing a dog-shaped cookie
-            task=`dog_shaped_cookie`
+        ---
 
+        >>> input("prompt[en] --> ")
+            prompt[en] --> Please click each image containing a dog-shaped cookie
+                => `dog_shaped_cookie`
+            prompt[en] --> horse with white legs
+                => `horse_with_white_legs`
+            prompt[en] --> ""
+                => raise TypeError
+        >>> input(f"Use AI to automatically label datasets? {choices}  --> ")
+            1. Copy the unbinary image files to the automatically opened folder.
+            2. OkAction，Waiting for AI to automatically label.
+        >>> input(f"Start automatic training? {choices} --> ")
+            3. Check the results of automatic classification(Manual correction).
+            4. If the error rate is too high, it is recommended to cancel the training,
+            otherwise the training workflow can be continued.
         :return:
         """
-        task = ToolBox.split_prompt(input("prompt[en] --> "), lang="en")
-        auto_label = input("auto_label? [y/n] --> ")
-        if auto_label in ["y", "Y"]:
-            data_dir = os.path.join(Config.DIR_DATABASE, task)
-            unlabel_dir = os.path.join(data_dir, "unlabel")
-            if not os.path.exists(unlabel_dir):
-                os.makedirs(unlabel_dir)
+        boolean_yes = "y"
+        boolean_no = "n"
+        choices = {boolean_yes, boolean_no}
 
-            os.system(f"start {unlabel_dir}")
+        # Prepend the detector to avoid invalid interactions
+        task = ToolBox.split_prompt(input("prompt[en] --> "), lang="en")
+        task = diagnose_task(task)
+
+        # IF AUTO-LABEL
+        while (
+            auto_label := input(f"Use AI to automatically label datasets? {choices} --> ")
+        ) not in choices:
+            pass
+        if auto_label == "y":
+            data_dir = os.path.join(Config.DIR_DATABASE, task)
+
+            # Create and open un-labeled dir
+            unlabel_dir = os.path.join(data_dir, "unlabel")
+            os.makedirs(unlabel_dir, exist_ok=True)
+            if sys.platform == "win32":
+                os.startfile(unlabel_dir)
+            else:
+                opener = "open" if sys.platform == "darwin" else "xdg-open"
+                subprocess.call([opener, unlabel_dir])
+
+            # Block the main process, waiting for manual operation
             input(
                 "please put all the images in the `unlabel` folder and press any key to continue..."
             )
+            ClusterLabeler(data_dir=data_dir).run()
+            logger.success("Auto labeling completed")
 
-            labeler = ClusterLabeler(data_dir=data_dir)
-            labeler.run()
-            logger.info("Auto labeling completed")
-
-        cmd_train = input("start to train now? [y/n] --> ")
-        if cmd_train in ["y", "Y"]:
+        # IF AUTO-TRAIN
+        while (cmd_train := input(f"Start automatic training? {choices} --> ")) not in choices:
+            pass
+        if cmd_train == "y":
             Scaffold.train(task=task)
 
     @staticmethod

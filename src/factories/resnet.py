@@ -50,52 +50,38 @@ class ResNet(ModelFactory):
     USE_IMG_TRANSFORM = True
 
     def _build_env(self):
-        # Build ONNX output
-        last_work = os.path.join(self._dir_model, self._task_name, f"{int(time.time())}")
+        dir_last_work = os.path.join(self._dir_model, self._task_name, f"{int(time.time())}")
+        self._dir_model = os.path.join(self._dir_model, self._task_name)
+        os.makedirs(self._dir_model, exist_ok=True)
 
-        ctx_dir = os.path.join(self._dir_model, self._task_name)
-        os.makedirs(ctx_dir, exist_ok=True)
-
-        for sickle in os.listdir(ctx_dir):
-            path = os.path.join(ctx_dir, sickle)
+        # Archive the existing model to the `dir_last_work[TIMESTAMP]` directory
+        # Delete empty archive-folders `dir_last_work[TIMESTAMP]`
+        for sickle in os.listdir(self._dir_model):
+            path = os.path.join(self._dir_model, sickle)
             if os.path.isfile(path):
                 if sickle.endswith(".onnx") or sickle.endswith(".pth"):
-                    os.makedirs(last_work, exist_ok=True)
-                    shutil.move(path, last_work)
+                    os.makedirs(dir_last_work, exist_ok=True)
+                    shutil.move(path, dir_last_work)
             elif os.path.isdir(path) and sickle.isdigit() and not os.listdir(path):
-                shutil.rmtree(path)
-        self._dir_model = ctx_dir
+                shutil.rmtree(path, ignore_errors=True)
 
         # Init workspace
         self._dir_dataset = os.path.join(self._dir_dataset, self._task_name)
 
-        self._yaml_dataset_all = os.path.join(self._dir_dataset, self.FLAG_ALL)
-        self._yaml_dataset_train = os.path.join(self._dir_dataset, self.FLAG_TRAIN)
-        self._yaml_dataset_val = os.path.join(self._dir_dataset, self.FLAG_VAL)
-        self._yaml_dataset_test = os.path.join(self._dir_dataset, self.FLAG_TEST)
-
-        self._dict_dataset_all = {
+        # Check && Split Dataset(though yaml)
+        dict_dataset_all = {
             "task_name": self._task_name,
             "task_type": "image_label_binary",
             "format": {"img_size": 64},
             "data": [],
         }
-        self._dict_dataset_train = copy.deepcopy(self._dict_dataset_all)
-        self._dict_dataset_val = copy.deepcopy(self._dict_dataset_all)
-        self._dict_dataset_test = copy.deepcopy(self._dict_dataset_all)
+        dict_dataset_train = copy.deepcopy(dict_dataset_all)
+        dict_dataset_val = copy.deepcopy(dict_dataset_all)
+        dict_dataset_test = copy.deepcopy(dict_dataset_all)
 
-        for hook in [
-            self._yaml_dataset_all,
-            self._yaml_dataset_train,
-            self._yaml_dataset_val,
-            self._yaml_dataset_test,
-        ]:
-            os.remove(hook) if os.path.exists(hook) else None
-
-        # Check && Split Dataset
-        _dir_dataset_yes = os.path.join(self._dir_dataset, self.FLAG_POSITIVE)
-        _dir_dataset_bad = os.path.join(self._dir_dataset, self.FLAG_NEGATIVE)
-        for hook in [_dir_dataset_yes, _dir_dataset_bad]:
+        dir_dataset_yes = os.path.join(self._dir_dataset, self.FLAG_POSITIVE)
+        dir_dataset_bad = os.path.join(self._dir_dataset, self.FLAG_NEGATIVE)
+        for hook in [dir_dataset_yes, dir_dataset_bad]:
             if not os.path.isdir(hook):
                 raise FileNotFoundError(
                     f"The structure of the dataset is incomplete | dir={os.path.dirname(hook)}"
@@ -107,34 +93,34 @@ class ResNet(ModelFactory):
                 )
             for fn in os.listdir(hook):
                 src_path_img = os.path.join(hook, fn)
-                # check dir
                 if not os.path.isfile(src_path_img):
                     raise FileNotFoundError(f"{src_path_img} is not a file")
-                # check image file
                 if not ToolBox.is_image(src_path_img):
                     raise ValueError(f"{src_path_img} is not a image file")
 
-                image_info = {"fname": src_path_img, "label": 1 if hook == _dir_dataset_yes else 0}
-
-                self._dict_dataset_all["data"].append(image_info)
-
+                image_info = {"fname": src_path_img, "label": 1 if hook == dir_dataset_yes else 0}
+                dict_dataset_all["data"].append(image_info)
                 operator = random.uniform(0, 1)
                 if operator < self.RATIO_TRAIN:
-                    self._dict_dataset_train["data"].append(image_info)
+                    dict_dataset_train["data"].append(image_info)
                 elif operator < self.RATIO_TRAIN + self.RATIO_VAL:
-                    self._dict_dataset_val["data"].append(image_info)
+                    dict_dataset_val["data"].append(image_info)
                 else:
-                    self._dict_dataset_test["data"].append(image_info)
+                    dict_dataset_test["data"].append(image_info)
 
         # Save dataset info
-        with open(self._yaml_dataset_all, "w") as f:
-            yaml.dump(self._dict_dataset_all, f)
-        with open(self._yaml_dataset_train, "w") as f:
-            yaml.dump(self._dict_dataset_train, f)
-        with open(self._yaml_dataset_val, "w") as f:
-            yaml.dump(self._dict_dataset_val, f)
-        with open(self._yaml_dataset_test, "w") as f:
-            yaml.dump(self._dict_dataset_test, f)
+        path_yaml_dataset_all = os.path.join(self._dir_dataset, self.FILENAME_YAML_ALL)
+        path_yaml_dataset_train = os.path.join(self._dir_dataset, self.FILENAME_YAML_TRAIN)
+        path_yaml_dataset_val = os.path.join(self._dir_dataset, self.FILENAME_YAML_VAL)
+        path_yaml_dataset_test = os.path.join(self._dir_dataset, self.FILENAME_YAML_TEST)
+        with open(path_yaml_dataset_all, "w") as file:
+            yaml.dump(dict_dataset_all, file)
+        with open(path_yaml_dataset_train, "w") as file:
+            yaml.dump(dict_dataset_train, file)
+        with open(path_yaml_dataset_val, "w") as file:
+            yaml.dump(dict_dataset_val, file)
+        with open(path_yaml_dataset_test, "w") as file:
+            yaml.dump(dict_dataset_test, file)
 
     @staticmethod
     def _get_dataset(dir_dataset: str, flag: str, with_augment: bool) -> Dataset:

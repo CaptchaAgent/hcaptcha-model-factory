@@ -61,15 +61,15 @@ class ClusterLabeler(BaseLabeler):
         logger.info("Embeddings extracted")
 
         self.embs = np.array(self.embs)
-        logger.info("PCA..., shape of embs: {}".format(self.embs.shape))
+        logger.info(f"PCA..., shape of embs: {self.embs.shape}")
         self.embs = PCA(n_components=self.num_feat).fit_transform(self.embs)
-        logger.info("PCA done, shape of embs: {}".format(self.embs.shape))
+        logger.info(f"PCA done, shape of embs: {self.embs.shape}")
 
         logger.info("Clustering...")
         kmeans = KMeans(n_clusters=self.num_class).fit(self.embs)
         logger.info("Clustering done")
 
-        labels_ = np.array(kmeans.labels_)
+        labels_ = np.array(kmeans.labels_)  # noqa
         logger.info("Saving labels...")
         for i, label in enumerate(labels_):
             label = self.labels[label]

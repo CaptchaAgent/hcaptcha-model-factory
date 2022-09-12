@@ -24,10 +24,10 @@ class ModelFactory:
     # hook to factory/data/[task]/
     FLAG_POSITIVE = "yes"
     FLAG_NEGATIVE = "bad"
-    FLAG_ALL = "all.yaml"
-    FLAG_TRAIN = "train.yaml"
-    FLAG_VAL = "val.yaml"
-    FLAG_TEST = "test.yaml"
+    FILENAME_YAML_ALL = "all.yaml"
+    FILENAME_YAML_TRAIN = "train.yaml"
+    FILENAME_YAML_VAL = "val.yaml"
+    FILENAME_YAML_TEST = "test.yaml"
 
     def __init__(
         self,

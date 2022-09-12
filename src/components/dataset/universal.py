@@ -50,8 +50,8 @@ class UniversalDataset(Dataset):
             logger.error(f"Invalid flag: {self._flag}")
             raise ValueError
 
-        with open(self._cfg_path, "r") as f:
-            self._cfg = yaml.load(f, Loader=yaml.FullLoader)
+        with open(self._cfg_path, "r") as file:
+            self._cfg = yaml.safe_load(file)
 
         self._data = self._cfg["data"]
         self._task = {}

@@ -8,7 +8,7 @@ import torchvision.models as models
 import torchvision.transforms as transforms
 
 
-class Img2Emb(object):
+class Img2Emb:
     RESNET_OUTPUT_SIZES = {
         "resnet18": 512,
         "resnet34": 512,
@@ -67,7 +67,7 @@ class Img2Emb(object):
         :param tensor: If True, get_vec will return a FloatTensor instead of Numpy array
         :returns: Numpy ndarray
         """
-        if type(img) == list:
+        if isinstance(img, list):
             a = [self.normalize(self.to_tensor(self.scaler(im))) for im in img]
             images = torch.stack(a).to(self.device)
             if self.model_name in ["alexnet", "vgg"]:
@@ -184,7 +184,7 @@ class Img2Emb(object):
                 layer = model.features[-1]
                 self.layer_output_size = model.classifier.in_features  # should be 1024
             else:
-                raise KeyError("Un support %s for layer parameters" % model_name)
+                raise KeyError(f"Un support {model_name} for layer parameters")
 
             return model, layer
 
@@ -207,15 +207,15 @@ class Img2Emb(object):
             elif model_name == "efficientnet_b7":
                 model = models.efficientnet_b7(pretrained=True)
             else:
-                raise KeyError("Un support %s." % model_name)
+                raise KeyError(f"Un support {model_name}.")
 
             if layer == "default":
                 layer = model.features
                 self.layer_output_size = self.EFFICIENTNET_OUTPUT_SIZES[model_name]
             else:
-                raise KeyError("Un support %s for layer parameters" % model_name)
+                raise KeyError(f"Un support {model_name} for layer parameters")
 
             return model, layer
 
         else:
-            raise KeyError("Model %s was not found" % model_name)
+            raise KeyError(f"Model {model_name} was not found")

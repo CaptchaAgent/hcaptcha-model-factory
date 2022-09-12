@@ -60,7 +60,7 @@ def get_distance_function(distance):
     elif distance == "l1":
         return l1_distance
     else:
-        raise ValueError("Unknown distance function: {}".format(distance))
+        raise ValueError(f"Unknown distance function: {distance}")
 
 
 def get_distance_matrix(embs, distance="cosine"):
