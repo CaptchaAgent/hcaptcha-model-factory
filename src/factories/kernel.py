@@ -56,14 +56,5 @@ class ModelFactory:
     def _build_env(self):
         raise NotImplementedError
 
-    def register_task(self):
-        pass
-
-    def split_dataset(self):
-        """Label datasets proportionally"""
-
-    def conv_pth2onnx(self):
+    def conv_pth2onnx(self, *args, **kwargs):
         """output an ONNX object"""
-
-    def output_benchmarks(self):
-        """Do not go gentle into that good night"""

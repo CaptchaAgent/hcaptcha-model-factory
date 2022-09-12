@@ -51,9 +51,7 @@ class ResNet(ModelFactory):
 
     def _build_env(self):
         # Build ONNX output
-        last_work = os.path.join(
-            self._dir_model, self._task_name, f"{int(time.time())}"
-        )
+        last_work = os.path.join(self._dir_model, self._task_name, f"{int(time.time())}")
 
         ctx_dir = os.path.join(self._dir_model, self._task_name)
         os.makedirs(ctx_dir, exist_ok=True)
@@ -116,10 +114,7 @@ class ResNet(ModelFactory):
                 if not ToolBox.is_image(src_path_img):
                     raise ValueError(f"{src_path_img} is not a image file")
 
-                image_info = {
-                    "fname": src_path_img,
-                    "label": 1 if hook == _dir_dataset_yes else 0,
-                }
+                image_info = {"fname": src_path_img, "label": 1 if hook == _dir_dataset_yes else 0}
 
                 self._dict_dataset_all["data"].append(image_info)
 
@@ -153,9 +148,7 @@ class ResNet(ModelFactory):
                         torchvision.transforms.ColorJitter(
                             brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2
                         ),
-                        torchvision.transforms.RandomResizedCrop(
-                            size=64, scale=(0.8, 1.2)
-                        ),
+                        torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
                     ]
                 ),
                 torchvision.transforms.Resize(size=64),
@@ -251,7 +244,7 @@ class ResNet(ModelFactory):
                 total_acc += torch.sum(torch.argmax(out, dim=1) == label).item()
 
             lrs.step()
-            dataset_length = len(data_loader.dataset)
+            dataset_length = len(data_loader.dataset)  # noqa
             logger.debug(
                 ToolBox.runtime_report(
                     motive="TRAIN",
@@ -287,7 +280,7 @@ class ResNet(ModelFactory):
             pred = torch.argmax(out, dim=1)
             total_acc += torch.sum(pred == label).item()
 
-        dataset_length = len(data_loader.dataset)
+        dataset_length = len(data_loader.dataset)  # noqa
         logger.success(
             ToolBox.runtime_report(
                 motive="VAL",
@@ -338,9 +331,7 @@ class ResNet(ModelFactory):
 
         optimizer = self._get_optimizer(model, opt=self.OPT_FLAG)
         criterion = self._get_criterion(loss_fn=self.LOSS_FN)
-        lrs = torch.optim.lr_scheduler.StepLR(
-            optimizer, self.LR_STEP_SIZE, self.LR_GAMMA
-        )
+        lrs = torch.optim.lr_scheduler.StepLR(optimizer, self.LR_STEP_SIZE, self.LR_GAMMA)
         data = self._get_dataset(self._dir_dataset, "train", with_augment=True)
         data_loader = DataLoader(data, batch_size=self._batch_size, shuffle=True)
 
@@ -356,7 +347,7 @@ class ResNet(ModelFactory):
         self._save_trained_model(model, fn_model_pth=f"{self._task_name}.pth")
         self.conv_pth2onnx(model=model, verbose=True)
 
-    def conv_pth2onnx(self, model: nn.modules = None, verbose: bool = False):
+    def conv_pth2onnx(self, model: nn.modules = None, verbose: bool = False, *args, **kwargs):
         path_model_pth = os.path.join(self._dir_model, f"{self._task_name}.pth")
         path_model_onnx = os.path.join(self._dir_model, f"{self._task_name}.onnx")
 
@@ -367,9 +358,5 @@ class ResNet(ModelFactory):
             model = model.cpu()
         model.eval()
         torch.onnx.export(
-            model,
-            torch.randn(1, 3, 64, 64),
-            path_model_onnx,
-            verbose=verbose,
-            export_params=True,
+            model, torch.randn(1, 3, 64, 64), path_model_onnx, verbose=verbose, export_params=True
         )

@@ -72,7 +72,8 @@ class UniversalDataset(Dataset):
         return len(self._task)
 
     def __getitem__(self, index):
-        image_paths = self._task[index]  # get 12 images with cid=self._task[index]
+        # get 12 images with cid=self._task[index]
+        image_paths = self._task[index]
         images = []
         for image_path in image_paths:
             if self._flag == "test":

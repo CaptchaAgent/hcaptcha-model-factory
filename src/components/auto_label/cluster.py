@@ -1,18 +1,17 @@
-from glob import glob
 import os
 import shutil
-import sys
+from glob import glob
 from typing import List
-from loguru import logger
+
 import numpy as np
 from PIL import Image
+from loguru import logger
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
-from .base import BaseLabeler
-from .emb import *
-from .img2emb import Img2Emb
 from components.utils import ToolBox
+from .base import BaseLabeler
+from .img2emb import Img2Emb
 
 
 class ClusterLabeler(BaseLabeler):
@@ -29,10 +28,7 @@ class ClusterLabeler(BaseLabeler):
     ) -> None:
         super().__init__(data_dir, num_class, labels)
         self.img2emb = Img2Emb(
-            model=model,
-            layer=layer,
-            layer_output_size=layer_output_size,
-            save=save,
+            model=model, layer=layer, layer_output_size=layer_output_size, save=save
         )
         self.num_feat = num_feat
         self._dir_unlabel = os.path.join(self.data_dir, "unlabel")
@@ -48,9 +44,7 @@ class ClusterLabeler(BaseLabeler):
     def run(self):
         self.images = []
         for ext in ToolBox.IMAGE_EXT:
-            self.images.extend(
-                glob(os.path.join(self._dir_unlabel, f"**/*.{ext}"), recursive=True)
-            )
+            self.images.extend(glob(os.path.join(self._dir_unlabel, f"**/*.{ext}"), recursive=True))
         self.images = sorted(self.images)
 
         if len(self.images) == 0:
@@ -63,7 +57,7 @@ class ClusterLabeler(BaseLabeler):
             emb = self.img2emb.get_emb(img)
             self.embs.append(emb)
             if (i + 1) % 100 == 0:
-                logger.info(f"Extracted {(i+1)} embeddings")
+                logger.info(f"Extracted {(i + 1)} embeddings")
         logger.info("Embeddings extracted")
 
         self.embs = np.array(self.embs)

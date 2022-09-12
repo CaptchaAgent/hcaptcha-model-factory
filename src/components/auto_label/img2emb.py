@@ -2,11 +2,10 @@
 # License: MIT
 
 import os
+
 import torch
-import torch.nn as nn
 import torchvision.models as models
 import torchvision.transforms as transforms
-import numpy as np
 
 
 class Img2Emb(object):
@@ -29,15 +28,8 @@ class Img2Emb(object):
         "efficientnet_b7": 2560,
     }
 
-    def __init__(
-        self,
-        model="resnet-18",
-        layer="default",
-        layer_output_size=512,
-        save=False,
-    ):
+    def __init__(self, model="resnet-18", layer="default", layer_output_size=512, save=False):
         """Img2Emb
-        :param cuda: If set to True, will run forward pass on GPU
         :param model: String name of requested model
         :param layer: String or Int depending on model.  See more docs: https://github.com/christiansafka/img2vec.git
         :param layer_output_size: Int depicting the output size of the requested layer
@@ -66,9 +58,7 @@ class Img2Emb(object):
         self.model.eval()
 
         self.scaler = transforms.Resize((224, 224))
-        self.normalize = transforms.Normalize(
-            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-        )
+        self.normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         self.to_tensor = transforms.ToTensor()
 
     def get_emb(self, img, tensor=False):
@@ -105,11 +95,7 @@ class Img2Emb(object):
                 else:
                     return my_embedding.numpy()[:, :, 0, 0]
         else:
-            image = (
-                self.normalize(self.to_tensor(self.scaler(img)))
-                .unsqueeze(0)
-                .to(self.device)
-            )
+            image = self.normalize(self.to_tensor(self.scaler(img))).unsqueeze(0).to(self.device)
 
             if self.model_name in ["alexnet", "vgg"]:
                 my_embedding = torch.zeros(1, self.layer_output_size)
@@ -185,9 +171,7 @@ class Img2Emb(object):
             model = models.vgg11_bn(pretrained=True)
             if layer == "default":
                 layer = model.classifier[-2]
-                self.layer_output_size = model.classifier[
-                    -1
-                ].in_features  # should be 4096
+                self.layer_output_size = model.classifier[-1].in_features  # should be 4096
             else:
                 layer = model.classifier[-layer]
 

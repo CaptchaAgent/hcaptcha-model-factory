@@ -67,7 +67,6 @@ class BinaryDataset(data.Dataset):
         fname = self._data[index]["fname"]
         label = self._data[index]["label"]
 
-        # logger.debug(f"Loading image: {fname}: {label}")
         img = Image.open(fname).convert("RGB")
 
         if self._transform:
