@@ -72,4 +72,4 @@ class BinaryDataset(data.Dataset):
         if self._transform:
             img = self._transform(img)
 
-        return img, label
+        return img, label, fname

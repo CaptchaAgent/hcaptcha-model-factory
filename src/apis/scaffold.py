@@ -80,7 +80,9 @@ class Scaffold:
     @staticmethod
     @logger.catch()
     def train(
-        task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
+        task: str,
+        epochs: typing.Optional[int] = None,
+        batch_size: typing.Optional[int] = None,
     ):
         """
         Train the specified model and output an ONNX object
@@ -127,8 +129,28 @@ class Scaffold:
 
     @staticmethod
     @logger.catch()
+    def test_onnx(task: str, flag: str = "all"):
+        """
+        Test the ONNX model
+
+        Usage: python main.py test_onnx --task=[labelName]
+
+        :param task: label name
+        :return:
+        """
+        model = Scaffold._model or ResNet(
+            task_name=diagnose_task(task),
+            dir_dataset=Config.DIR_DATABASE,
+            dir_model=Config.DIR_MODEL,
+        )
+        model.test_onnx(flag=flag)
+
+    @staticmethod
+    @logger.catch()
     def trainval(
-        task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
+        task: str,
+        epochs: typing.Optional[int] = None,
+        batch_size: typing.Optional[int] = None,
     ):
         """
         Connect train and val

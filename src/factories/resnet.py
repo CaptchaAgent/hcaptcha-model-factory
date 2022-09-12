@@ -4,6 +4,9 @@ import random
 import typing
 import warnings
 
+from glob import glob
+import cv2
+import numpy as np
 import torch
 import torchvision
 from loguru import logger
@@ -68,10 +71,15 @@ class ResNet(ModelFactory):
                 )
             for fn in os.listdir(hook):
                 src_path_img = os.path.join(hook, fn)
-                if not os.path.isfile(src_path_img) or not ToolBox.is_image(src_path_img):
-                    warnings.warn(f"It's not a image file, {src_path_img}", category=RuntimeWarning)
+                if not os.path.isfile(src_path_img) or not ToolBox.is_image(
+                    src_path_img
+                ):
+                    warnings.warn(
+                        f"It's not a image file, {src_path_img}",
+                        category=RuntimeWarning,
+                    )
                     continue
-                label = 1 if hook == dir_dataset_yes else 0
+                label = 0 if hook == dir_dataset_yes else 1
                 image_info = {"fname": src_path_img, "label": label}
                 dataset_all.data.append(image_info)
                 if (operator := random.uniform(0, 1)) < self.RATIO_TRAIN:
@@ -85,7 +93,9 @@ class ResNet(ModelFactory):
         self.save_datamodels()
 
     @staticmethod
-    def _get_dataset(dir_dataset: str, flag: str, with_augment: bool) -> Dataset:
+    def _get_dataset(
+        dir_dataset: str, flag: str, with_augment: bool, need_transform: bool = True
+    ) -> Dataset:
         # transform with data augmentation
         img_transform = torchvision.transforms.Compose(
             [
@@ -96,7 +106,9 @@ class ResNet(ModelFactory):
                         torchvision.transforms.ColorJitter(
                             brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2
                         ),
-                        torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
+                        torchvision.transforms.RandomResizedCrop(
+                            size=64, scale=(0.8, 1.2)
+                        ),
                     ]
                 ),
                 torchvision.transforms.Resize(size=64),
@@ -109,7 +121,10 @@ class ResNet(ModelFactory):
             [torchvision.transforms.Resize(size=64), torchvision.transforms.ToTensor()]
         )
 
-        transform_ = img_transform if with_augment else img_transform_no_augment
+        if need_transform:
+            transform_ = img_transform if with_augment else img_transform_no_augment
+        else:
+            transform_ = None
         return BinaryDataset(root=dir_dataset, flag=flag, transform=transform_)
 
     def _get_optimizer(self, model: nn.Module, opt: str) -> Optimizer:
@@ -172,7 +187,7 @@ class ResNet(ModelFactory):
             total_fp = 0
             total_fn = 0
 
-            for i, (img, label) in enumerate(data_loader):
+            for i, (img, label, _) in enumerate(data_loader):
                 img = img.to(self.DEVICE)
                 label = label.to(self.DEVICE)
                 optimizer.zero_grad()
@@ -245,7 +260,7 @@ class ResNet(ModelFactory):
         total_fp = 0
         total_fn = 0
 
-        for _, (img, label) in enumerate(data_loader):
+        for _, (img, label, _) in enumerate(data_loader):
             img = img.to(self.DEVICE)
             label = label.to(self.DEVICE)
             out = model(img)
@@ -309,7 +324,9 @@ class ResNet(ModelFactory):
 
         optimizer = self._get_optimizer(model, opt=self.OPT_FLAG)
         criterion = self._get_criterion(loss_fn=self.LOSS_FN)
-        lrs = torch.optim.lr_scheduler.StepLR(optimizer, self.LR_STEP_SIZE, self.LR_GAMMA)
+        lrs = torch.optim.lr_scheduler.StepLR(
+            optimizer, self.LR_STEP_SIZE, self.LR_GAMMA
+        )
         data = self._get_dataset(self._dir_dataset, "train", with_augment=True)
         data_loader = DataLoader(data, batch_size=self._batch_size, shuffle=True)
 
@@ -336,5 +353,88 @@ class ResNet(ModelFactory):
             model = model.cpu()
         model.eval()
         torch.onnx.export(
-            model, torch.randn(1, 3, 64, 64), path_model_onnx, verbose=verbose, export_params=True
+            model,
+            torch.randn(1, 3, 64, 64),
+            path_model_onnx,
+            verbose=verbose,
+            export_params=True,
+        )
+
+    @staticmethod
+    def _onnx_infer(net, img_arr):
+        img_arr = np.frombuffer(img_arr, np.uint8)
+        img = cv2.imdecode(img_arr, flags=1)
+
+        # fixme: dup-code
+        img = cv2.resize(img, (64, 64))
+        blob = cv2.dnn.blobFromImage(
+            img, 1 / 255.0, (64, 64), (0, 0, 0), swapRB=True, crop=False
+        )
+
+        net.setInput(blob)
+        out = net.forward()
+        if not np.argmax(out, axis=1)[0]:
+            return True
+        return False
+
+    @staticmethod
+    def _get_latest_onnx_model(dir_model: str, model_prefix: str):
+        models = glob(
+            os.path.join(dir_model, f"**/{model_prefix}*.onnx"), recursive=True
+        )
+        if not models:
+            return None
+        return max(models, key=os.path.getctime)
+
+    def test_onnx(self, flag: str = "all"):
+        path_model_onnx = self._get_latest_onnx_model(self._dir_model, self._task_name)
+
+        logger.debug(f"path_model_onnx={path_model_onnx}")
+
+        if path_model_onnx is None or not os.path.isfile(path_model_onnx):
+            logger.error(f"ModelNotFound | path={path_model_onnx}")
+            return False
+
+        model = cv2.dnn.readNetFromONNX(path_model_onnx)
+        logger.debug(f"ModelLoaded | path={path_model_onnx}")
+
+        dataset = self._get_dataset(
+            self._dir_dataset, flag=flag, with_augment=False, need_transform=False
+        )
+
+        total_acc = 0
+        total_tp = 0
+        total_tn = 0
+        total_fp = 0
+        total_fn = 0
+
+        for idx, (_, label, fname) in enumerate(dataset):
+            with open(fname, "rb") as file:
+                img_arr = file.read()
+            pred = self._onnx_infer(model, img_arr=img_arr)
+            pred = 0 if pred else 1
+
+            logger.debug(f"pred={pred} | label={label} | fname={fname}")
+
+            total_acc += 1 if pred == label else 0
+            total_tp += 1 if (pred == 1) & (label == 1) else 0
+            total_tn += 1 if (pred == 0) & (label == 0) else 0
+            total_fp += 1 if (pred == 1) & (label == 0) else 0
+            total_fn += 1 if (pred == 0) & (label == 1) else 0
+
+            if (idx + 1) % self.LOG_INTERVAL == 0:
+                logger.info(
+                    f"TestOnnx | {idx + 1}/{len(dataset)} | acc={total_acc / (idx + 1)}"
+                )
+
+        dataset_length = len(dataset)
+        logger.debug(
+            ToolBox.runtime_report(
+                motive="TEST_ONNX",
+                action_name=_ACTION_NAME,
+                task=self._task_name,
+                avg_acc=f"{total_acc / dataset_length:.4f}",
+                avg_f1=f"{2 * total_tp / (2 * total_tp + total_fp + total_fn):.4f}",
+                avg_precision=f"{total_tp / (total_tp + total_fp):.4f}",
+            )
         )
