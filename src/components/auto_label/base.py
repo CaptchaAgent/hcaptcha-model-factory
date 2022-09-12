@@ -1,15 +1,15 @@
 import os
-from typing import List
+import typing
 
 
 class BaseLabeler:
-    def __init__(self, data_dir, num_class: int = 2, labels: List[str] = None) -> None:
+    def __init__(self, data_dir, num_class: int = 2, labels: typing.List[str] = None):
         self.data_dir = data_dir
         self.num_class = num_class
         if labels:
             self.labels = labels
-        elif num_class == 2:
-            self.labels = ["yes", "bad"]
+        # elif num_class == 2:
+        #     self.labels = ["yes", "bad"]
         else:
             self.labels = [f"class_{i}" for i in range(num_class)]
 

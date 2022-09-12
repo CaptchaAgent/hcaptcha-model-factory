@@ -1,18 +1,17 @@
-from glob import glob
 import os
 import shutil
-import sys
+from glob import glob
 from typing import List
-from loguru import logger
+
 import numpy as np
 from PIL import Image
+from loguru import logger
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
-from .base import BaseLabeler
-from .emb import *
-from .img2emb import Img2Emb
 from components.utils import ToolBox
+from .base import BaseLabeler
+from .img2emb import Img2Emb
 
 
 class ClusterLabeler(BaseLabeler):
@@ -29,10 +28,7 @@ class ClusterLabeler(BaseLabeler):
     ) -> None:
         super().__init__(data_dir, num_class, labels)
         self.img2emb = Img2Emb(
-            model=model,
-            layer=layer,
-            layer_output_size=layer_output_size,
-            save=save,
+            model=model, layer=layer, layer_output_size=layer_output_size, save=save
         )
         self.num_feat = num_feat
         self._dir_unlabel = os.path.join(self.data_dir, "unlabel")
@@ -48,34 +44,31 @@ class ClusterLabeler(BaseLabeler):
     def run(self):
         self.images = []
         for ext in ToolBox.IMAGE_EXT:
-            self.images.extend(
-                glob(os.path.join(self._dir_unlabel, f"**/*.{ext}"), recursive=True)
-            )
+            self.images.extend(glob(os.path.join(self._dir_unlabel, f"**/*.{ext}"), recursive=True))
         self.images = sorted(self.images)
 
         if len(self.images) == 0:
             raise ValueError(f"No images found in {self._dir_unlabel}")
 
         logger.info(f"Found {len(self.images)} images in {self._dir_unlabel}")
-        logger.info("Extracting embeddings...")
+        logger.debug("Extracting embeddings...")
         for i, img in enumerate(self.images):
             img = Image.open(img)
             emb = self.img2emb.get_emb(img)
             self.embs.append(emb)
             if (i + 1) % 100 == 0:
-                logger.info(f"Extracted {(i+1)} embeddings")
+                logger.info(f"Extracted {(i + 1)} embeddings")
         logger.info("Embeddings extracted")
 
         self.embs = np.array(self.embs)
-        logger.info("PCA..., shape of embs: {}".format(self.embs.shape))
+        logger.info(f"PCA..., shape of embs: {self.embs.shape}")
         self.embs = PCA(n_components=self.num_feat).fit_transform(self.embs)
-        logger.info("PCA done, shape of embs: {}".format(self.embs.shape))
-
-        logger.info("Clustering...")
+        logger.info(f"PCA done, shape of embs: {self.embs.shape}")
+        
+        logger.debug("Clustering...")
         kmeans = KMeans(n_clusters=self.num_class).fit(self.embs)
-        logger.info("Clustering done")
-
-        labels_ = np.array(kmeans.labels_)
+        logger.debug("Clustering done")
+        labels_ = np.array(kmeans.labels_)  # noqa
         logger.info("Saving labels...")
         for i, label in enumerate(labels_):
             label = self.labels[label]
@@ -85,4 +78,4 @@ class ClusterLabeler(BaseLabeler):
             if not os.path.exists(label_path):
                 os.makedirs(label_path)
             shutil.copy(img, os.path.join(label_path, img_name))
-        logger.info("Labels saved")
+        logger.debug("Labels saved")

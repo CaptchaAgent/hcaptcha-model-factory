@@ -53,8 +53,8 @@ class BinaryDataset(data.Dataset):
             logger.error(f"Invalid flag: {self._flag}")
             raise ValueError
 
-        with open(self._cfg_path, "r") as f:
-            self._cfg = yaml.load(f, Loader=yaml.FullLoader)
+        with open(self._cfg_path, "r") as file:
+            self._cfg = yaml.safe_load(file)
 
         self._data = self._cfg["data"]
 
@@ -67,7 +67,6 @@ class BinaryDataset(data.Dataset):
         fname = self._data[index]["fname"]
         label = self._data[index]["label"]
 
-        # logger.debug(f"Loading image: {fname}: {label}")
         img = Image.open(fname).convert("RGB")
 
         if self._transform:

@@ -1,13 +1,11 @@
 import copy
 import os
 import random
-import shutil
-import time
 import typing
+import warnings
 
 import torch
 import torchvision
-import yaml
 from loguru import logger
 from torch import nn
 from torch.nn.modules.loss import CrossEntropyLoss
@@ -50,54 +48,15 @@ class ResNet(ModelFactory):
     USE_IMG_TRANSFORM = True
 
     def _build_env(self):
-        # Build ONNX output
-        last_work = os.path.join(
-            self._dir_model, self._task_name, f"{int(time.time())}"
-        )
+        dataset_all = self._make_datamodel(flag=self.FILENAME_YAML_ALL)
+        dataset_train = self._make_datamodel(flag=self.FILENAME_YAML_TRAIN)
+        dataset_val = self._make_datamodel(flag=self.FILENAME_YAML_VAL)
+        dataset_test = self._make_datamodel(flag=self.FILENAME_YAML_TEST)
 
-        ctx_dir = os.path.join(self._dir_model, self._task_name)
-        os.makedirs(ctx_dir, exist_ok=True)
-
-        for sickle in os.listdir(ctx_dir):
-            path = os.path.join(ctx_dir, sickle)
-            if os.path.isfile(path):
-                if sickle.endswith(".onnx") or sickle.endswith(".pth"):
-                    os.makedirs(last_work, exist_ok=True)
-                    shutil.move(path, last_work)
-            elif os.path.isdir(path) and sickle.isdigit() and not os.listdir(path):
-                shutil.rmtree(path)
-        self._dir_model = ctx_dir
-
-        # Init workspace
-        self._dir_dataset = os.path.join(self._dir_dataset, self._task_name)
-
-        self._yaml_dataset_all = os.path.join(self._dir_dataset, self.FLAG_ALL)
-        self._yaml_dataset_train = os.path.join(self._dir_dataset, self.FLAG_TRAIN)
-        self._yaml_dataset_val = os.path.join(self._dir_dataset, self.FLAG_VAL)
-        self._yaml_dataset_test = os.path.join(self._dir_dataset, self.FLAG_TEST)
-
-        self._dict_dataset_all = {
-            "task_name": self._task_name,
-            "task_type": "image_label_binary",
-            "format": {"img_size": 64},
-            "data": [],
-        }
-        self._dict_dataset_train = copy.deepcopy(self._dict_dataset_all)
-        self._dict_dataset_val = copy.deepcopy(self._dict_dataset_all)
-        self._dict_dataset_test = copy.deepcopy(self._dict_dataset_all)
-
-        for hook in [
-            self._yaml_dataset_all,
-            self._yaml_dataset_train,
-            self._yaml_dataset_val,
-            self._yaml_dataset_test,
-        ]:
-            os.remove(hook) if os.path.exists(hook) else None
-
-        # Check && Split Dataset
-        _dir_dataset_yes = os.path.join(self._dir_dataset, self.FLAG_POSITIVE)
-        _dir_dataset_bad = os.path.join(self._dir_dataset, self.FLAG_NEGATIVE)
-        for hook in [_dir_dataset_yes, _dir_dataset_bad]:
+        # Check && Split Dataset(though yaml)
+        dir_dataset_yes = os.path.join(self._dir_dataset, self.FLAG_POSITIVE)
+        dir_dataset_bad = os.path.join(self._dir_dataset, self.FLAG_NEGATIVE)
+        for hook in [dir_dataset_yes, dir_dataset_bad]:
             if not os.path.isdir(hook):
                 raise FileNotFoundError(
                     f"The structure of the dataset is incomplete | dir={os.path.dirname(hook)}"
@@ -109,37 +68,21 @@ class ResNet(ModelFactory):
                 )
             for fn in os.listdir(hook):
                 src_path_img = os.path.join(hook, fn)
-                # check dir
-                if not os.path.isfile(src_path_img):
-                    raise FileNotFoundError(f"{src_path_img} is not a file")
-                # check image file
-                if not ToolBox.is_image(src_path_img):
-                    raise ValueError(f"{src_path_img} is not a image file")
-
-                image_info = {
-                    "fname": src_path_img,
-                    "label": 1 if hook == _dir_dataset_yes else 0,
-                }
-
-                self._dict_dataset_all["data"].append(image_info)
-
-                operator = random.uniform(0, 1)
-                if operator < self.RATIO_TRAIN:
-                    self._dict_dataset_train["data"].append(image_info)
+                if not os.path.isfile(src_path_img) or not ToolBox.is_image(src_path_img):
+                    warnings.warn(f"It's not a image file, {src_path_img}", category=RuntimeWarning)
+                    continue
+                label = 1 if hook == dir_dataset_yes else 0
+                image_info = {"fname": src_path_img, "label": label}
+                dataset_all.data.append(image_info)
+                if (operator := random.uniform(0, 1)) < self.RATIO_TRAIN:
+                    dataset_train.data.append(image_info)
                 elif operator < self.RATIO_TRAIN + self.RATIO_VAL:
-                    self._dict_dataset_val["data"].append(image_info)
+                    dataset_val.data.append(image_info)
                 else:
-                    self._dict_dataset_test["data"].append(image_info)
+                    dataset_test.data.append(image_info)
 
         # Save dataset info
-        with open(self._yaml_dataset_all, "w") as f:
-            yaml.dump(self._dict_dataset_all, f)
-        with open(self._yaml_dataset_train, "w") as f:
-            yaml.dump(self._dict_dataset_train, f)
-        with open(self._yaml_dataset_val, "w") as f:
-            yaml.dump(self._dict_dataset_val, f)
-        with open(self._yaml_dataset_test, "w") as f:
-            yaml.dump(self._dict_dataset_test, f)
+        self.save_datamodels()
 
     @staticmethod
     def _get_dataset(dir_dataset: str, flag: str, with_augment: bool) -> Dataset:
@@ -153,9 +96,7 @@ class ResNet(ModelFactory):
                         torchvision.transforms.ColorJitter(
                             brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2
                         ),
-                        torchvision.transforms.RandomResizedCrop(
-                            size=64, scale=(0.8, 1.2)
-                        ),
+                        torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
                     ]
                 ),
                 torchvision.transforms.Resize(size=64),
@@ -226,6 +167,11 @@ class ResNet(ModelFactory):
         for epoch in range(epochs):
             total_loss = 0
             total_acc = 0
+            total_tp = 0
+            total_tn = 0
+            total_fp = 0
+            total_fn = 0
+
             for i, (img, label) in enumerate(data_loader):
                 img = img.to(self.DEVICE)
                 label = label.to(self.DEVICE)
@@ -249,9 +195,21 @@ class ResNet(ModelFactory):
                     )
                 total_loss += loss.item()
                 total_acc += torch.sum(torch.argmax(out, dim=1) == label).item()
+                total_tp += torch.sum(
+                    (torch.argmax(out, dim=1) == 1) & (label == 1)
+                ).item()
+                total_tn += torch.sum(
+                    (torch.argmax(out, dim=1) == 0) & (label == 0)
+                ).item()
+                total_fp += torch.sum(
+                    (torch.argmax(out, dim=1) == 1) & (label == 0)
+                ).item()
+                total_fn += torch.sum(
+                    (torch.argmax(out, dim=1) == 0) & (label == 1)
+                ).item()
 
             lrs.step()
-            dataset_length = len(data_loader.dataset)
+            dataset_length = len(data_loader.dataset)  # noqa
             logger.debug(
                 ToolBox.runtime_report(
                     motive="TRAIN",
@@ -261,6 +219,8 @@ class ResNet(ModelFactory):
                     epoch=f"[{epoch + 1}/{epochs}]",
                     avg_loss=f"{total_loss / dataset_length:.4f}",
                     avg_acc=f"{total_acc / dataset_length:.4f}",
+                    avg_f1=f"{2 * total_tp / (2 * total_tp + total_fp + total_fn):.4f}",
+                    avg_precision=f"{total_tp / (total_tp + total_fp):.4f}",
                 )
             )
 
@@ -280,14 +240,23 @@ class ResNet(ModelFactory):
 
     def _val(self, model: nn.modules, data_loader: DataLoader):
         total_acc = 0
-        for i, (img, label) in enumerate(data_loader):
+        total_tp = 0
+        total_tn = 0
+        total_fp = 0
+        total_fn = 0
+
+        for _, (img, label) in enumerate(data_loader):
             img = img.to(self.DEVICE)
             label = label.to(self.DEVICE)
             out = model(img)
             pred = torch.argmax(out, dim=1)
             total_acc += torch.sum(pred == label).item()
+            total_tp += torch.sum((pred == 1) & (label == 1)).item()
+            total_tn += torch.sum((pred == 0) & (label == 0)).item()
+            total_fp += torch.sum((pred == 1) & (label == 0)).item()
+            total_fn += torch.sum((pred == 0) & (label == 1)).item()
 
-        dataset_length = len(data_loader.dataset)
+        dataset_length = len(data_loader.dataset)  # noqa
         logger.success(
             ToolBox.runtime_report(
                 motive="VAL",
@@ -295,6 +264,8 @@ class ResNet(ModelFactory):
                 task=self._task_name,
                 size=dataset_length,
                 total_acc=f"{total_acc / dataset_length:.4f}",
+                total_f1=f"{2 * total_tp / (2 * total_tp + total_fp + total_fn):.4f}",
+                total_precision=f"{total_tp / (total_tp + total_fp):.4f}",
             )
         )
 
@@ -338,9 +309,7 @@ class ResNet(ModelFactory):
 
         optimizer = self._get_optimizer(model, opt=self.OPT_FLAG)
         criterion = self._get_criterion(loss_fn=self.LOSS_FN)
-        lrs = torch.optim.lr_scheduler.StepLR(
-            optimizer, self.LR_STEP_SIZE, self.LR_GAMMA
-        )
+        lrs = torch.optim.lr_scheduler.StepLR(optimizer, self.LR_STEP_SIZE, self.LR_GAMMA)
         data = self._get_dataset(self._dir_dataset, "train", with_augment=True)
         data_loader = DataLoader(data, batch_size=self._batch_size, shuffle=True)
 
@@ -356,7 +325,7 @@ class ResNet(ModelFactory):
         self._save_trained_model(model, fn_model_pth=f"{self._task_name}.pth")
         self.conv_pth2onnx(model=model, verbose=True)
 
-    def conv_pth2onnx(self, model: nn.modules = None, verbose: bool = False):
+    def conv_pth2onnx(self, model: nn.modules = None, verbose: bool = False, **kwargs):
         path_model_pth = os.path.join(self._dir_model, f"{self._task_name}.pth")
         path_model_onnx = os.path.join(self._dir_model, f"{self._task_name}.onnx")
 
@@ -367,9 +336,5 @@ class ResNet(ModelFactory):
             model = model.cpu()
         model.eval()
         torch.onnx.export(
-            model,
-            torch.randn(1, 3, 64, 64),
-            path_model_onnx,
-            verbose=verbose,
-            export_params=True,
+            model, torch.randn(1, 3, 64, 64), path_model_onnx, verbose=verbose, export_params=True
         )
