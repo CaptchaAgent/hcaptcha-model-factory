@@ -111,7 +111,7 @@ class ModelFactory:
     def _build_env(self):
         raise NotImplementedError
 
-    def conv_pth2onnx(self, *args, **kwargs):
+    def conv_pth2onnx(self, **kwargs):
         """output an ONNX object"""
 
     def _make_datamodel(

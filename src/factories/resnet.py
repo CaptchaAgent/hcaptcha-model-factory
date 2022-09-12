@@ -295,7 +295,7 @@ class ResNet(ModelFactory):
         self._save_trained_model(model, fn_model_pth=f"{self._task_name}.pth")
         self.conv_pth2onnx(model=model, verbose=True)
 
-    def conv_pth2onnx(self, model: nn.modules = None, verbose: bool = False, *args, **kwargs):
+    def conv_pth2onnx(self, model: nn.modules = None, verbose: bool = False, **kwargs):
         path_model_pth = os.path.join(self._dir_model, f"{self._task_name}.pth")
         path_model_onnx = os.path.join(self._dir_model, f"{self._task_name}.onnx")
 
