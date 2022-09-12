@@ -60,7 +60,7 @@ def get_distance_function(distance):
     elif distance == "l1":
         return l1_distance
     else:
-        raise ValueError("Unknown distance function: {}".format(distance))
+        raise ValueError(f"Unknown distance function: {distance}")
 
 
 def get_distance_matrix(embs, distance="cosine"):
@@ -88,7 +88,5 @@ def get_sorted_distance_matrix(embs, distance="cosine"):
     distance_matrix = get_distance_matrix(embs, distance)
     sorted_distance_matrix = {}
     for i in range(len(embs)):
-        sorted_distance_matrix[i] = sorted(
-            enumerate(distance_matrix[i]), key=lambda x: x[1]
-        )
+        sorted_distance_matrix[i] = sorted(enumerate(distance_matrix[i]), key=lambda x: x[1])
     return sorted_distance_matrix
