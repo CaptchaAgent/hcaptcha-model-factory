@@ -1,9 +1,9 @@
 import os
-from typing import List
+import typing
 
 
 class BaseLabeler:
-    def __init__(self, data_dir, num_class: int = 2, labels: List[str] = None) -> None:
+    def __init__(self, data_dir, num_class: int = 2, labels: typing.List[str] = None):
         self.data_dir = data_dir
         self.num_class = num_class
         if labels:

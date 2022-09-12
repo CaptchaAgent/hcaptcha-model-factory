@@ -50,8 +50,8 @@ class UniversalDataset(Dataset):
             logger.error(f"Invalid flag: {self._flag}")
             raise ValueError
 
-        with open(self._cfg_path, "r") as f:
-            self._cfg = yaml.load(f, Loader=yaml.FullLoader)
+        with open(self._cfg_path, "r") as file:
+            self._cfg = yaml.safe_load(file)
 
         self._data = self._cfg["data"]
         self._task = {}
@@ -72,7 +72,8 @@ class UniversalDataset(Dataset):
         return len(self._task)
 
     def __getitem__(self, index):
-        image_paths = self._task[index]  # get 12 images with cid=self._task[index]
+        # get 12 images with cid=self._task[index]
+        image_paths = self._task[index]
         images = []
         for image_path in image_paths:
             if self._flag == "test":
