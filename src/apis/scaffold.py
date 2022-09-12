@@ -48,10 +48,9 @@ class Scaffold:
         task = diagnose_task(task)
 
         # IF AUTO-LABEL
-        while (
-            auto_label := input(f"Use AI to automatically label datasets? {choices} --> ")
-        ) not in choices:
-            pass
+        prompts = f"Use AI to automatically label datasets? {choices} --> "
+        while (auto_label := input(prompts)) not in choices:
+            continue
         if auto_label == "y":
             data_dir = os.path.join(Config.DIR_DATABASE, task)
 
@@ -72,8 +71,9 @@ class Scaffold:
             logger.success("Auto labeling completed")
 
         # IF AUTO-TRAIN
-        while (cmd_train := input(f"Start automatic training? {choices} --> ")) not in choices:
-            pass
+        prompts = f"Start automatic training? {choices} --> "
+        while (cmd_train := input(prompts)) not in choices:
+            continue
         if cmd_train == "y":
             Scaffold.train(task=task)
 
