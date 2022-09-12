@@ -8,8 +8,8 @@ class BaseLabeler:
         self.num_class = num_class
         if labels:
             self.labels = labels
-        elif num_class == 2:
-            self.labels = ["yes", "bad"]
+        # elif num_class == 2:
+        #     self.labels = ["yes", "bad"]
         else:
             self.labels = [f"class_{i}" for i in range(num_class)]
 
