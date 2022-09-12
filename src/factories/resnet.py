@@ -1,13 +1,11 @@
 import copy
 import os
 import random
-import shutil
-import time
 import typing
+import warnings
 
 import torch
 import torchvision
-import yaml
 from loguru import logger
 from torch import nn
 from torch.nn.modules.loss import CrossEntropyLoss
@@ -50,35 +48,12 @@ class ResNet(ModelFactory):
     USE_IMG_TRANSFORM = True
 
     def _build_env(self):
-        dir_last_work = os.path.join(self._dir_model, self._task_name, f"{int(time.time())}")
-        self._dir_model = os.path.join(self._dir_model, self._task_name)
-        os.makedirs(self._dir_model, exist_ok=True)
-
-        # Archive the existing model to the `dir_last_work[TIMESTAMP]` directory
-        # Delete empty archive-folders `dir_last_work[TIMESTAMP]`
-        for sickle in os.listdir(self._dir_model):
-            path = os.path.join(self._dir_model, sickle)
-            if os.path.isfile(path):
-                if sickle.endswith(".onnx") or sickle.endswith(".pth"):
-                    os.makedirs(dir_last_work, exist_ok=True)
-                    shutil.move(path, dir_last_work)
-            elif os.path.isdir(path) and sickle.isdigit() and not os.listdir(path):
-                shutil.rmtree(path, ignore_errors=True)
-
-        # Init workspace
-        self._dir_dataset = os.path.join(self._dir_dataset, self._task_name)
+        dataset_all = self._make_datamodel(flag=self.FILENAME_YAML_ALL)
+        dataset_train = self._make_datamodel(flag=self.FILENAME_YAML_TRAIN)
+        dataset_val = self._make_datamodel(flag=self.FILENAME_YAML_VAL)
+        dataset_test = self._make_datamodel(flag=self.FILENAME_YAML_TEST)
 
         # Check && Split Dataset(though yaml)
-        dict_dataset_all = {
-            "task_name": self._task_name,
-            "task_type": "image_label_binary",
-            "format": {"img_size": 64},
-            "data": [],
-        }
-        dict_dataset_train = copy.deepcopy(dict_dataset_all)
-        dict_dataset_val = copy.deepcopy(dict_dataset_all)
-        dict_dataset_test = copy.deepcopy(dict_dataset_all)
-
         dir_dataset_yes = os.path.join(self._dir_dataset, self.FLAG_POSITIVE)
         dir_dataset_bad = os.path.join(self._dir_dataset, self.FLAG_NEGATIVE)
         for hook in [dir_dataset_yes, dir_dataset_bad]:
@@ -93,34 +68,21 @@ class ResNet(ModelFactory):
                 )
             for fn in os.listdir(hook):
                 src_path_img = os.path.join(hook, fn)
-                if not os.path.isfile(src_path_img):
-                    raise FileNotFoundError(f"{src_path_img} is not a file")
-                if not ToolBox.is_image(src_path_img):
-                    raise ValueError(f"{src_path_img} is not a image file")
-
-                image_info = {"fname": src_path_img, "label": 1 if hook == dir_dataset_yes else 0}
-                dict_dataset_all["data"].append(image_info)
-                operator = random.uniform(0, 1)
-                if operator < self.RATIO_TRAIN:
-                    dict_dataset_train["data"].append(image_info)
+                if not os.path.isfile(src_path_img) or not ToolBox.is_image(src_path_img):
+                    warnings.warn(f"It's not a image file, {src_path_img}", category=RuntimeWarning)
+                    continue
+                label = 1 if hook == dir_dataset_yes else 0
+                image_info = {"fname": src_path_img, "label": label}
+                dataset_all.data.append(image_info)
+                if (operator := random.uniform(0, 1)) < self.RATIO_TRAIN:
+                    dataset_train.data.append(image_info)
                 elif operator < self.RATIO_TRAIN + self.RATIO_VAL:
-                    dict_dataset_val["data"].append(image_info)
+                    dataset_val.data.append(image_info)
                 else:
-                    dict_dataset_test["data"].append(image_info)
+                    dataset_test.data.append(image_info)
 
         # Save dataset info
-        path_yaml_dataset_all = os.path.join(self._dir_dataset, self.FILENAME_YAML_ALL)
-        path_yaml_dataset_train = os.path.join(self._dir_dataset, self.FILENAME_YAML_TRAIN)
-        path_yaml_dataset_val = os.path.join(self._dir_dataset, self.FILENAME_YAML_VAL)
-        path_yaml_dataset_test = os.path.join(self._dir_dataset, self.FILENAME_YAML_TEST)
-        with open(path_yaml_dataset_all, "w") as file:
-            yaml.dump(dict_dataset_all, file)
-        with open(path_yaml_dataset_train, "w") as file:
-            yaml.dump(dict_dataset_train, file)
-        with open(path_yaml_dataset_val, "w") as file:
-            yaml.dump(dict_dataset_val, file)
-        with open(path_yaml_dataset_test, "w") as file:
-            yaml.dump(dict_dataset_test, file)
+        self.save_datamodels()
 
     @staticmethod
     def _get_dataset(dir_dataset: str, flag: str, with_augment: bool) -> Dataset:
@@ -259,7 +221,7 @@ class ResNet(ModelFactory):
 
     def _val(self, model: nn.modules, data_loader: DataLoader):
         total_acc = 0
-        for i, (img, label) in enumerate(data_loader):
+        for _, (img, label) in enumerate(data_loader):
             img = img.to(self.DEVICE)
             label = label.to(self.DEVICE)
             out = model(img)

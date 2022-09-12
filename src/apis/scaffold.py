@@ -174,8 +174,8 @@ def diagnose_task(task_name: typing.Optional[str]) -> typing.Optional[str]:
         "у": "y",
         "р": "p",
     }
-    for code in badcode:
-        task_name.replace(code, badcode[code])
+    for code, right_code in badcode.items():
+        task_name.replace(code, right_code)
 
     task_name = task_name.strip()
     logger.debug(f"Diagnose task | task_name={task_name}")
