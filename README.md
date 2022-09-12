@@ -2,7 +2,7 @@
 
 🏗 hCaptcha image label binary model factory
 
-**_✨feature✨_**
+### **_✨feature✨_**
 
 - convenient scaffolding for full-workflow
 - cluster-based auto labeling
