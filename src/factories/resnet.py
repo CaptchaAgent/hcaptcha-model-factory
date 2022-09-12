@@ -240,6 +240,11 @@ class ResNet(ModelFactory):
 
     def _val(self, model: nn.modules, data_loader: DataLoader):
         total_acc = 0
+        total_tp = 0
+        total_tn = 0
+        total_fp = 0
+        total_fn = 0
+
         for _, (img, label) in enumerate(data_loader):
             img = img.to(self.DEVICE)
             label = label.to(self.DEVICE)
