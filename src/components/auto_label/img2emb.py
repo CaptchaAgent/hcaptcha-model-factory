@@ -82,7 +82,7 @@ class Img2Emb:
 
             h = self.extraction_layer.register_forward_hook(copy_data)
             with torch.no_grad():
-                h_x = self.model(images)
+                self.model(images)
             h.remove()
 
             if tensor:
@@ -109,7 +109,7 @@ class Img2Emb:
 
             h = self.extraction_layer.register_forward_hook(copy_data)
             with torch.no_grad():
-                h_x = self.model(image)
+                self.model(image)
             h.remove()
 
             if tensor:

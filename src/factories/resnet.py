@@ -3,8 +3,8 @@ import os
 import random
 import typing
 import warnings
-
 from glob import glob
+
 import cv2
 import numpy as np
 import torch
@@ -71,13 +71,8 @@ class ResNet(ModelFactory):
                 )
             for fn in os.listdir(hook):
                 src_path_img = os.path.join(hook, fn)
-                if not os.path.isfile(src_path_img) or not ToolBox.is_image(
-                    src_path_img
-                ):
-                    warnings.warn(
-                        f"It's not a image file, {src_path_img}",
-                        category=RuntimeWarning,
-                    )
+                if not os.path.isfile(src_path_img) or not ToolBox.is_image(src_path_img):
+                    warnings.warn(f"It's not a image file, {src_path_img}", category=RuntimeWarning)
                     continue
                 label = 0 if hook == dir_dataset_yes else 1
                 image_info = {"fname": src_path_img, "label": label}
@@ -106,9 +101,7 @@ class ResNet(ModelFactory):
                         torchvision.transforms.ColorJitter(
                             brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2
                         ),
-                        torchvision.transforms.RandomResizedCrop(
-                            size=64, scale=(0.8, 1.2)
-                        ),
+                        torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
                     ]
                 ),
                 torchvision.transforms.Resize(size=64),
@@ -210,18 +203,10 @@ class ResNet(ModelFactory):
                     )
                 total_loss += loss.item()
                 total_acc += torch.sum(torch.argmax(out, dim=1) == label).item()
-                total_tp += torch.sum(
-                    (torch.argmax(out, dim=1) == 1) & (label == 1)
-                ).item()
-                total_tn += torch.sum(
-                    (torch.argmax(out, dim=1) == 0) & (label == 0)
-                ).item()
-                total_fp += torch.sum(
-                    (torch.argmax(out, dim=1) == 1) & (label == 0)
-                ).item()
-                total_fn += torch.sum(
-                    (torch.argmax(out, dim=1) == 0) & (label == 1)
-                ).item()
+                total_tp += torch.sum((torch.argmax(out, dim=1) == 1) & (label == 1)).item()
+                total_tn += torch.sum((torch.argmax(out, dim=1) == 0) & (label == 0)).item()
+                total_fp += torch.sum((torch.argmax(out, dim=1) == 1) & (label == 0)).item()
+                total_fn += torch.sum((torch.argmax(out, dim=1) == 0) & (label == 1)).item()
 
             lrs.step()
             dataset_length = len(data_loader.dataset)  # noqa
@@ -324,9 +309,7 @@ class ResNet(ModelFactory):
 
         optimizer = self._get_optimizer(model, opt=self.OPT_FLAG)
         criterion = self._get_criterion(loss_fn=self.LOSS_FN)
-        lrs = torch.optim.lr_scheduler.StepLR(
-            optimizer, self.LR_STEP_SIZE, self.LR_GAMMA
-        )
+        lrs = torch.optim.lr_scheduler.StepLR(optimizer, self.LR_STEP_SIZE, self.LR_GAMMA)
         data = self._get_dataset(self._dir_dataset, "train", with_augment=True)
         data_loader = DataLoader(data, batch_size=self._batch_size, shuffle=True)
 
@@ -353,11 +336,7 @@ class ResNet(ModelFactory):
             model = model.cpu()
         model.eval()
         torch.onnx.export(
-            model,
-            torch.randn(1, 3, 64, 64),
-            path_model_onnx,
-            verbose=verbose,
-            export_params=True,
+            model, torch.randn(1, 3, 64, 64), path_model_onnx, verbose=verbose, export_params=True
         )
 
     @staticmethod
@@ -365,11 +344,8 @@ class ResNet(ModelFactory):
         img_arr = np.frombuffer(img_arr, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
 
-        # fixme: dup-code
         img = cv2.resize(img, (64, 64))
-        blob = cv2.dnn.blobFromImage(
-            img, 1 / 255.0, (64, 64), (0, 0, 0), swapRB=True, crop=False
-        )
+        blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (64, 64), (0, 0, 0), swapRB=True, crop=False)
 
         net.setInput(blob)
         out = net.forward()
@@ -379,9 +355,7 @@ class ResNet(ModelFactory):
 
     @staticmethod
     def _get_latest_onnx_model(dir_model: str, model_prefix: str):
-        models = glob(
-            os.path.join(dir_model, f"**/{model_prefix}*.onnx"), recursive=True
-        )
+        models = glob(os.path.join(dir_model, f"**/{model_prefix}*.onnx"), recursive=True)
         if not models:
             return None
         return max(models, key=os.path.getctime)
@@ -414,7 +388,7 @@ class ResNet(ModelFactory):
             pred = self._onnx_infer(model, img_arr=img_arr)
             pred = 0 if pred else 1
 
-            logger.debug(f"pred={pred} | label={label} | fname={fname}")
+            # logger.debug(f"pred={pred} | label={label} | fname={fname}")
 
             total_acc += 1 if pred == label else 0
             total_tp += 1 if (pred == 1) & (label == 1) else 0
@@ -423,9 +397,7 @@ class ResNet(ModelFactory):
             total_fn += 1 if (pred == 0) & (label == 1) else 0
 
             if (idx + 1) % self.LOG_INTERVAL == 0:
-                logger.info(
-                    f"TestOnnx | {idx + 1}/{len(dataset)} | acc={total_acc / (idx + 1)}"
-                )
+                logger.info(f"TestOnnx | {idx + 1}/{len(dataset)} | acc={total_acc / (idx + 1)}")
 
         dataset_length = len(dataset)
         logger.debug(
