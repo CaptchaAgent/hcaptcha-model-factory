@@ -72,6 +72,6 @@ class ToolBox:
             }.get(lang)
 
     @staticmethod
-    def is_image(filename: str) -> typing.Optional[bool]:
+    def is_image(filename: typing.Union[str, bytes]) -> typing.Optional[bool]:
         """Check if the file is an image file"""
         return filename.split(".")[-1] in ToolBox.IMAGE_EXT if filename else None

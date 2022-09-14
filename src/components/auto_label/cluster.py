@@ -64,7 +64,7 @@ class ClusterLabeler(BaseLabeler):
         logger.info(f"PCA..., shape of embs: {self.embs.shape}")
         self.embs = PCA(n_components=self.num_feat).fit_transform(self.embs)
         logger.info(f"PCA done, shape of embs: {self.embs.shape}")
-        
+
         logger.debug("Clustering...")
         kmeans = KMeans(n_clusters=self.num_class).fit(self.embs)
         logger.debug("Clustering done")

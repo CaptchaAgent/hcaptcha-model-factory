@@ -49,7 +49,7 @@ class BinaryDataset(data.Dataset):
             logger.error(f"{self._cfg_path} not found")
             raise FileNotFoundError
 
-        if self._flag not in ["train", "val", "test"]:
+        if self._flag not in ["train", "val", "test", "all"]:
             logger.error(f"Invalid flag: {self._flag}")
             raise ValueError
 
@@ -72,4 +72,4 @@ class BinaryDataset(data.Dataset):
         if self._transform:
             img = self._transform(img)
 
-        return img, label
+        return img, label, fname
