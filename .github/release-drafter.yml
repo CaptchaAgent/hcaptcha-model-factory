@@ -3,6 +3,12 @@ tag-template: "v$RESOLVED_VERSION"
 template: |
   # What's Changed
 
+  ## 🚀 Features
+
+  ## 🐛 Bug Fixes
+
+  ## 📝 Documentation
+
   $CHANGES
 
   **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

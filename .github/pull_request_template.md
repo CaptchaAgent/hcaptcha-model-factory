@@ -1,25 +1,22 @@
-*Go through and fill out either the feature request, or bug fix sections and delete the other. Then check off the checklist and submit.*
+_Go through and fill out either the feature request, or bug fix sections and delete the other. Then check off the checklist and submit._
 
-# Feature request
-*Fill out below fields*
+## Feature
 
-Issue number : *add reference to issue number (if applicable)*
+**What feature would you like to be added?**
 
-**Description**
-- What is the feature?
+- [ ] I would like to work on this feature!
 
 ---
 
-# Bug Fix
-*Fill out below fields*
+## Bug Fix
 
-Issue number : *add reference to issue number (if applicable)*
+**Describe the bug**
 
-**Description**
-- What is the bug?
+- [ ] A clear and concise description of what the bug is.
 
 ---
 
-# Checklist
+## Tests
 
 - [ ] Passing tests
+- [ ] Added tests for new features

@@ -1,7 +1,7 @@
 ---
 name: question
 about: Submit a question to help us improve
-title: "[Question]"
+title: "[question]"
 labels: documentation
 ---
 
