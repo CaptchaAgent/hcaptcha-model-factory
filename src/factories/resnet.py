@@ -74,8 +74,12 @@ class ResNet(ModelFactory):
                 if not os.path.isfile(src_path_img) or not ToolBox.is_image(src_path_img):
                     warnings.warn(f"It's not a image file, {src_path_img}", category=RuntimeWarning)
                     continue
+                # Binary Positive :: Label 0
+                # Binary Negative :: Label 1
                 label = 0 if hook == dir_dataset_yes else 1
                 image_info = {"fname": src_path_img, "label": label}
+                # Split Dataset: Annotate image resource paths with pivot files
+                # instead of actually copying them
                 dataset_all.data.append(image_info)
                 if (operator := random.uniform(0, 1)) < self.RATIO_TRAIN:
                     dataset_train.data.append(image_info)
@@ -180,6 +184,7 @@ class ResNet(ModelFactory):
             total_fp = 0
             total_fn = 0
 
+            # BinaryDataLoader --> [img, label, path]
             for i, (img, label, _) in enumerate(data_loader):
                 img = img.to(self.DEVICE)
                 label = label.to(self.DEVICE)
@@ -245,6 +250,7 @@ class ResNet(ModelFactory):
         total_fp = 0
         total_fn = 0
 
+        # BinaryDataLoader --> [img, label, path]
         for _, (img, label, _) in enumerate(data_loader):
             img = img.to(self.DEVICE)
             label = label.to(self.DEVICE)
@@ -382,13 +388,11 @@ class ResNet(ModelFactory):
         total_fp = 0
         total_fn = 0
 
-        for idx, (_, label, fname) in enumerate(dataset):
-            with open(fname, "rb") as file:
+        for idx, (_, label, path_img) in enumerate(dataset):
+            with open(path_img, "rb") as file:
                 img_arr = file.read()
             pred = self._onnx_infer(model, img_arr=img_arr)
             pred = 0 if pred else 1
-
-            # logger.debug(f"pred={pred} | label={label} | fname={fname}")
 
             total_acc += 1 if pred == label else 0
             total_tp += 1 if (pred == 1) & (label == 1) else 0
@@ -397,9 +401,10 @@ class ResNet(ModelFactory):
             total_fn += 1 if (pred == 0) & (label == 1) else 0
 
             if (idx + 1) % self.LOG_INTERVAL == 0:
-                logger.info(f"TestOnnx | {idx + 1}/{len(dataset)} | acc={total_acc / (idx + 1)}")
+                dataset_length = len(dataset)  # noqa
+                logger.info(f"TestOnnx | {idx + 1}/{dataset_length} | acc={total_acc / (idx + 1)}")
 
-        dataset_length = len(dataset)
+        dataset_length = len(dataset)  # noqa
         logger.debug(
             ToolBox.runtime_report(
                 motive="TEST_ONNX",
