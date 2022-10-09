@@ -108,14 +108,14 @@ class ResNet(ModelFactory):
                         torchvision.transforms.RandomResizedCrop(size=64, scale=(0.8, 1.2)),
                     ]
                 ),
-                torchvision.transforms.Resize(size=64),
+                torchvision.transforms.Resize(size=[64, 64]),
                 torchvision.transforms.ToTensor(),
             ]
         )
 
         # transform without data augmentation
         img_transform_no_augment = torchvision.transforms.Compose(
-            [torchvision.transforms.Resize(size=64), torchvision.transforms.ToTensor()]
+            [torchvision.transforms.Resize(size=[64, 64]), torchvision.transforms.ToTensor()]
         )
 
         if need_transform:

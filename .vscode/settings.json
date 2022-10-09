@@ -1,0 +1,5 @@
+{
+    "python.formatting.blackArgs": [
+        "-C -l 100"
+    ]
+}
