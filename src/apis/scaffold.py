@@ -78,7 +78,7 @@ class Scaffold:
             Scaffold.train(task=task)
 
     @staticmethod
-    @logger.catch()
+    @logger.catch
     def train(
         task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
     ):
@@ -141,7 +141,7 @@ class Scaffold:
             dir_dataset=Config.DIR_DATABASE,
             dir_model=Config.DIR_MODEL,
         )
-        model.test_onnx(flag=flag)
+        return model.test_onnx(flag=flag)
 
     @staticmethod
     @logger.catch()
