@@ -3,10 +3,13 @@
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
 # Description: https://docs.github.com/en/rest/issues/issues
-import os
-import typing
+from __future__ import annotations
 
-import httpx
+import os
+from dataclasses import dataclass
+from typing import List, Dict, Literal
+
+from httpx import Client
 
 ISSUE_TEMPLATE_CHALLENGE_GENERAL = """
 ### Prompt[en]
@@ -32,61 +35,47 @@ New prompt (for ex. Please select all the 45th President of the US)
 """
 
 
+@dataclass
 class GitHubAPI:
-    def __init__(
-        self, token: typing.Optional[str] = "", root: typing.Optional[str] = "api.github.com"
-    ):
-        self.token = os.getenv("GITHUB_TOKEN") or token
-        if not self.token:
-            raise ValueError("GitHub_TOKEN missing")
-        self.root = root
+    token: str
+    owner: str
+    repo: str
 
+    client: Client = None
 
-class GitHubIssueAPI(GitHubAPI):
-    def __init__(
-        self,
-        owner: typing.Optional[str] = "",
-        repo: typing.Optional[str] = "",
-        token: typing.Optional[str] = "",
-        *,
-        root: typing.Optional[str] = "api.github.com",
-    ):
-        super().__init__(token=token, root=root)
-        self._owner = os.getenv("GITHUB_OWNER") or owner
-        self._repo = os.getenv("GITHUB_REPO") or repo
-        if not self._owner:
-            raise ValueError("GITHUB_OWNER missing")
-        if not self._repo:
-            raise ValueError("GITHUB_REPO missing")
+    @classmethod
+    def from_env(cls, token: str | None = None, owner: str | None = None, repo: str | None = None):
+        token = token or os.getenv("GITHUB_TOKEN")
+        owner = owner or os.getenv("GITHUB_OWNER")
+        repo = repo or os.getenv("GITHUB_REPO")
+        if not token:
+            raise ValueError("Miss field GITHUB_TOKEN")
+        if not owner:
+            raise ValueError("Miss field GITHUB_OWNER")
+        if not repo:
+            raise ValueError("Miss field GITHUB_REPO")
 
-        self._headers = {
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {self.token}",
-        }
+        headers = {"Accept": "application/vnd.github+json", "Authorization": f"Bearer {token}"}
+        client = Client(headers=headers, follow_redirects=True, base_url="https://api.github.com")
+        return cls(token=token, owner=owner, repo=repo, client=client)
 
-    def validate(self) -> bool:
-        return all([self.token, self._owner, self._repo])
+    def __del__(self):
+        try:
+            if self.client:
+                self.client.close()
+        except AttributeError:
+            pass
 
     def create_issue(
-        self,
-        title: str,
-        *,
-        body: typing.Optional[str] = "",
-        labels: typing.Optional[typing.List[str]] = None,
-        assignees: typing.Union[typing.List[str]] = None,
-    ) -> typing.Optional[typing.Dict[str, str]]:
+            self,
+            title: str,
+            *,
+            body: str | None = "",
+            labels: List[str] | None = None,
+            assignees: List[str] | None = None,
+    ) -> Dict[str, str]:
         """
-        HTTP response status codes for "Create an issue"
-
-        Status code	Description
-        ------------------------
-        201	Created <<success>>
-        ------------------------
-        403	Forbidden
-        404	Resource not found
-        410	Gone
-        422	Validation failed, or the endpoint has been spammed.
-        503	Service unavailable
+        https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#create-an-issue
 
         :param title:
         :param body:
@@ -94,47 +83,30 @@ class GitHubIssueAPI(GitHubAPI):
         :param assignees:
         :return:
         """
-        url = f"https://{self.root}/repos/{self._owner}/{self._repo}/issues"
+        api = f"/repos/{self.owner}/{self.repo}/issues"
         data = {"title": title, "body": body, "labels": labels or [], "assignees": assignees or []}
-        resp = httpx.post(url, headers=self._headers, json=data)
+        resp = self.client.post(api, json=data)
         return resp.json()
 
-    def get_issue(self, issue_number: int) -> typing.Optional[typing.Dict[str, str]]:
+    def get_issue(self, issue_number: int) -> Dict[str, str]:
         """
-        HTTP response status codes for "Get an issue"
+        https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#get-an-issue
 
-        Status code	Description
-        ------------------------
-        200	OK
-        ------------------------
-        301	Moved permanently
-        304	Not modified
-        404	Resource not found
-        410	Gone
         :param issue_number:
         :return:
         """
-        url = f"https://{self.root}/repos/{self._owner}/{self._repo}/issues/{issue_number}"
-        resp = httpx.post(url, headers=self._headers)
+        api = f"/repos/{self.owner}/{self.repo}/issues/{issue_number}"
+        resp = self.client.post(api)
         return resp.json()
 
     def list_repo_issues(
-        self,
-        *,
-        state: typing.Literal["open", "closed", "all"] = "all",
-        labels: typing.Optional[str] = "",
-        per_page: typing.Optional[int] = 10,
-    ) -> typing.Optional[typing.Dict[str, str]]:
+            self,
+            *,
+            state: Literal["open", "closed", "all"] = "all",
+            labels: str = "",
+            per_page: int = 10,
+    ) -> Dict[str, str]:
         """
-        HTTP response status codes for "List repository issues"
-        ---
-        Status code	Description
-        ---
-        200	OK
-        301	Moved permanently
-        404	Resource not found
-        422	Validation failed, or the endpoint has been spammed.
-        ---
         https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-repository-issues
 
         :param per_page: The number of results per page (max 100). Default: 30
@@ -142,41 +114,27 @@ class GitHubIssueAPI(GitHubAPI):
         :param labels: A list of comma separated label names. Example: `bug,ui,@high`
         :return:
         """
-        api = f"https://{self.root}/repos/{self._owner}/{self._repo}/issues"
+        api = f"/repos/{self.owner}/{self.repo}/issues"
         query = {"state": state, "labels": labels, "per_page": per_page}
-        resp = httpx.get(api, headers=self._headers, params=query)
+        resp = self.client.get(api, params=query)
         return resp.json()
 
+    def update_issue(
+            self,
+            url: str,
+            *,
+            state: Literal["open", "closed"] = "open",
+            state_reason: Literal["completed", "not_planned", "reopened"] = None,
+    ) -> Dict[str, str]:
+        """
+        /repos/{self.owner}/{self.repo}/issues/{issue_number}
 
-def create_issue_body_about_general_challenge(
-    *, prompt: str, screenshot_url: str, sitekey: str, sitelink: typing.Optional[str] = ""
-) -> str:
-    """
-
-    :param prompt:
-    :param screenshot_url:
-    :param sitelink: "https://accounts.hcaptcha.com/demo?sitekey={sitekey}"
-    :param sitekey:
-    :return:
-    """
-    sitelink = sitelink or f"https://accounts.hcaptcha.com/demo?sitekey={sitekey}"
-    return ISSUE_TEMPLATE_CHALLENGE_GENERAL.format(
-        prompt=prompt, sitekey=sitekey, sitelink=sitelink, screenshot_url=screenshot_url
-    )
-
-
-def test_create_issue():
-    body = create_issue_body_about_general_challenge(
-        prompt="superman",
-        screenshot_url="https://i0.hdslb.com/bfs/banner/729322738c403cd67bfbf6a9f3242a759f841815.jpg@1200w_300h_1c.webp",
-        sitekey="adafb813-8b5c-473f-9de3-485b4ad5aa09",
-    )
-    gh = GitHubIssueAPI()
-    resp = gh.create_issue(
-        "[Challenge] superman", body=body, labels=["🔥 challenge"], assignees=["QIN2DIM"]
-    )
-    print(resp)
-
-
-if __name__ == "__main__":
-    test_create_issue()
+        https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#update-an-issue
+        :param url: 通过 list 方法获取筛选后的 issue 对象，返回值中的 url 参数可以继续使用
+        :param state:
+        :param state_reason:
+        :return:
+        """
+        body = {"state": state, "state_reason": state_reason}
+        res = self.client.post(url, json=body)
+        return res.json()
