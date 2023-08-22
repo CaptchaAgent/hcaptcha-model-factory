@@ -75,9 +75,9 @@ def run_binary_collector(sitekey: str = SiteKey.epic, silence=False, r: int = 50
     ctx = get_challenge_ctx(lang="en", silence=silence)
     try:
         cc.claim(ctx, retries=r)
-        cc.unpack()
     finally:
         logger.success("采集器退出")
+        cc.unpack()
         ctx.quit()
 
 
