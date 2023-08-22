@@ -62,9 +62,7 @@ class ClusterLabeler(BaseLabeler):
 
         self.embs = np.array(self.embs)
         logger.info(f"PCA..., shape of embs: {self.embs.shape}")
-        self.embs = PCA(n_components=min(self.num_feat, self.embs.shape[0])).fit_transform(
-            self.embs
-        )
+        self.embs = PCA(n_components=min(self.num_feat, self.embs.shape[0])).fit_transform(self.embs)
         logger.info(f"PCA done, shape of embs: {self.embs.shape}")
 
         logger.debug("Clustering...")

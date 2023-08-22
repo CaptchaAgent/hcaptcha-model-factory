@@ -346,7 +346,7 @@ class ResNet(ModelFactory):
         )
 
     @staticmethod
-    def onnx_infer(net, img_arr):
+    def _onnx_infer(net, img_arr):
         img_arr = np.frombuffer(img_arr, np.uint8)
         img = cv2.imdecode(img_arr, flags=1)
 
@@ -366,14 +366,14 @@ class ResNet(ModelFactory):
             return None
         return max(models, key=os.path.getctime)
 
-    def test_onnx(self, flag: str = "all") -> typing.Optional[typing.Dict[str, str]]:
+    def test_onnx(self, flag: str = "all"):
         path_model_onnx = self._get_latest_onnx_model(self._dir_model, self._task_name)
 
         logger.debug(f"path_model_onnx={path_model_onnx}")
 
         if path_model_onnx is None or not os.path.isfile(path_model_onnx):
             logger.error(f"ModelNotFound | path={path_model_onnx}")
-            return
+            return False
 
         model = cv2.dnn.readNetFromONNX(path_model_onnx)
         logger.debug(f"ModelLoaded | path={path_model_onnx}")
@@ -391,7 +391,7 @@ class ResNet(ModelFactory):
         for idx, (_, label, path_img) in enumerate(dataset):
             with open(path_img, "rb") as file:
                 img_arr = file.read()
-            pred = self.onnx_infer(model, img_arr=img_arr)
+            pred = self._onnx_infer(model, img_arr=img_arr)
             pred = 0 if pred else 1
 
             total_acc += 1 if pred == label else 0
@@ -405,17 +405,13 @@ class ResNet(ModelFactory):
                 logger.info(f"TestOnnx | {idx + 1}/{dataset_length} | acc={total_acc / (idx + 1)}")
 
         dataset_length = len(dataset)  # noqa
-        avg_acc = f"{total_acc / dataset_length:.4f}"
-        avg_f1 = f"{2 * total_tp / (2 * total_tp + total_fp + total_fn):.4f}"
-        avg_precision = f"{total_tp / (total_tp + total_fp):.4f}"
         logger.debug(
             ToolBox.runtime_report(
                 motive="TEST_ONNX",
                 action_name=_ACTION_NAME,
                 task=self._task_name,
-                avg_acc=avg_acc,
-                avg_f1=avg_f1,
-                avg_precision=avg_precision,
+                avg_acc=f"{total_acc / dataset_length:.4f}",
+                avg_f1=f"{2 * total_tp / (2 * total_tp + total_fp + total_fn):.4f}",
+                avg_precision=f"{total_tp / (total_tp + total_fp):.4f}",
             )
         )
-        return {"acc": avg_acc, "f1": avg_f1, "precision": avg_precision}
