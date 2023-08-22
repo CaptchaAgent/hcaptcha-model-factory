@@ -140,3 +140,5 @@ logs/
 archive/
 **/config.json
 **/firebird.json
+
+.vscode
