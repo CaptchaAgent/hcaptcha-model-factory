@@ -53,32 +53,28 @@ class GitHubSettings:
 
 @dataclass
 class Firebird:
-    path: str
-    """
-    path to firebird.json
-    """
-
     focus_labels: Dict[str, str] = field(default_factory=dict)
     """
     HashMap: words in prompt --> model name
     # 采集器中的默认聚焦挑战，不在聚焦表中的挑战将被跳过
     """
 
+    path: Path = Path("firebird.json")
+
     @classmethod
-    def from_json(cls, sp: Path):
-        template = {"focus_labels": {}, "path": f"{sp.absolute()}"}
-        if not sp.exists():
-            sp.write_text(json.dumps(template, indent=2, ensure_ascii=True))
-        return from_dict_to_model(cls, json.loads(sp.read_text()))
+    def from_static(cls, focus_labels: Dict[str, str] = None):
+        focus_labels = focus_labels or FOCUS_LABELS
+        return cls(focus_labels=focus_labels)
 
     def flush(self):
-        self.focus_labels = json.loads(Path(self.path).read_text())["focus_labels"]
+        focus_labels = json.loads(Path(self.path).read_text())["focus_labels"]
+        self.focus_labels.update(focus_labels)
         return self.focus_labels
 
     def to_json(self, items: Dict[str, str] | None = None):
         if items:
             self.focus_labels.update(items)
-        Path(self.path).write_text(json.dumps(self.__dict__, indent=2, ensure_ascii=True))
+        self.path.write_text(json.dumps(self.__dict__, indent=2, ensure_ascii=True))
 
 
 @dataclass
@@ -115,14 +111,12 @@ class Project:
     root_dir = src_dir.parent
 
     config_path = src_dir.joinpath("config.json")
-    firebird_path = src_dir.joinpath("firebird.json")
 
     logs_dir = root_dir.joinpath("logs")
 
     data_dir = root_dir.joinpath("database2023")
     canvas_backup_dir = data_dir.joinpath("canvas_backup")
     binary_backup_dir = data_dir.joinpath("binary_backup")
-    workspace_dir = binary_backup_dir.joinpath("_challenge")
 
     def __post_init__(self):
         for ck in [self.canvas_backup_dir, self.binary_backup_dir]:
@@ -136,4 +130,13 @@ init_log(
     serialize=project.logs_dir.joinpath("serialize.log"),
 )
 config = Config.from_json(project.config_path)
-firebird = Firebird.from_json(project.firebird_path)
+
+# 初始化聚焦标签，采集器仅会下载关注的以及未编排在 objects.yaml 中的数据
+# [prompts] --> [train label]
+FOCUS_LABELS = {
+    "camera": "camera",
+    "diamond bracelet": "diamond_bracelet",
+    "dolphin": "dolphin",
+    "red panda": "red_panda",
+    "palm tree": "palm_tree",
+}

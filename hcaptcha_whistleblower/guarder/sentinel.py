@@ -16,7 +16,7 @@ from hcaptcha_challenger.agents.skeleton import Status
 from loguru import logger
 
 from hcaptcha_whistleblower.guarder import GuarderV2
-from hcaptcha_whistleblower.settings import firebird, SiteKey
+from hcaptcha_whistleblower.settings import SiteKey
 
 
 @dataclass
@@ -68,7 +68,7 @@ class Sentinel(GuarderV2):
                     continue
                 # 拉响警报 | 出现新的挑战
                 # self.broadcast_alert_information()
-                firebird.flush()
+                self.firebird.flush()
                 if timer and time.time() - trigger > timer:
                     logger.info(f"Drop by outdated - upto={timer}")
                     return

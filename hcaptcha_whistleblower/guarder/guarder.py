@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from hcaptcha_challenger.agents.exceptions import ChallengePassed
 from hcaptcha_challenger.agents.selenium import SeleniumAgent
 from hcaptcha_challenger.agents.selenium import get_challenge_ctx
 from hcaptcha_challenger.components.prompt_handler import BAD_CODE
@@ -21,8 +22,7 @@ from selenium.common.exceptions import (
 )
 from selenium.webdriver.common.by import By
 
-from hcaptcha_challenger.agents.exceptions import ChallengePassed
-from hcaptcha_whistleblower.settings import firebird
+from hcaptcha_whistleblower.settings import Firebird
 
 
 @dataclass
@@ -34,6 +34,11 @@ class GuarderV2(SeleniumAgent):
 
     _sitekey: str = "ace50dd0-0d68-44ff-931a-63b670c7eed7"
     monitor_site: str = f"https://accounts.hcaptcha.com/demo?sitekey={_sitekey}"
+
+    firebird: Firebird = None
+
+    def __post_init__(self):
+        self.firebird = Firebird.from_static()
 
     @property
     def sitekey(self):
@@ -81,12 +86,12 @@ class GuarderV2(SeleniumAgent):
 
             return words
 
-        if label.lower().startswith("please click on "):
-            logger.info("非二分类任务，跳过挑战", label=label)
+        if label.lower().startswith("please click on the"):
+            logger.info("Pass challenge", label=label, case="NotBinaryChallenge")
             return
         map_to = diagnose_task(label)
-        firebird.to_json({label: map_to})
-        self._label_alias = firebird.flush()
+        self.firebird.to_json({label: map_to})
+        self.firebird.flush()
 
         logger.success("将遇到的新挑战刷入运行时任务队列", label=label, map_to=map_to)
 
@@ -124,7 +129,7 @@ class GuarderV2(SeleniumAgent):
             # 进入挑战框架 | 开始执行相关检测任务
             self.get_label(ctx)
             # 拉起预警服务
-            if not self._label_alias.get(self._label):
+            if not self.firebird.focus_labels.get(self._label):
                 self.mark_samples(ctx)
                 self.tactical_retreat()
                 self.flush_firebird(self._label)

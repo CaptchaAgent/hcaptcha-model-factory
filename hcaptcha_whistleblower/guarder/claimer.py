@@ -10,19 +10,19 @@ import os
 import random
 import time
 from dataclasses import dataclass
+from pathlib import Path
 
 from hcaptcha_challenger.agents.skeleton import Status
 from loguru import logger
 from selenium.common.exceptions import WebDriverException
 
 from hcaptcha_whistleblower.guarder.guarder import GuarderV2
-from hcaptcha_whistleblower.settings import project
 
 
 @dataclass
 class BinaryClaimer(GuarderV2):
     boolean_tags = ["yes", "bad"]
-    binary_backup_dir = project.binary_backup_dir
+
     """
     # 1. 添加 label_alias
     # ---------------------------------------------------
@@ -39,7 +39,12 @@ class BinaryClaimer(GuarderV2):
     """
 
     def download_images(self):
-        if self._label in self._label_alias or self._label not in self.modelhub.label_alias:
+        # 当遇到的 prompts 不在手动编排的 focus firebird 字典也不在已发布的 firebird 字典中时
+        # 可以认为遇到了意外的 binary challenge 或 Others type challenge
+        if (
+            self._label in self.firebird.focus_labels
+            or self._label not in self.modelhub.label_alias
+        ):
             super().download_images()
 
     def claim(self, ctx, retries=5):
@@ -74,16 +79,16 @@ class BinaryClaimer(GuarderV2):
                 self.hacking_dataset(ctx)
                 # 随机休眠 | 降低请求频率
                 time.sleep(random.uniform(1, 2))
+            # 解包数据集 | 每间隔运行3分钟解压一次数据集
             if time.time() - start > 180:
-                # 解包数据集 | 每间隔运行3分钟解压一次数据集
-                self.unpack()
+                # self.unpack()
                 start = time.time()
 
-    def _unpack(self, dst_dir, flag):
+    def _unpack(self, dst_dir: Path, from_name: str):
         """
         將 _challenge 中的内容解壓到目標路徑
 
-        :param flag: 自定義標簽名
+        :param from_name: 自定義標簽名
         :param dst_dir: rainbow_backup/<label>/
         :return:
         """
@@ -101,44 +106,20 @@ class BinaryClaimer(GuarderV2):
         # 2. 读取二进制流编成hash文件名
         # 3. 写到目标路径
         samples = set()
-        for dir_challenge_cache_name in os.listdir(src_dir):
-            if flag != dir_challenge_cache_name.split("_", 1)[
-                -1
-            ] or dir_challenge_cache_name.endswith(".png"):
+        for tmp_challenge_dir in os.listdir(src_dir):
+            if tmp_challenge_dir.endswith(".png"):
                 continue
-            path_fs = os.path.join(src_dir, dir_challenge_cache_name)
-            for img_filename in os.listdir(path_fs):
-                path_img = os.path.join(path_fs, img_filename)
-                with open(path_img, "rb") as file:
-                    data = file.read()
+            if from_name != tmp_challenge_dir.split("_", 1)[-1]:
+                continue
+            tmp_focus_dir = src_dir.joinpath(tmp_challenge_dir)
+            for img_name in os.listdir(tmp_focus_dir):
+                img_path = tmp_focus_dir.joinpath(img_name)
+                data = img_path.read_bytes()
                 filename = f"{hashlib.md5(data).hexdigest()}.png"
 
                 # 过滤掉已存在的文件，无论是 yes|bad|pending
                 if not _exists_files.get(filename):
-                    with open(os.path.join(dst_dir, filename), "wb") as file:
-                        file.write(data)
-                        samples.add(filename)
+                    dst_dir.joinpath(filename).write_bytes(data)
+                    samples.add(filename)
 
         return len(samples)
-
-    def unpack(self):
-        """
-        解构彩虹表，自动分类，去重，拷贝
-
-        FROM: rainbow_backup/_challenge
-        TO: rainbow_backup/[*challengeName]
-
-        :return:
-        """
-        channel_dirs = list(self._label_alias.values())
-        for tag in self.boolean_tags:
-            for channel_dir in channel_dirs:
-                tmp = self.binary_backup_dir.joinpath(f"{channel_dir}/{tag}")
-                tmp.mkdir(777, parents=True, exist_ok=True)
-
-        statistics_ = {}
-        for flag in channel_dirs:
-            statistics_[flag] = self._unpack(
-                dst_dir=os.path.join(self.binary_backup_dir, flag), flag=flag
-            )
-        return statistics_

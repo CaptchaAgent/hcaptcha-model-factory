@@ -2,7 +2,7 @@
 # Time       : 2023/3/19 19:46
 # Author     : QIN2DIM
 # Github     : https://github.com/QIN2DIM
-# Description:
+# Description: 查看 prompt 被切割前后的样子
 from __future__ import annotations
 
 import re

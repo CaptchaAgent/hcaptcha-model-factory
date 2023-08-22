@@ -2,7 +2,7 @@
 # Time       : 2023/8/21 0:32
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
-# Description:
+# Description: 从运行日志中查看遇到的挑战有哪些
 import json
 from pathlib import Path
 

@@ -79,7 +79,17 @@ class CanvasCollector(BinaryClaimer):
 
 
 def run_canvas_collector(sitekey: str = "ace50dd0-0d68-44ff-931a-63b670c7eed7", r: int = 5):
-    ct = CanvasCollector.from_modelhub()
+    logger.info("startup canvas collector", type="canvas")
+
+    # 采集数据集 | 自动解包数据集
+    ct = CanvasCollector.from_modelhub(tmp_dir=project.binary_backup_dir)
     ct.sitekey = sitekey
-    with get_challenge_ctx(silence=False, lang="en") as ctx:
+    ct.modelhub.pull_objects()
+
+    # 确保所有任务进度得以同步
+    ctx = get_challenge_ctx(silence=False, lang="en")
+    try:
         ct.claim(ctx, retries=r)
+    finally:
+        logger.success("采集器退出")
+        ctx.quit()
