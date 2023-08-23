@@ -19,7 +19,7 @@ from loguru import logger
 from hcaptcha_whistleblower.settings import SiteKey
 
 # Init local-side of the ModelHub
-solver.install()
+solver.install(upgrade=True)
 
 # Save dataset to current working directory
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")

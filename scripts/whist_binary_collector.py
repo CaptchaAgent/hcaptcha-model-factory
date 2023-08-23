@@ -16,5 +16,7 @@ focus_labels = {
     "palm tree": "palm_tree",
 }
 
+sitekey = SiteKey.cloud_horse
+
 if __name__ == "__main__":
-    run_binary_collector(sitekey=SiteKey.epic, focus_labels=focus_labels, silence=False)
+    run_binary_collector(sitekey=sitekey, focus_labels=focus_labels, silence=False)

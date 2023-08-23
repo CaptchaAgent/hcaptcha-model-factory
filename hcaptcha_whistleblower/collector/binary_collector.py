@@ -26,7 +26,7 @@ class BinaryCollector(BinaryClaimer):
             logger.warning("聚焦挑战为空，白名单模式失效，将启动备用的黑名单模式运行采集器")
         logger.debug("focus", sitekey=self.sitekey)
         logger.debug("focus", monitor=self.monitor_site)
-        logger.debug("focus", label_alias=self.firebird.focus_labels.keys())
+        logger.debug("focus", label_alias=list(self.firebird.focus_labels.keys()))
         with suppress(KeyboardInterrupt):
             super().claim(ctx, retries)
 

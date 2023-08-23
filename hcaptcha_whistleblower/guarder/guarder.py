@@ -62,30 +62,6 @@ class GuarderV2(SeleniumAgent):
             pass
 
     def flush_firebird(self, label: str):
-        def diagnose_task(words: str) -> str:
-            """from challenge prompt to model name"""
-            origin = words
-            if not words or not isinstance(words, str) or len(words) < 2:
-                raise TypeError(f"({words})TASK should be string type data")
-
-            # Filename contains illegal characters
-            inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
-            if s := set(words) & inv:
-                raise TypeError(f"({words})TASK contains invalid characters({s})")
-
-            # Normalized separator
-            rnv = {" ", ",", "-"}
-            for s in rnv:
-                words = words.replace(s, "_")
-
-            for code, right_code in BAD_CODE.items():
-                words.replace(code, right_code)
-
-            words = words.strip()
-            logger.debug(f"diagnose task", origin=origin, to=words)
-
-            return words
-
         if label.lower().startswith("please click on the"):
             logger.info("Pass challenge", label=label, case="NotBinaryChallenge")
             return
@@ -95,26 +71,17 @@ class GuarderV2(SeleniumAgent):
 
         logger.success("将遇到的新挑战刷入运行时任务队列", label=label, map_to=map_to)
 
-    @staticmethod
-    def refresh_hcaptcha(ctx) -> bool | None:
+    def hacking_dataset(self, ctx):
+        """Collector solution"""
         try:
-            return ctx.find_element(By.XPATH, "//div[@class='refresh button']").click()
-        except (NoSuchElementException, ElementNotInteractableException):
-            return False
-
-    def _hacking_dataset(self, ctx):
-        self.get_label(ctx)
-        self.mark_samples(ctx)
-        self.download_images()
-        self.refresh_hcaptcha(ctx)
-
-    def hacking_dataset(self, ctx, on_worker_handler=None):
-        """针对 FocusLabel 进行的数据集下载任务"""
-        try:
-            if on_worker_handler is None:
-                self._hacking_dataset(ctx)
-            else:
-                on_worker_handler(ctx)
+            self.get_label(ctx)
+            if "please click on the" in self._label.lower():
+                refresh_hcaptcha(ctx)
+                logger.warning("Pass challenge", label=self._label, case="NotBinaryChallenge")
+                return
+            self.mark_samples(ctx)
+            self.download_images()
+            refresh_hcaptcha(ctx)
         except (ChallengePassed, ElementClickInterceptedException):
             ctx.refresh()
         except StaleElementReferenceException:
@@ -125,6 +92,7 @@ class GuarderV2(SeleniumAgent):
             ctx.switch_to.default_content()
 
     def checking_dataset(self, ctx):
+        """Sentinel solution"""
         try:
             # 进入挑战框架 | 开始执行相关检测任务
             self.get_label(ctx)
@@ -135,10 +103,42 @@ class GuarderV2(SeleniumAgent):
                 self.flush_firebird(self._label)
                 return True
             # 在内联框架中刷新挑战
-            self.refresh_hcaptcha(ctx)
+            refresh_hcaptcha(ctx)
         except (ChallengePassed, TimeoutException):
             ctx.refresh()
         except WebDriverException as err:
             logger.exception(err)
         finally:
             ctx.switch_to.default_content()
+
+
+def diagnose_task(words: str) -> str:
+    """from challenge prompt to model name"""
+    origin = words
+    if not words or not isinstance(words, str) or len(words) < 2:
+        raise TypeError(f"({words})TASK should be string type data")
+
+    # Filename contains illegal characters
+    inv = {"\\", "/", ":", "*", "?", "<", ">", "|"}
+    if s := set(words) & inv:
+        raise TypeError(f"({words})TASK contains invalid characters({s})")
+
+    # Normalized separator
+    rnv = {" ", ",", "-"}
+    for s in rnv:
+        words = words.replace(s, "_")
+
+    for code, right_code in BAD_CODE.items():
+        words.replace(code, right_code)
+
+    words = words.strip()
+    logger.debug(f"diagnose task", origin=origin, to=words)
+
+    return words
+
+
+def refresh_hcaptcha(ctx) -> bool | None:
+    try:
+        return ctx.find_element(By.XPATH, "//div[@class='refresh button']").click()
+    except (NoSuchElementException, ElementNotInteractableException):
+        return False
