@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from dataclasses import dataclass
+from typing import Dict
 
 from hcaptcha_challenger.agents.selenium import get_challenge_ctx
 from loguru import logger
@@ -25,7 +26,7 @@ class BinaryCollector(BinaryClaimer):
             logger.warning("聚焦挑战为空，白名单模式失效，将启动备用的黑名单模式运行采集器")
         logger.debug("focus", sitekey=self.sitekey)
         logger.debug("focus", monitor=self.monitor_site)
-        logger.debug("focus", label_alias=self.firebird.focus_labels.values())
+        logger.debug("focus", label_alias=self.firebird.focus_labels.keys())
         with suppress(KeyboardInterrupt):
             super().claim(ctx, retries)
 
@@ -61,14 +62,20 @@ class BinaryCollector(BinaryClaimer):
             logger.success(f"UNPACK", flag=flag, count=num)
 
 
-def run_binary_collector(sitekey: str = SiteKey.epic, silence=False, r: int = 50):
+def run_binary_collector(
+    sitekey: str = SiteKey.epic,
+    focus_labels: Dict[str, str] = None,
+    silence: bool = False,
+    r: int = 50,
+):
     """根据label定向采集数据集"""
     logger.info("startup collector", type="binary")
 
     # 采集数据集 | 自动解包数据集
     cc = BinaryCollector.from_modelhub(tmp_dir=project.binary_backup_dir)
-    cc.sitekey = sitekey
     cc.modelhub.pull_objects()
+    cc.sitekey = sitekey
+    cc.firebird.flush(focus_labels)
 
     # 退出任务前执行最后一次解包任务
     # 确保所有任务进度得以同步

@@ -59,16 +59,21 @@ class Firebird:
     # 采集器中的默认聚焦挑战，不在聚焦表中的挑战将被跳过
     """
 
-    path: Path = Path("firebird.json")
+    path: Path = Path(__file__).parent.joinpath("firebird.json")
 
     @classmethod
     def from_static(cls, focus_labels: Dict[str, str] = None):
         focus_labels = focus_labels or FOCUS_LABELS
         return cls(focus_labels=focus_labels)
 
-    def flush(self):
-        focus_labels = json.loads(Path(self.path).read_text())["focus_labels"]
-        self.focus_labels.update(focus_labels)
+    def flush(self, static: Dict[str, str] | None = None):
+        try:
+            focus_labels = json.loads(self.path.read_text())["focus_labels"]
+            self.focus_labels.update(focus_labels)
+        except (FileNotFoundError, KeyError) as err:
+            print(err)
+        if static and isinstance(static, dict):
+            self.focus_labels.update(static)
         return self.focus_labels
 
     def to_json(self, items: Dict[str, str] | None = None):
@@ -134,9 +139,9 @@ config = Config.from_json(project.config_path)
 # 初始化聚焦标签，采集器仅会下载关注的以及未编排在 objects.yaml 中的数据
 # [prompts] --> [train label]
 FOCUS_LABELS = {
-    "camera": "camera",
-    "diamond bracelet": "diamond_bracelet",
-    "dolphin": "dolphin",
-    "red panda": "red_panda",
-    "palm tree": "palm_tree",
+    # "camera": "camera",
+    # "diamond bracelet": "diamond_bracelet",
+    # "dolphin": "dolphin",
+    # "red panda": "red_panda",
+    # "palm tree": "palm_tree",
 }

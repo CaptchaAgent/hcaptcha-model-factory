@@ -7,11 +7,18 @@ import shutil
 from pathlib import Path
 
 from apis.scaffold import Scaffold
+from hcaptcha_whistleblower.settings import project
 
-focus_flags = {"diamond_bracelet"}
+# fmt:off
+focus_flags = {
+    # "palm_tree",
+    # "dolphin",
+    # "camera"
+}
+# fmt:on
 
-binary_dir = Path("../../database2023/binary_backup")
-factory_data_dir = Path(r"../data")
+binary_dir = project.binary_backup_dir
+factory_data_dir = Path(__file__).parent.parent.joinpath("data")
 
 # Copy the classified data into the dataset
 for task_name in focus_flags:

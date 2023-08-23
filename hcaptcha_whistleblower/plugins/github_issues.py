@@ -67,12 +67,12 @@ class GitHubAPI:
             pass
 
     def create_issue(
-            self,
-            title: str,
-            *,
-            body: str | None = "",
-            labels: List[str] | None = None,
-            assignees: List[str] | None = None,
+        self,
+        title: str,
+        *,
+        body: str | None = "",
+        labels: List[str] | None = None,
+        assignees: List[str] | None = None,
     ) -> Dict[str, str]:
         """
         https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#create-an-issue
@@ -100,11 +100,11 @@ class GitHubAPI:
         return resp.json()
 
     def list_repo_issues(
-            self,
-            *,
-            state: Literal["open", "closed", "all"] = "all",
-            labels: str = "",
-            per_page: int = 10,
+        self,
+        *,
+        state: Literal["open", "closed", "all"] = "all",
+        labels: str = "",
+        per_page: int = 10,
     ) -> Dict[str, str]:
         """
         https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-repository-issues
@@ -120,11 +120,11 @@ class GitHubAPI:
         return resp.json()
 
     def update_issue(
-            self,
-            url: str,
-            *,
-            state: Literal["open", "closed"] = "open",
-            state_reason: Literal["completed", "not_planned", "reopened"] = None,
+        self,
+        url: str,
+        *,
+        state: Literal["open", "closed"] = "open",
+        state_reason: Literal["completed", "not_planned", "reopened"] = None,
     ) -> Dict[str, str]:
         """
         /repos/{self.owner}/{self.repo}/issues/{issue_number}
