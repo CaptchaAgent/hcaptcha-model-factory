@@ -1,0 +1,19 @@
+bg_path: black
+classes:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+cls_path: null
+sig_num_max: 16
+sig_num_min: 8
+sig_size: 84
+bg_size: 256
+tot_num: 200
+save_path: G:/dataset/hcap/on_select_digit
+feather_size: 0
