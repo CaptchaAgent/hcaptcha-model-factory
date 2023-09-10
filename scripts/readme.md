@@ -1,42 +1,48 @@
-## workflow
+## Workflow
 
-1. collect dataset
+| Tasks                         | Resource                                                     |
+| ----------------------------- | ------------------------------------------------------------ |
+| `ci: sentinel`                | [![hCAPTCHA Sentinel](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/sentinel.yaml/badge.svg?branch=main)](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/sentinel.yaml) |
+| `ci: collector`               | [![hCAPTCHA Collector](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/collector.yaml/badge.svg)](https://github.com/QIN2DIM/hcaptcha-challenger/actions/workflows/collector.yaml) |
+| `datasets: VCS, annoate`      | [#roboflow](hcaptcha-challenger), [#model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
+| `model: ResNet - train / val` | [#model-factory](https://github.com/beiyuouo/hcaptcha-model-factory) |
+| `model: YOLOv8 - train / val` | [#ultralytics](https://github.com/ultralytics/ultralytics)   |
+| `model: upload, upgrade`      | [#objects](https://github.com/QIN2DIM/hcaptcha-challenger/tree/main/src), [#modelhub](https://github.com/QIN2DIM/hcaptcha-challenger/releases/tag/model) |
+| `datasets: public, archive`   | [#roboflow-universe](https://universe.roboflow.com/qin2dim/), [#captcha-datasets](https://github.com/captcha-challenger/hcaptcha-whistleblower) |
 
-    ```bash
-    python whist_binary_collector.py
-    ```
+## Quick start
 
-2. unpack cache
-    
-    ```bash
-    python whist_unpack.py
-    ```
-
-3. Classify the dataset
-
-    AI automatic labeling in the workspace `/database2023/binary_backup/<focus_flag>`
-
-4. Mini workflow
-
-    Edit `factory_mini_workflow:focus_flags` and run the following script
+1. Download datasets
 
     ```bash
-    python factory_mini_workflow.py
+    python download_datasets.py
     ```
-    - copy from: `/database2023/binary_backup/<focus_flag>`
-    - paste to: `/data/<focus_flag>`
-    - output to: `/model/<focus_flag>/<focus_flag>.onnx`
-5. Test challenges
-    
-    Edit `challenge_with_selenium` and run the following script
+
+2. Annotate the binary images
+
+    labeling in the workspace `[PROJECT]/database2309/<diagnosed_label_name>`
+
+3. Startup mini-workflow
+
+    Add `mini_workflow:focus_flags` and run the following command:
 
     ```bash
-    python challenge_with_selenium.py
+    python mini_workflow.py
     ```
-   
-6. Upload onnx model to GitHub releases
+    Examples:
 
-    By `hcaptcha_whistleblower.plugins.github_issues` CI/CD
+    ```python
+    focus_flags = {
+        # "motor_vehicle": "motor_vehicle2309",
+        # "chess_piece": "chess_piece2309"
+        # "robot": "robot2309",
+        "dog": "dog2309"
+    }
+    ```
 
-7. Sign GitHub Issues with challenge-tag
-8. Update and push `objects.yaml` of the hcaptcha-challenger
+    - Copy from: `[PROJECT]/database2309/<diagnosed_label_name>`
+    - Paste to: `[PROJECT]/data/<diagnosed_label_name>`
+    - Output to: `[PROJECT]/model/<diagnosed_label_name>/<model_name[flag].onnx>`
+    - [For Developer] Upload to:  [#modelhub](https://github.com/QIN2DIM/hcaptcha-challenger/releases/tag/model)
+
+4. [For Developer] Update [#objects](https://github.com/QIN2DIM/hcaptcha-challenger/tree/main/src) and new commit with `fixed: #issue-id` to close related issue.
