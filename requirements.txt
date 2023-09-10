@@ -13,6 +13,6 @@ Pillow>=9.3.0
 opencv-python>=4.8.0.76
 onnx>=1.14.0
 
-# [tool.rye.extras]
-hcaptcha_challenger[selenium]>=0.6.2-post1
-APScheduler>=3.10.3
+# [tool.rye.scripts]
+PyGithub
+httpx
