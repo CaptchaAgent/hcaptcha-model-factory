@@ -8,10 +8,9 @@ import shutil
 import sys
 import zipfile
 from pathlib import Path
+from typing import List
 
 import httpx
-
-source = "https://github.com/captcha-challenger/hcaptcha-whistleblower/releases/download/automation-archive/rollercoaster.202309110201.zip"
 
 project_dir = Path(__file__).parent.parent
 to_dir = project_dir.joinpath("database2309")
@@ -26,7 +25,7 @@ def merge(fd: Path, td: Path):
             count += 1
     td.joinpath("yes").mkdir(exist_ok=True)
     td.joinpath("bad").mkdir(exist_ok=True)
-    print(f">> 合并数据集 - {source=} {count=} to_dir={td}")
+    print(f">> 合并数据集 - {count=} to_dir={td} {source=}")
 
 
 def unpack_datasets(from_dir: str = ""):
@@ -83,11 +82,20 @@ def download_datasets():
 
 
 if __name__ == "__main__":
-    if not source.startswith("https://"):
-        target_dir = unpack_datasets()
-    else:
-        target_dir = download_datasets()
+    sources: List[Path | str] = [
+        "https://github.com/captcha-challenger/hcaptcha-whistleblower/releases/download/automation-archive/cup_of_iced_tea.202309111028.zip"
+    ]
+
+    target_dir = ""
+    local_from_dir = (
+        r"E:\_GithubProjects\Sources\hcaptcha-challenger\automation\tmp_dir\image_label_binary"
+    )
+    for source in sources:
+        if not source.startswith("https://"):
+            target_dir = unpack_datasets(local_from_dir)
+        else:
+            target_dir = download_datasets()
 
     # Annotate your images
-    if "win32" in sys.platform:
+    if "win32" in sys.platform and target_dir:
         os.startfile(target_dir)

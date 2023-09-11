@@ -80,6 +80,9 @@ if __name__ == "__main__":
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
         # "rollercoaster": "rollercoaster2309",
+        # "goose": "goose2309"
+        # "chair": "chair_sketch2309",
+        "cup_of_iced_tea": "cup_of_iced_tea2309",
     }
     # fmt:on
 
