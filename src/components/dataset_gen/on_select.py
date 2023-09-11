@@ -19,15 +19,12 @@ class OnSelectDatasetGen(object):
         self._bg_size = cfg["bg_size"]
         self._tot_num = cfg["tot_num"]
         self._save_path = cfg["save_path"]
-    
+
     def _generate(self):
         pass
 
-
-
     def _generate_bg(self):
         pass
-
 
     def _generate_sig(self, cls_id=None):
         pass
@@ -42,7 +39,7 @@ class OnSelectDatasetGen(object):
             with open(os.path.join(self._save_path, "labels", f"{img_name}.txt"), "w") as file:
                 for l in label:
                     file.write(f"{l[0]} {l[1]} {l[2]} {l[3]} {l[4]}\n")
-            
+
             logger.info(f"Generated {i+1}/{self._tot_num} images")
 
 

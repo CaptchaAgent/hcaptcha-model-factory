@@ -9,7 +9,11 @@ from hashlib import md5
 
 
 def random_color(c_min=64, c_max=255):
-    return (np.random.randint(c_min, c_max), np.random.randint(c_min, c_max), np.random.randint(c_min, c_max))
+    return (
+        np.random.randint(c_min, c_max),
+        np.random.randint(c_min, c_max),
+        np.random.randint(c_min, c_max),
+    )
 
 
 class OnSelectDigitDatasetGen(object):
@@ -44,16 +48,22 @@ class OnSelectDigitDatasetGen(object):
         # check overlap
         def _check_overlap(pos_x, pos_y):
             for pos in sig_pos:
-                if abs(pos[0] - pos_x) < (self._sig_size // 30) and abs(pos[1] - pos_y) < (self._sig_size // 30):
+                if abs(pos[0] - pos_x) < (self._sig_size // 30) and abs(pos[1] - pos_y) < (
+                    self._sig_size // 30
+                ):
                     return False
             return True
 
         retry = 0
         for sig_img, sig_id in zip(sig_imgs, sig_ids):
             retry = 0
-            pos_x, pos_y = np.random.randint(0, self._bg_size - self._sig_size), np.random.randint(0, self._bg_size - self._sig_size)
+            pos_x, pos_y = np.random.randint(0, self._bg_size - self._sig_size), np.random.randint(
+                0, self._bg_size - self._sig_size
+            )
             while not _check_overlap(pos_x, pos_y):
-                pos_x, pos_y = np.random.randint(0, self._bg_size - self._sig_size), np.random.randint(0, self._bg_size - self._sig_size)
+                pos_x, pos_y = np.random.randint(
+                    0, self._bg_size - self._sig_size
+                ), np.random.randint(0, self._bg_size - self._sig_size)
                 retry += 1
                 if retry > 10:
                     logger.warning("Cannot find a proper position, retrying...")
@@ -74,7 +84,9 @@ class OnSelectDigitDatasetGen(object):
             mask = np.repeat(mask[:, :, np.newaxis], 3, axis=2)
 
             bg_img[pos[1] : pos[1] + self._sig_size, pos[0] : pos[0] + self._sig_size] = (
-                bg_img[pos[1] : pos[1] + self._sig_size, pos[0] : pos[0] + self._sig_size] * (1 - mask) + np_sig_img * mask
+                bg_img[pos[1] : pos[1] + self._sig_size, pos[0] : pos[0] + self._sig_size]
+                * (1 - mask)
+                + np_sig_img * mask
             ).astype(np.uint8)
 
             cx = (pos[0] + pos[0] + self._sig_size - self._sig_size // 2) / 2 / self._final_size
@@ -85,7 +97,11 @@ class OnSelectDigitDatasetGen(object):
 
         # bg_img = cv2.cvtColor(bg_img, cv2.COLOR_RGBA2RGB)
         # center crop
-        bg_img = bg_img[self._sig_size // 2 : self._sig_size // 2 + self._final_size, self._sig_size // 2 : self._sig_size // 2 + self._final_size, :]
+        bg_img = bg_img[
+            self._sig_size // 2 : self._sig_size // 2 + self._final_size,
+            self._sig_size // 2 : self._sig_size // 2 + self._final_size,
+            :,
+        ]
 
         # from np.array to cv2
         bg_img = bg_img.astype(np.uint8)
@@ -131,13 +147,18 @@ class OnSelectDigitDatasetGen(object):
         sig_img = cv2.warpAffine(sig_img, M, (self._sig_size, self._sig_size))
 
         # perspective distortion
-        pts1 = np.float32([[0, 0], [self._sig_size, 0], [0, self._sig_size], [self._sig_size, self._sig_size]])
+        pts1 = np.float32(
+            [[0, 0], [self._sig_size, 0], [0, self._sig_size], [self._sig_size, self._sig_size]]
+        )
         pts2 = np.float32(
             [
                 [np.random.randint(0, 10), np.random.randint(0, 10)],
                 [self._sig_size - np.random.randint(0, 10), np.random.randint(0, 10)],
                 [np.random.randint(0, 10), self._sig_size - np.random.randint(0, 10)],
-                [self._sig_size - np.random.randint(0, 10), self._sig_size - np.random.randint(0, 10)],
+                [
+                    self._sig_size - np.random.randint(0, 10),
+                    self._sig_size - np.random.randint(0, 10),
+                ],
             ]
         )
         M = cv2.getPerspectiveTransform(pts1, pts2)
@@ -149,10 +170,7 @@ class OnSelectDigitDatasetGen(object):
         os.makedirs(os.path.join(self._save_path, "images"), exist_ok=True)
         os.makedirs(os.path.join(self._save_path, "labels"), exist_ok=True)
 
-        data_cfg = {
-            "classes": self._classes,
-            "nc": len(self._classes),
-        }
+        data_cfg = {"classes": self._classes, "nc": len(self._classes)}
         ez.save(data_cfg, os.path.join(self._save_path, "data.yaml"))
 
         for i in range(self._tot_num):

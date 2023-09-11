@@ -97,18 +97,22 @@ class OnSelectAnimalDatasetGen(object):
         # check overlap
         def _check_overlap(pos_x, pos_y):
             for pos in sig_pos:
-                if abs(pos[0] - pos_x) < (self._sig_size - 4 * self._feather_size) * np.sqrt(2) and abs(pos[1] - pos_y) < (
-                    self._sig_size - 4 * self._feather_size
-                ) * np.sqrt(2):
+                if abs(pos[0] - pos_x) < (self._sig_size - 4 * self._feather_size) * np.sqrt(
+                    2
+                ) and abs(pos[1] - pos_y) < (self._sig_size - 4 * self._feather_size) * np.sqrt(2):
                     return False
             return True
 
         retry = 0
         for sig_img, sig_id in zip(sig_imgs, sig_ids):
             retry = 0
-            pos_x, pos_y = np.random.randint(0, self._bg_size - self._sig_size), np.random.randint(0, self._bg_size - self._sig_size)
+            pos_x, pos_y = np.random.randint(0, self._bg_size - self._sig_size), np.random.randint(
+                0, self._bg_size - self._sig_size
+            )
             while not _check_overlap(pos_x, pos_y):
-                pos_x, pos_y = np.random.randint(0, self._bg_size - self._sig_size), np.random.randint(0, self._bg_size - self._sig_size)
+                pos_x, pos_y = np.random.randint(
+                    0, self._bg_size - self._sig_size
+                ), np.random.randint(0, self._bg_size - self._sig_size)
                 retry += 1
                 if retry > 10:
                     logger.warning("Cannot find a proper position, retrying...")
@@ -121,7 +125,13 @@ class OnSelectAnimalDatasetGen(object):
 
         # circle mask with edge feathering
         mask = np.zeros((self._sig_size, self._sig_size, 4), dtype=np.uint8)
-        mask = cv2.circle(mask, (self._sig_size // 2, self._sig_size // 2), self._sig_size // 2 - self._feather_size, (255, 255, 255, 255), -1)
+        mask = cv2.circle(
+            mask,
+            (self._sig_size // 2, self._sig_size // 2),
+            self._sig_size // 2 - self._feather_size,
+            (255, 255, 255, 255),
+            -1,
+        )
         mask = cv2.GaussianBlur(mask, (self._feather_size, self._feather_size), 0)
         mask = cv2.cvtColor(mask, cv2.COLOR_RGBA2GRAY)
         mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGBA)
@@ -130,9 +140,13 @@ class OnSelectAnimalDatasetGen(object):
             sig_img = cv2.cvtColor(sig_img, cv2.COLOR_RGB2RGBA)
 
             # paste
-            bg_img[pos[0] : pos[0] + self._sig_size, pos[1] : pos[1] + self._sig_size, :] = sig_img * (mask / 255) + bg_img[
+            bg_img[
                 pos[0] : pos[0] + self._sig_size, pos[1] : pos[1] + self._sig_size, :
-            ] * (1 - mask / 255)
+            ] = sig_img * (mask / 255) + bg_img[
+                pos[0] : pos[0] + self._sig_size, pos[1] : pos[1] + self._sig_size, :
+            ] * (
+                1 - mask / 255
+            )
             cx = (pos[0] + pos[0] + self._sig_size) / 2 / self._bg_size
             cy = (pos[1] + pos[1] + self._sig_size) / 2 / self._bg_size
             w = self._sig_size / self._bg_size
@@ -154,7 +168,9 @@ class OnSelectAnimalDatasetGen(object):
     def _generate_sig(self, cls_id=None):
         if cls_id is None:
             cls_id = np.random.choice(self._classes)
-        sig_img = cv2.imread(os.path.join(self._cls_path, cls_id, np.random.choice(self._cls_imgs[cls_id])))
+        sig_img = cv2.imread(
+            os.path.join(self._cls_path, cls_id, np.random.choice(self._cls_imgs[cls_id]))
+        )
         sig_img = style_transfer(sig_img, img_sz=self._sig_size, brightness=-3, contrast=0.5)
         return sig_img, cls_id
 
@@ -162,10 +178,7 @@ class OnSelectAnimalDatasetGen(object):
         os.makedirs(os.path.join(self._save_path, "images"), exist_ok=True)
         os.makedirs(os.path.join(self._save_path, "labels"), exist_ok=True)
 
-        data_cfg = {
-            "classes": self._classes,
-            "nc": len(self._classes),
-        }
+        data_cfg = {"classes": self._classes, "nc": len(self._classes)}
         ez.save(data_cfg, os.path.join(self._save_path, "data.yaml"))
 
         for i in range(self._tot_num):

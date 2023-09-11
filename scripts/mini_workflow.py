@@ -21,10 +21,6 @@ binary_dir = project_dir.joinpath("database2309")
 factory_data_dir = project_dir.joinpath("data")
 model_dir = project_dir.joinpath("model")
 
-auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
-repo = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
-modelhub_title = "ONNX ModelHub"
-
 
 def quick_train():
     # Copy the classified data into the dataset
@@ -43,6 +39,14 @@ def quick_train():
 
 
 def quick_development():
+    if not os.getenv("GITHUB_TOKEN"):
+        logger.warning("Skip model deployment, miss GITHUB TOKEN")
+        return
+
+    auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
+    repo = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
+    modelhub_title = "ONNX ModelHub"
+
     for label, onnx_archive in focus_flags.items():
         model_path = model_dir.joinpath(label, f"{label}.onnx")
         pending_onnx_path = model_dir.joinpath(label, f"{onnx_archive}.onnx")
@@ -62,27 +66,20 @@ def quick_development():
                 logger.error(err)
             else:
                 logger.success(
-                    "Model file uploaded successfully", name=res.name, url=res.browser_download_url
+                    f"Model file uploaded successfully - name={res.name} url={res.browser_download_url}"
                 )
 
 
 if __name__ == "__main__":
+    # After Annotating, edit `focus_flags`
+    # - Copy from: `[PROJECT]/database2309/<diagnosed_label_name>`
+    # - Paste to: `[PROJECT]/data/<diagnosed_label_name>`
+    # - Output to: `[PROJECT]/model/<diagnosed_label_name>/<model_name[flag].onnx>`
+
     # fmt:off
     focus_flags = {
-        # "cat": "cat2310",
-        # "mountain": "mountain2309",
-        # "motorcycle": "motorcycle2309"
-        # "excavator": "excavator2309"
-        # "outdoor_gear": "outdoor_gear2309",
-        # "vending_machine": "vending_machine2309",
-        # "cup_of_hot_chocolate": "cup_of_hot_chocolate2309",
-        # "fox": "fox2309",
-        # "furniture": "furniture2309",
-        # "helicopter": "helicopter2310",
-        # "motor_vehicle": "motor_vehicle2309",
-        # "chess_piece": "chess_piece2309"
-        # "robot": "robot2309",
-        "dog": "dog2309"
+        # "<diagnosed_label_name>": "<model_name[flag]>"
+        # "rollercoaster": "rollercoaster2309",
     }
     # fmt:on
 

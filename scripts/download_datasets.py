@@ -11,10 +11,22 @@ from pathlib import Path
 
 import httpx
 
-source = "https://github.com/captcha-challenger/hcaptcha-whistleblower/releases/download/automation-archive/dog.202309101446.zip"
+source = "https://github.com/captcha-challenger/hcaptcha-whistleblower/releases/download/automation-archive/rollercoaster.202309110201.zip"
 
 project_dir = Path(__file__).parent.parent
 to_dir = project_dir.joinpath("database2309")
+
+
+def merge(fd: Path, td: Path):
+    td_img_names = {img for _, _, ina in os.walk(td) for img in ina}
+    count = 0
+    for i in os.listdir(fd):
+        if i not in td_img_names:
+            shutil.move(fd.joinpath(i), td.joinpath(i))
+            count += 1
+    td.joinpath("yes").mkdir(exist_ok=True)
+    td.joinpath("bad").mkdir(exist_ok=True)
+    print(f">> 合并数据集 - {source=} {count=} to_dir={td}")
 
 
 def unpack_datasets(from_dir: str = ""):
@@ -34,16 +46,9 @@ def unpack_datasets(from_dir: str = ""):
     td = to_dir.joinpath(task_name)
     td.mkdir(parents=True, exist_ok=True)
 
-    td_img_names = {img for _, _, ina in os.walk(td) for img in ina}
-    count = 0
-    for i in os.listdir(fd):
-        if i not in td_img_names:
-            shutil.move(fd.joinpath(i), td.joinpath(i))
-            count += 1
-    td.joinpath("yes").mkdir(exist_ok=True)
-    td.joinpath("bad").mkdir(exist_ok=True)
+    merge(fd, td)
 
-    print(f">> 合并数据集 - {source=} {count=} to_dir={td}")
+    return td
 
 
 def download_datasets():
@@ -64,32 +69,25 @@ def download_datasets():
     td = to_dir.joinpath(task_name)
     td.mkdir(exist_ok=True)
 
-    td.joinpath("yes").mkdir(exist_ok=True)
-    td.joinpath("bad").mkdir(exist_ok=True)
-
     td_tmp = to_dir.joinpath(f"{task_name}.tmp")
     td_tmp.mkdir(exist_ok=True)
     with zipfile.ZipFile(zip_path) as z:
         z.extractall(td_tmp)
 
-    td_img_names = {img for _, _, ina in os.walk(td) for img in ina}
-    count = 0
-    for i in os.listdir(td_tmp):
-        if i not in td_img_names:
-            shutil.move(td_tmp.joinpath(i), td.joinpath(i))
-            count += 1
-
-    print(f">> 合并数据集 - {count=} to_dir={td} {source=}")
+    merge(td_tmp, td)
 
     os.remove(zip_path)
     shutil.rmtree(td_tmp, ignore_errors=True)
 
-    if "win32" in sys.platform:
-        os.startfile(td)
+    return td
 
 
 if __name__ == "__main__":
     if not source.startswith("https://"):
-        unpack_datasets()
+        target_dir = unpack_datasets()
     else:
-        download_datasets()
+        target_dir = download_datasets()
+
+    # Annotate your images
+    if "win32" in sys.platform:
+        os.startfile(target_dir)
