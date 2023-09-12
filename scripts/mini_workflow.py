@@ -82,7 +82,10 @@ if __name__ == "__main__":
         # "rollercoaster": "rollercoaster2309",
         # "goose": "goose2309"
         # "chair": "chair_sketch2309",
-        "cup_of_iced_tea": "cup_of_iced_tea2309",
+        # "cup_of_iced_tea": "cup_of_iced_tea2309",
+        # "ladder": "ladder2309",
+        # "electronic_device": "electronic_device2309"
+        "something_you_can_eat": "something_you_can_eat2309"
     }
     # fmt:on
 
