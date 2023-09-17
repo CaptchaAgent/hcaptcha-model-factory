@@ -13,7 +13,7 @@ from github import Github
 from github.GithubException import GithubException
 from loguru import logger
 
-from apis.scaffold import Scaffold
+from hcaptcha_model_factory.apis.scaffold import Scaffold
 
 project_dir = Path(__file__).parent.parent
 
