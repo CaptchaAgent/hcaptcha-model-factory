@@ -23,6 +23,10 @@ model_dir = project_dir.joinpath("model")
 
 
 def quick_train():
+    if not focus_flags:
+        logger.warning("Skip model training, miss focus-flags")
+        return
+
     # Copy the classified data into the dataset
     for task_name in focus_flags:
         to_dir = factory_data_dir.joinpath(task_name)
