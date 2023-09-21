@@ -71,6 +71,7 @@ def unpack_datasets(source: str, from_dir: str = ""):
 
 
 def download_datasets(issue_url):
+    # https://github.com/captcha-challenger/hcaptcha-whistleblower/releases/download/automation-archive/image_label_binary.industrial.tool.or.machinery.202309201646375863.zip
     td: Path | None = None
 
     print(f">> Parse issue url - link={issue_url}")
@@ -79,7 +80,7 @@ def download_datasets(issue_url):
         zip_path = to_dir.joinpath(f"{url.split('/')[-1]}")
         zip_path.write_bytes(res.content)
 
-        task_name = f"{url.split('/')[-1].split('.')[0]}"
+        task_name = ' '.join(url.split('/')[-1].split('.')[1:-2])
         rnv = {" ", ",", "-"}
         for s in rnv:
             task_name = task_name.replace(s, "_")
@@ -101,7 +102,7 @@ def download_datasets(issue_url):
 
 
 if __name__ == "__main__":
-    sources: str = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/695"
+    sources: str = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/725"
 
     target_dir = ""
     local_from_dir = (
