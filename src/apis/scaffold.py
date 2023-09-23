@@ -15,7 +15,7 @@ class Scaffold:
     _model = None
 
     @staticmethod
-    @logger.catch()
+    @logger.catch
     def new():
         """
         [dev for challenger] Initialize the project directory
@@ -78,7 +78,7 @@ class Scaffold:
             Scaffold.train(task=task)
 
     @staticmethod
-    @logger.catch()
+    @logger.catch
     def train(
         task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
     ):
@@ -107,7 +107,7 @@ class Scaffold:
         Scaffold._model = model
 
     @staticmethod
-    @logger.catch()
+    @logger.catch
     def val(task: str):
         """
         Detects the specified model object
@@ -126,7 +126,7 @@ class Scaffold:
         model.val()
 
     @staticmethod
-    @logger.catch()
+    @logger.catch
     def test_onnx(task: str, flag: str = "all"):
         """
         Test the ONNX model
@@ -141,10 +141,10 @@ class Scaffold:
             dir_dataset=Config.DIR_DATABASE,
             dir_model=Config.DIR_MODEL,
         )
-        model.test_onnx(flag=flag)
+        return model.test_onnx(flag=flag)
 
     @staticmethod
-    @logger.catch()
+    @logger.catch
     def trainval(
         task: str, epochs: typing.Optional[int] = None, batch_size: typing.Optional[int] = None
     ):
