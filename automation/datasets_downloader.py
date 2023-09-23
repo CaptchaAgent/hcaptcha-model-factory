@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# Time       : 2023/8/31 20:54
-# Author     : QIN2DIM
-# GitHub     : https://github.com/QIN2DIM
-# Description:
 import asyncio
 import time
 from collections import Counter

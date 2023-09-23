@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# Time       : 2023/8/21 0:15
-# Author     : QIN2DIM
-# GitHub     : https://github.com/QIN2DIM
-# Description:
 # https://github.com/QIN2DIM/hcaptcha-challenger/releases/edit/model
 import os
 import shutil

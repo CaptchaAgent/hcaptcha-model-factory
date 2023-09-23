@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# Time       : 2023/8/22 0:28
-# Author     : QIN2DIM
-# GitHub     : https://github.com/QIN2DIM
-# Description:
 import os
 import shutil
 import sys
