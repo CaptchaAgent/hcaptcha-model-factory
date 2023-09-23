@@ -138,7 +138,7 @@ test*
 logs/
 
 archive/
-.vscode
+.vscode/
 .run
 **/assets_cache.txt
 **/tmp_dir**
