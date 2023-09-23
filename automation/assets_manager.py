@@ -92,7 +92,7 @@ class AssetsManager:
             zip_path = self.to_dir.joinpath(f"{url.split('/')[-1]}")
             zip_path.write_bytes(res.content)
 
-            task_name = ' '.join(url.split('/')[-1].split('.')[1:-2])
+            task_name = " ".join(url.split("/")[-1].split(".")[1:-2])
             rnv = {" ", ",", "-"}
             for s in rnv:
                 task_name = task_name.replace(s, "_")
@@ -136,7 +136,7 @@ class AssetsManager:
                 count += 1
         td.joinpath("yes").mkdir(exist_ok=True)
         td.joinpath("bad").mkdir(exist_ok=True)
-        print(f">> 合并数据集 - {count=} to_dir={td} {self.sources=}")
+        print(f">> Merge datasets - {count=} to_dir={td} {self.sources=}")
 
 
 def run():
@@ -145,5 +145,5 @@ def run():
     am.execute()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()
