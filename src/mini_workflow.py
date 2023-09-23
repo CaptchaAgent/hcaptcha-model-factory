@@ -104,7 +104,9 @@ if __name__ == "__main__":
         # "industrial_tool_or_machinery": "industrial_tool_or_machinery2310",
         # "food_or_beverage_item": "food_or_beverage_item2309",
         # "elephant": "elephant2309",
-        "gaming_tool_or_accessory": "gaming_tool_or_accessory2311",
+        # "gaming_tool_or_accessory": "gaming_tool_or_accessory2311",
+        # "road_traffic": "road_traffic2309",
+        "entertainment_venue": "entertainment_venue2309",
     }
     # fmt:on
 
