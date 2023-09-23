@@ -21,7 +21,7 @@ class AssetsManager:
     project_dir = Path(__file__).parent.parent
     to_dir = project_dir.joinpath("database2309")
     cache_path = this_dir.joinpath("assets_cache.txt")
-    local_from_dir: Path = this_dir.joinpath("tmp_dir")
+    local_from_dir: Path = this_dir.joinpath("tmp_dir/image_label_binary")
 
     _cached_assets: Set[str] = field(default_factory=set)
 
