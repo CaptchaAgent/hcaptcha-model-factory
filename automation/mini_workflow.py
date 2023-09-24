@@ -102,8 +102,11 @@ if __name__ == "__main__":
         # "gaming_tool_or_accessory": "gaming_tool_or_accessory2311",
         # "road_traffic": "road_traffic2309",
         # "entertainment_venue": "entertainment_venue2309",
-        "natural_landscape": "natural_landscape2312",
+        # "natural_landscape": "natural_landscape2312",
         # "coffee_beans": "coffee_beans2309"
+        # "cranberry": "cranberry2309",
+        # "jacket": "jacket2309"
+        "dog": "dog2312"
     }
     # fmt:on
 
