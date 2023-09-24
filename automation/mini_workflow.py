@@ -92,7 +92,7 @@ if __name__ == "__main__":
         # "cat": "cat2311",
         # "train": "train2309",
         # "truck": "truck2309",
-        # "sports_stadium": "sports_stadium2310",
+        "sports_stadium": "sports_stadium2312",
         # "castle": "castle2309",
         # "fox": "fox2311",
         # "plant": "plant2314"
@@ -106,7 +106,8 @@ if __name__ == "__main__":
         # "coffee_beans": "coffee_beans2309"
         # "cranberry": "cranberry2309",
         # "jacket": "jacket2309"
-        "dog": "dog2312"
+        # "dog": "dog2312",
+        # "trousers": "trousers2309"
     }
     # fmt:on
 
