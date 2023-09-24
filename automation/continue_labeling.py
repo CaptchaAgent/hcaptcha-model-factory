@@ -11,12 +11,11 @@ from pathlib import Path
 
 import hcaptcha_challenger as solver
 
-prompt = "dog"
+prompt = "jacket"
+task_name = solver.prompt2task(prompt)
 
 __formats = ("%Y-%m-%d %H:%M:%S.%f", "%Y%m%d%H%M")
 now = datetime.strptime(str(datetime.now()), __formats[0]).strftime(__formats[1])
-
-task_name = solver.prompt2task(prompt)
 
 project_dir = Path(__file__).parent.parent
 from_dir = project_dir.joinpath("database2309", task_name)
@@ -36,7 +35,9 @@ yes_dir.mkdir(parents=True, exist_ok=True)
 bad_dir.mkdir(parents=True, exist_ok=True)
 
 classifier = solver.BinaryClassifier()
-results = classifier.execute(prompt, images)
+model_path = project_dir.joinpath("model", task_name, f"{task_name}.onnx")
+
+results = classifier.execute(prompt, images, model_path=str(model_path))
 for i, result in enumerate(results):
     if result is True:
         shutil.move(images[i], yes_dir)
