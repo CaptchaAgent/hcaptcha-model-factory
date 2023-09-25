@@ -1,2 +1,2 @@
-hcaptcha-challenger[sentinel]==0.8.1-post3
+hcaptcha-challenger[sentinel]==0.8.1-post4
 bs4
