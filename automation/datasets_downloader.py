@@ -13,7 +13,7 @@ from hcaptcha_challenger.utils import SiteKey
 collected = []
 per_times = 50
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
-sitekey = "4c672d35-0701-42b2-88c3-78380b0db560"
+sitekey = SiteKey.discord
 
 
 async def collete_datasets(context: ASyncContext):

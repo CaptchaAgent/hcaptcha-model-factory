@@ -16,8 +16,10 @@ def zip_dataset(prompt: str):
 
     project_dir = Path(__file__).parent.parent
     images_dir = project_dir.joinpath("database2309", task_name)
+    zip_dir = Path(__file__).parent.joinpath("zip_dir")
+    zip_dir.mkdir(exist_ok=True)
 
-    zip_path = Path(f"{task_name}.zip")
+    zip_path = zip_dir.joinpath(f"{task_name}.zip")
 
     with zipfile.ZipFile(zip_path, "w") as zip_file:
         for root, dirs, files in os.walk(images_dir):

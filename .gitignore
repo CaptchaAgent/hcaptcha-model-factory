@@ -142,4 +142,4 @@ archive/
 .run
 **/assets_cache.txt
 **/tmp_dir**
-automation/*.zip
+automation/zip_dir
