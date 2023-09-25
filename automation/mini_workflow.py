@@ -92,7 +92,7 @@ if __name__ == "__main__":
         # "cat": "cat2311",
         # "train": "train2309",
         # "truck": "truck2309",
-        "sports_stadium": "sports_stadium2312",
+        # "sports_stadium": "sports_stadium2312",
         # "castle": "castle2309",
         # "fox": "fox2311",
         # "plant": "plant2314"
@@ -101,13 +101,14 @@ if __name__ == "__main__":
         # "elephant": "elephant2309",
         # "gaming_tool_or_accessory": "gaming_tool_or_accessory2311",
         # "road_traffic": "road_traffic2309",
-        # "entertainment_venue": "entertainment_venue2309",
+        # "entertainment_venue": "entertainment_venue2310",
         # "natural_landscape": "natural_landscape2312",
         # "coffee_beans": "coffee_beans2309"
         # "cranberry": "cranberry2309",
         # "jacket": "jacket2309"
         # "dog": "dog2312",
         # "trousers": "trousers2309"
+        "robot": "robot2311",
     }
     # fmt:on
 
