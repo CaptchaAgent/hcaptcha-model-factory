@@ -9,7 +9,7 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Literal
 
 import hcaptcha_challenger as solver
 
@@ -19,6 +19,8 @@ class ContinueLabeling:
     prompt: str
     images_dir: Path = field(default=Path)
     model_path: str = field(default=str)
+
+    branch: Literal["local", "remote"] = "local"
 
     task_name: str = field(default=str)
     _images: List[Path] = field(default_factory=list)
@@ -72,7 +74,7 @@ class ContinueLabeling:
     def execute(self):
         if not self._images:
             sys.exit()
-        if self.model_path == "":
+        if self.model_path == "" or self.branch == "remote":
             solver.install(upgrade=True)
 
         yes_dir, bad_dir = self.mkdir()
@@ -95,6 +97,7 @@ def run(prompt: str):
     model_dir = project_dir.joinpath("model")
 
     cl = ContinueLabeling.from_prompt(prompt, from_dir, model_dir)
+    cl.branch = "remote"
     cl.execute()
 
 

@@ -4,6 +4,7 @@
 # GitHub     : https://github.com/QIN2DIM
 # Description:
 import os
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -20,6 +21,8 @@ def zip_dataset(prompt: str):
     zip_dir.mkdir(exist_ok=True)
 
     zip_path = zip_dir.joinpath(f"{task_name}.zip")
+    if zip_path.exists():
+        shutil.rmtree(zip_path, ignore_errors=True)
 
     with zipfile.ZipFile(zip_path, "w") as zip_file:
         for root, dirs, files in os.walk(images_dir):
