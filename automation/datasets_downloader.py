@@ -7,7 +7,7 @@ from pathlib import Path
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
-from hcaptcha_challenger import Malenia, AgentT
+from hcaptcha_challenger.agents import Malenia, AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 collected = []
