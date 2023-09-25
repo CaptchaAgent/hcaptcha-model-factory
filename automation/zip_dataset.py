@@ -23,6 +23,9 @@ def zip_dataset(prompt: str):
 
     with zipfile.ZipFile(zip_path, "w") as zip_file:
         for root, dirs, files in os.walk(images_dir):
+            tp = Path(root)
+            if task_name not in tp.parent.name:
+                continue
             if root.endswith("yes"):
                 for file in files:
                     zip_file.write(os.path.join(root, file), f"yes/{file}")
@@ -33,4 +36,4 @@ def zip_dataset(prompt: str):
     print(f">> OUTPUT - {zip_path=}")
 
 
-zip_dataset(prompt="robot")
+zip_dataset(prompt="something_you_can_eat")

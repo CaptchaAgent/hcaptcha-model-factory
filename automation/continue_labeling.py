@@ -99,4 +99,4 @@ def run(prompt: str):
 
 
 if __name__ == "__main__":
-    run(prompt="robot")
+    run(prompt="something_you_can_eat")
