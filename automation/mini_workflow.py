@@ -79,7 +79,7 @@ def roll_upgrade(asset_id):
     try:
         annotator = Annotator(asset_id)
         annotator.execute()
-        webbrowser.open(Annotator.repo.url)
+        webbrowser.open(Annotator.repo.html_url)
     except Exception as err:
         logger.warning(err)
 
