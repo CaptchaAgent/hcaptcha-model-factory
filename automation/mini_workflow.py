@@ -1,6 +1,7 @@
 # https://github.com/QIN2DIM/hcaptcha-challenger/releases/edit/model
 import os
 import shutil
+import webbrowser
 from pathlib import Path
 
 from github import Auth
@@ -8,6 +9,7 @@ from github import Github
 from github.GithubException import GithubException
 from loguru import logger
 
+from annotator import Annotator
 from apis.scaffold import Scaffold
 
 project_dir = Path(__file__).parent.parent
@@ -37,7 +39,7 @@ def quick_train():
         Scaffold.train(task=task_name)
 
 
-def quick_development():
+def quick_development() -> int | None:
     if not os.getenv("GITHUB_TOKEN"):
         logger.warning("Skip model deployment, miss GITHUB TOKEN")
         return
@@ -54,7 +56,7 @@ def quick_development():
             if release.title != modelhub_title:
                 continue
             try:
-                res = release.upload_asset(path=str(pending_onnx_path))
+                asset = release.upload_asset(path=str(pending_onnx_path))
             except GithubException as err:
                 if err.status == 422:
                     logger.error(
@@ -65,8 +67,21 @@ def quick_development():
                 logger.error(err)
             else:
                 logger.success(
-                    f"Model file uploaded successfully - name={res.name} url={res.browser_download_url}"
+                    f"Model file uploaded successfully - name={asset.name} url={asset.browser_download_url}"
                 )
+                return asset.id
+
+
+def roll_upgrade(asset_id):
+    if not asset_id:
+        return
+
+    try:
+        annotator = Annotator(asset_id)
+        annotator.execute()
+        webbrowser.open(Annotator.repo.url)
+    except Exception as err:
+        logger.warning(err)
 
 
 if __name__ == "__main__":
@@ -78,9 +93,11 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        "robot": "robot2311",
+        # "robot": "robot2311",
+        "industrial_scene": "industrial_scene2310",
     }
     # fmt:on
 
     quick_train()
-    quick_development()
+    aid = quick_development()
+    roll_upgrade(aid)
