@@ -17,6 +17,8 @@ from github.GitReleaseAsset import GitReleaseAsset
 from github.Repository import Repository
 from hcaptcha_challenger import ModelHub
 from loguru import logger
+import hcaptcha_challenger as solver
+
 
 if not os.getenv("GITHUB_TOKEN"):
     logger.warning("Skip model deployment, miss GITHUB TOKEN")
@@ -65,6 +67,8 @@ class Annotator:
         self._matched_label = matched_label
 
         self._asset: GitReleaseAsset | None = None
+
+        solver.install(upgrade=True)
 
         self.modelhub = ModelHub.from_github_repo()
         self.modelhub.parse_objects()
