@@ -18,11 +18,10 @@ import hcaptcha_challenger as solver
 class ContinueLabeling:
     prompt: str
     images_dir: Path = field(default=Path)
-    model_path: str = field(default=str)
+    model_path: Path = field(default=Path)
 
     branch: Literal["local", "remote"] = "local"
 
-    task_name: str = field(default=str)
     _images: List[Path] = field(default_factory=list)
 
     def __post_init__(self):
@@ -32,34 +31,20 @@ class ContinueLabeling:
             if img_name.endswith(".png")
         ]
 
+        if not self.model_path or not self.model_path.exists():
+            print("NOT Found Model_Path, switch to remote mode")
+            self.branch = "remote"
+
     @classmethod
-    def from_prompt(cls, prompt: str, from_dir: Path, model_dir: Path | None = None, **kwargs):
+    def from_prompt(cls, prompt: str, images_dir: Path, model_path: Path | None = None, **kwargs):
         prompt = prompt.replace("_", " ")
 
-        # Select: model name
-        task_name = solver.prompt2task(prompt)
-
-        # Match: image database
-        images_dir = from_dir.joinpath(task_name)
         if not images_dir.exists():
             raise FileNotFoundError(f"NOT Found Images_dir - {images_dir=}")
+        if model_path is not None and isinstance(model_path, Path) and not model_path.exists():
+            raise FileNotFoundError(f"NOT Found Model_Path - {model_path}")
 
-        # Match: local model
-        model_path = ""
-        if model_dir and isinstance(model_dir, Path):
-            model_path = model_dir.joinpath(task_name, f"{task_name}.onnx")
-            if not model_path.exists():
-                print("NOT Found Model_Path, switch to remote model")
-            else:
-                model_path = str(model_path)
-
-        return cls(
-            prompt=prompt,
-            task_name=task_name,
-            images_dir=images_dir,
-            model_path=model_path,
-            **kwargs,
-        )
+        return cls(prompt=prompt, images_dir=images_dir, model_path=model_path, **kwargs)
 
     def mkdir(self) -> Tuple[Path, Path]:
         __formats = ("%Y-%m-%d %H:%M:%S.%f", "%Y%m%d%H%M")
@@ -74,13 +59,17 @@ class ContinueLabeling:
     def execute(self):
         if not self._images:
             sys.exit()
-        if self.model_path == "" or self.branch == "remote":
+
+        if self.branch == "remote":
             solver.install(upgrade=True)
+            model_path = None
+        else:
+            model_path = str(self.model_path)
 
         yes_dir, bad_dir = self.mkdir()
 
         classifier = solver.BinaryClassifier()
-        results = classifier.execute(self.prompt, self._images, model_path=self.model_path)
+        results = classifier.execute(self.prompt, self._images, model_path)
         for i, result in enumerate(results):
             if result is True:
                 shutil.move(self._images[i], yes_dir)
@@ -91,15 +80,22 @@ class ContinueLabeling:
             os.startfile(self.images_dir)
 
 
-def run(prompt: str):
-    project_dir = Path(__file__).parent.parent
-    from_dir = project_dir.joinpath("database2309")
-    model_dir = project_dir.joinpath("model")
+def run(prompt: str, model_name: str | None = None):
+    prompt = prompt.replace("_", " ")
 
-    cl = ContinueLabeling.from_prompt(prompt, from_dir, model_dir)
-    cl.branch = "remote"
+    task_name = solver.prompt2task(prompt)
+
+    project_dir = Path(__file__).parent.parent
+    images_dir = project_dir.joinpath("database2309", task_name)
+
+    name = model_name or task_name
+    model_path = project_dir.joinpath("model", name, f"{name}.onnx")
+    if not model_path.exists():
+        cl = ContinueLabeling.from_prompt(prompt, images_dir)
+    else:
+        cl = ContinueLabeling.from_prompt(prompt, images_dir, model_path)
     cl.execute()
 
 
 if __name__ == "__main__":
-    run(prompt="something_you_can_eat")
+    run(prompt="entertainment venue")

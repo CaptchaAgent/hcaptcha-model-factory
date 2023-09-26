@@ -1,6 +1,7 @@
 # https://github.com/QIN2DIM/hcaptcha-challenger/releases/edit/model
 import os
 import shutil
+import webbrowser
 from pathlib import Path
 
 from github import Auth
@@ -8,6 +9,7 @@ from github import Github
 from github.GithubException import GithubException
 from loguru import logger
 
+from annotator import Annotator
 from apis.scaffold import Scaffold
 
 project_dir = Path(__file__).parent.parent
@@ -37,7 +39,7 @@ def quick_train():
         Scaffold.train(task=task_name)
 
 
-def quick_development():
+def quick_development() -> int | None:
     if not os.getenv("GITHUB_TOKEN"):
         logger.warning("Skip model deployment, miss GITHUB TOKEN")
         return
@@ -54,7 +56,7 @@ def quick_development():
             if release.title != modelhub_title:
                 continue
             try:
-                res = release.upload_asset(path=str(pending_onnx_path))
+                asset = release.upload_asset(path=str(pending_onnx_path))
             except GithubException as err:
                 if err.status == 422:
                     logger.error(
@@ -65,8 +67,21 @@ def quick_development():
                 logger.error(err)
             else:
                 logger.success(
-                    f"Model file uploaded successfully - name={res.name} url={res.browser_download_url}"
+                    f"Model file uploaded successfully - name={asset.name} url={asset.browser_download_url}"
                 )
+                return asset.id
+
+
+def roll_upgrade(asset_id):
+    if not asset_id:
+        return
+
+    try:
+        annotator = Annotator(asset_id)
+        annotator.execute()
+        webbrowser.open(Annotator.repo.html_url)
+    except Exception as err:
+        logger.warning(err)
 
 
 if __name__ == "__main__":
@@ -78,39 +93,12 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        # "rollercoaster": "rollercoaster2309",
-        # "goose": "goose2309"
-        # "chair": "chair_sketch2309",
-        # "cup_of_iced_tea": "cup_of_iced_tea2309",
-        # "ladder": "ladder2309",
-        # "electronic_device": "electronic_device2312",
-        # "something_you_can_eat": "something_you_can_eat2310",
-        # "boat": "boat2309",
-        # "airplane": "airplane2309",
-        # "cup_of_orange_juice": "cup_of_orange_juice2309",
-        # "outdoor_gear": "outdoor_gear2310"
-        # "cat": "cat2311",
-        # "train": "train2309",
-        # "truck": "truck2309",
-        # "sports_stadium": "sports_stadium2312",
-        # "castle": "castle2309",
-        # "fox": "fox2311",
-        # "plant": "plant2314"
-        # "industrial_tool_or_machinery": "industrial_tool_or_machinery2310",
-        # "food_or_beverage_item": "food_or_beverage_item2309",
-        # "elephant": "elephant2309",
-        # "gaming_tool_or_accessory": "gaming_tool_or_accessory2311",
-        # "road_traffic": "road_traffic2309",
-        # "entertainment_venue": "entertainment_venue2310",
-        # "natural_landscape": "natural_landscape2312",
-        # "coffee_beans": "coffee_beans2309"
-        # "cranberry": "cranberry2309",
-        # "jacket": "jacket2309"
-        # "dog": "dog2312",
-        # "trousers": "trousers2309"
-        "robot": "robot2311",
+        # "robot": "robot2311",
+        # "industrial_scene": "industrial_scene2310",
+        "entertainment_venue": "entertainment_venue2311",
     }
     # fmt:on
 
     quick_train()
-    quick_development()
+    aid = quick_development()
+    roll_upgrade(aid)
