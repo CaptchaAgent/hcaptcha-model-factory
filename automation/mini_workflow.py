@@ -78,36 +78,6 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        # "rollercoaster": "rollercoaster2309",
-        # "goose": "goose2309"
-        # "chair": "chair_sketch2309",
-        # "cup_of_iced_tea": "cup_of_iced_tea2309",
-        # "ladder": "ladder2309",
-        # "electronic_device": "electronic_device2312",
-        # "something_you_can_eat": "something_you_can_eat2310",
-        # "boat": "boat2309",
-        # "airplane": "airplane2309",
-        # "cup_of_orange_juice": "cup_of_orange_juice2309",
-        # "outdoor_gear": "outdoor_gear2310"
-        # "cat": "cat2311",
-        # "train": "train2309",
-        # "truck": "truck2309",
-        # "sports_stadium": "sports_stadium2312",
-        # "castle": "castle2309",
-        # "fox": "fox2311",
-        # "plant": "plant2314"
-        # "industrial_tool_or_machinery": "industrial_tool_or_machinery2310",
-        # "food_or_beverage_item": "food_or_beverage_item2309",
-        # "elephant": "elephant2309",
-        # "gaming_tool_or_accessory": "gaming_tool_or_accessory2311",
-        # "road_traffic": "road_traffic2309",
-        # "entertainment_venue": "entertainment_venue2310",
-        # "natural_landscape": "natural_landscape2312",
-        # "coffee_beans": "coffee_beans2309"
-        # "cranberry": "cranberry2309",
-        # "jacket": "jacket2309"
-        # "dog": "dog2312",
-        # "trousers": "trousers2309"
         "robot": "robot2311",
     }
     # fmt:on
