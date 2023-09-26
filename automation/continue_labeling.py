@@ -98,4 +98,4 @@ def run(prompt: str, model_name: str | None = None):
 
 
 if __name__ == "__main__":
-    run(prompt="industrial scene")
+    run(prompt="entertainment venue")

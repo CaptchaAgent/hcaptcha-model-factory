@@ -94,7 +94,8 @@ if __name__ == "__main__":
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
         # "robot": "robot2311",
-        "industrial_scene": "industrial_scene2310",
+        # "industrial_scene": "industrial_scene2310",
+        "entertainment_venue": "entertainment_venue2311",
     }
     # fmt:on
 
