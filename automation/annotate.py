@@ -38,7 +38,7 @@ def parse_label(asset_name: str) -> str | None:
     onnx_archive = asset_name.replace(".onnx", "")
     i_end = -1
     for i, s in enumerate(onnx_archive):
-        if s.digit():
+        if s.isdigit():
             i_end = i
             break
     label = onnx_archive[:i_end]
@@ -64,16 +64,16 @@ def quick_annotation(asset_id: int, matched_label: str = ""):
 
     data = yaml.safe_load(modelhub.objects_path.read_text(encoding="utf8"))
 
-    # if "yolov8" not in asset.name:
-    #     onnx_archive = asset.name.replace(".onnx", "")
-    #     matched_label = matched_label or parse_label(asset.name)
-    #     old_onnx_archive = modelhub.label_alias.get(matched_label)
-    #     if not old_onnx_archive:
-    #         data["label_alias"][onnx_archive] = {"en": [matched_label]}
-    #     else:
-    #         i18n_mapping = data["label_alias"][old_onnx_archive].copy()
-    #         del data["label_alias"][old_onnx_archive]
-    #         data["label_alias"][onnx_archive] = i18n_mapping
+    if "yolov8" not in asset.name:
+        onnx_archive = asset.name.replace(".onnx", "")
+        matched_label = matched_label or parse_label(asset.name)
+        old_onnx_archive = modelhub.label_alias.get(matched_label)
+        if not old_onnx_archive:
+            data["label_alias"][onnx_archive] = {"en": [matched_label]}
+        else:
+            i18n_mapping = data["label_alias"][old_onnx_archive].copy()
+            del data["label_alias"][old_onnx_archive]
+            data["label_alias"][onnx_archive] = i18n_mapping
 
     with open("format_objects.yaml", "w", encoding="utf8") as file:
         yaml.safe_dump(data, file, sort_keys=False, allow_unicode=True)
