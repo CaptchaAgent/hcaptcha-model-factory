@@ -16,9 +16,8 @@ from github import Github, Auth
 from github.GitReleaseAsset import GitReleaseAsset
 from github.Repository import Repository
 from hcaptcha_challenger import ModelHub
+from hcaptcha_challenger.onnx.modelhub import request_resource
 from loguru import logger
-import hcaptcha_challenger as solver
-
 
 if not os.getenv("GITHUB_TOKEN"):
     logger.warning("Skip model deployment, miss GITHUB TOKEN")
@@ -58,6 +57,13 @@ class Objects:
         )
 
 
+def upgrade_objects(modelhub: ModelHub):
+    objects_url = (
+        "https://raw.githubusercontent.com/QIN2DIM/hcaptcha-challenger/main/src/objects.yaml"
+    )
+    request_resource(objects_url, modelhub.objects_path)
+
+
 class Annotator:
     auth = Auth.Token(os.getenv("GITHUB_TOKEN"))
     repo = Github(auth=auth).get_repo("QIN2DIM/hcaptcha-challenger")
@@ -68,9 +74,10 @@ class Annotator:
 
         self._asset: GitReleaseAsset | None = None
 
-        solver.install(upgrade=True)
-
         self.modelhub = ModelHub.from_github_repo()
+
+        upgrade_objects(modelhub=self.modelhub)
+
         self.modelhub.parse_objects()
 
         self.data: Objects = Objects.from_modelhub(modelhub=self.modelhub)

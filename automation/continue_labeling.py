@@ -11,9 +11,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple, Literal
 
-import cv2
 import hcaptcha_challenger as solver
-from hcaptcha_challenger import ResNetControl
+from hcaptcha_challenger import LocalBinaryClassifier
 
 
 @dataclass
@@ -34,7 +33,6 @@ class ContinueLabeling:
         ]
 
         if not self.model_path or not self.model_path.exists():
-            print("NOT Found Model_Path, switch to remote mode")
             self.branch = "remote"
 
     @classmethod
@@ -74,11 +72,10 @@ class ContinueLabeling:
                 elif result is False:
                     shutil.move(self._images[i], bad_dir)
         elif self.branch == "local":
-            net = cv2.dnn.readNetFromONNX(str(self.model_path))
-            control = ResNetControl.from_pluggable_model(net)
+            lbc = LocalBinaryClassifier(self.model_path)
             for i, image_path in enumerate(self._images):
                 image = image_path.read_bytes()
-                result = control.binary_classify(image)
+                result = lbc.parse_once(image)
                 if result is True:
                     shutil.move(self._images[i], yes_dir)
                 elif result is False:
@@ -112,4 +109,4 @@ def run(prompt: str, model_name: str | None = None):
 
 
 if __name__ == "__main__":
-    run("crane")
+    run("crow")
