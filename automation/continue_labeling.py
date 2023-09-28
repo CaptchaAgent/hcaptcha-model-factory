@@ -11,7 +11,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple, Literal
 
+import cv2
 import hcaptcha_challenger as solver
+from hcaptcha_challenger import ResNetControl
 
 
 @dataclass
@@ -60,21 +62,27 @@ class ContinueLabeling:
         if not self._images:
             sys.exit()
 
-        if self.branch == "remote":
-            solver.install(upgrade=True)
-            model_path = None
-        else:
-            model_path = str(self.model_path)
-
         yes_dir, bad_dir = self.mkdir()
 
-        classifier = solver.BinaryClassifier()
-        results = classifier.execute(self.prompt, self._images, model_path)
-        for i, result in enumerate(results):
-            if result is True:
-                shutil.move(self._images[i], yes_dir)
-            elif result is False:
-                shutil.move(self._images[i], bad_dir)
+        if self.branch == "remote":
+            solver.install(upgrade=True)
+            classifier = solver.BinaryClassifier()
+            results = classifier.execute(self.prompt, self._images)
+            for i, result in enumerate(results):
+                if result is True:
+                    shutil.move(self._images[i], yes_dir)
+                elif result is False:
+                    shutil.move(self._images[i], bad_dir)
+        elif self.branch == "local":
+            net = cv2.dnn.readNetFromONNX(str(self.model_path))
+            control = ResNetControl.from_pluggable_model(net)
+            for i, image_path in enumerate(self._images):
+                image = image_path.read_bytes()
+                result = control.binary_classify(image)
+                if result is True:
+                    shutil.move(self._images[i], yes_dir)
+                elif result is False:
+                    shutil.move(self._images[i], bad_dir)
 
         if "win32" in sys.platform:
             os.startfile(self.images_dir)
@@ -88,14 +96,20 @@ def run(prompt: str, model_name: str | None = None):
     project_dir = Path(__file__).parent.parent
     images_dir = project_dir.joinpath("database2309", task_name)
 
-    name = model_name or task_name
-    model_path = project_dir.joinpath("model", name, f"{name}.onnx")
-    if not model_path.exists():
-        cl = ContinueLabeling.from_prompt(prompt, images_dir)
+    if model_name:
+        if Path(model_name).exists():
+            model_path = Path(model_name)
+        else:
+            model_path = project_dir.joinpath("model", model_name, f"{model_name}.onnx")
+        if model_path.exists():
+            cl = ContinueLabeling.from_prompt(prompt, images_dir, model_path)
+            cl.execute()
+        else:
+            print("NOT FOUND MODEL_PATH")
     else:
-        cl = ContinueLabeling.from_prompt(prompt, images_dir, model_path)
-    cl.execute()
+        cl = ContinueLabeling.from_prompt(prompt, images_dir)
+        cl.execute()
 
 
 if __name__ == "__main__":
-    run(prompt="entertainment venue")
+    run("crane")
