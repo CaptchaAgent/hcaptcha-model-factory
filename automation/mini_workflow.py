@@ -95,7 +95,12 @@ if __name__ == "__main__":
         # "<diagnosed_label_name>": "<model_name[flag]>"
         # "robot": "robot2311",
         # "industrial_scene": "industrial_scene2310",
-        "entertainment_venue": "entertainment_venue2311",
+        # "skyscraper": "skyscraper2309",
+        # "shelves": "shelves2310",
+        # "desert": "desert2310",  # 2
+        # "plant": "plant2315",
+        # "river": "river2310"  # 1
+        # "crane": "crane2300",
     }
     # fmt:on
 
