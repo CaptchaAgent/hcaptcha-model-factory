@@ -13,15 +13,6 @@ from typing import List, Tuple, Literal
 
 import hcaptcha_challenger as solver
 from hcaptcha_challenger import LocalBinaryClassifier
-from hcaptcha_challenger.onnx.modelhub import request_resource, ModelHub
-
-
-def upgrade_objects():
-    modelhub = ModelHub.from_github_repo()
-    objects_url = (
-        "https://raw.githubusercontent.com/QIN2DIM/hcaptcha-challenger/main/src/objects.yaml"
-    )
-    request_resource(objects_url, modelhub.objects_path)
 
 
 @dataclass
@@ -72,7 +63,7 @@ class ContinueLabeling:
         yes_dir, bad_dir = self.mkdir()
 
         if self.branch == "remote":
-            upgrade_objects()
+            solver.install(upgrade=True)
             classifier = solver.BinaryClassifier()
             results = classifier.execute(self.prompt, self._images)
             for i, result in enumerate(results):
@@ -118,4 +109,4 @@ def run(prompt: str, model_name: str | None = None):
 
 
 if __name__ == "__main__":
-    run("plant", "plant2317.onnx")
+    run("entertainment_venue")
