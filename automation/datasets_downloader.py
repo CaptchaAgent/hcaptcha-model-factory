@@ -11,7 +11,7 @@ from hcaptcha_challenger.agents import Malenia, AgentT
 from hcaptcha_challenger.utils import SiteKey
 
 collected = []
-per_times = 50
+per_times = 150
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 sitekey = SiteKey.user_easy
 

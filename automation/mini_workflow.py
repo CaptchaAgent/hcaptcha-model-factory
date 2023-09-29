@@ -101,8 +101,11 @@ if __name__ == "__main__":
         # "plant": "plant2315",
         # "river": "river2310"  # 1
         # "crane": "crane2300",
-        "snowman": "snowman2310",
+        # "snowman": "snowman2310",
         # "crow": "crow2309",
+        # "truck": "truck2310"
+        # "plant": "plant23001",
+        "animal_statue": "animal_statue2309",
     }
     # fmt:on
 

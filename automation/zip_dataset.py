@@ -39,4 +39,4 @@ def zip_dataset(prompt: str):
     print(f">> OUTPUT - {zip_path=}")
 
 
-zip_dataset(prompt="industrial_scene")
+zip_dataset(prompt="plant")
