@@ -1,7 +1,6 @@
 # https://github.com/QIN2DIM/hcaptcha-challenger/releases/edit/model
 import os
 import shutil
-import webbrowser
 from pathlib import Path
 
 from github import Auth
@@ -9,8 +8,8 @@ from github import Github
 from github.GithubException import GithubException
 from loguru import logger
 
-from annotator import Annotator
 from apis.scaffold import Scaffold
+from rolling_upgrade import rolling_upgrade
 
 project_dir = Path(__file__).parent.parent
 
@@ -72,18 +71,6 @@ def quick_development() -> int | None:
                 return asset.id
 
 
-def roll_upgrade(asset_id):
-    if not asset_id:
-        return
-
-    try:
-        annotator = Annotator(asset_id)
-        annotator.execute()
-        webbrowser.open(Annotator.repo.html_url)
-    except Exception as err:
-        logger.warning(err)
-
-
 if __name__ == "__main__":
     # After Annotating, edit `focus_flags`
     # - Copy from: `[PROJECT]/database2309/<diagnosed_label_name>`
@@ -99,4 +86,4 @@ if __name__ == "__main__":
 
     quick_train()
     aid = quick_development()
-    roll_upgrade(aid)
+    rolling_upgrade(aid)
