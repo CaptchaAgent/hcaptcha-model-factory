@@ -9,7 +9,7 @@ from github.GithubException import GithubException
 from loguru import logger
 
 from apis.scaffold import Scaffold
-from rolling_upgrade import rolling_upgrade
+from automation.rolling_upgrade import rolling_upgrade
 
 project_dir = Path(__file__).parent.parent
 
@@ -80,7 +80,17 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        "electronic_device": "electronic_device2314",
+        # "steak": "steak2309",
+        # "sushi": "sushi2309",
+        # "pizza": "pizza2301",
+        # "main_course": "main_course2309",
+        # "something_you_can_eat": "something_you_can_eat2314",
+        # "trees": "trees2309",
+        # "industrial_scene": "industrial_scene2311",
+        # "steak":"steak2310",
+        # "sushi": "sushi2310",
+        # "car_without_a_roof": "car_without_a_roof2309",
+        "gnome": "gnome2309"
     }
     # fmt:on
 

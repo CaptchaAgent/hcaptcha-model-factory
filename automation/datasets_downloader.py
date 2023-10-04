@@ -4,14 +4,13 @@ from collections import Counter
 from contextlib import suppress
 from pathlib import Path
 
+from hcaptcha_challenger.agents import Malenia, AgentT
+from hcaptcha_challenger.utils import SiteKey
 from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
-from hcaptcha_challenger.agents import Malenia, AgentT
-from hcaptcha_challenger.utils import SiteKey
-
 collected = []
-per_times = 150
+per_times = 50
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 sitekey = SiteKey.user_easy
 

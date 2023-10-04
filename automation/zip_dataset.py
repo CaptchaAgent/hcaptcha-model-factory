@@ -5,6 +5,7 @@
 # Description:
 import os
 import shutil
+import webbrowser
 import zipfile
 from pathlib import Path
 
@@ -40,3 +41,6 @@ def zip_dataset(prompt: str):
 
 
 zip_dataset(prompt="plant")
+webbrowser.open(
+    "https://colab.research.google.com/github/captcha-challenger/hcaptcha-model-factory/blob/main/automation/roboflow_resnet.ipynb"
+)
