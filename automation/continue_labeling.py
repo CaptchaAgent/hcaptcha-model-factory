@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List, Tuple, Literal
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger import LocalBinaryClassifier
+from hcaptcha_challenger import LocalBinaryClassifier, split_prompt_message, label_cleaning, ModelHub
 
 
 @dataclass
@@ -56,6 +56,22 @@ class ContinueLabeling:
 
         return yes_dir, bad_dir
 
+    def match_model(self) -> Path | None:
+        solver.install(upgrade=True)
+
+        modelhub = ModelHub.from_github_repo()
+        modelhub.parse_objects()
+
+        _label = split_prompt_message(self.prompt, lang="en")
+        label = label_cleaning(_label)
+
+        focus_label = modelhub.label_alias.get(label)
+        if focus_label:
+            model_name = focus_label if focus_label.endswith(".onnx") else f"{focus_label}.onnx"
+            model_path = modelhub.models_dir.joinpath(model_name)
+            modelhub.pull_model(model_name)
+            return model_path
+
     def execute(self):
         if not self._images:
             sys.exit()
@@ -63,23 +79,21 @@ class ContinueLabeling:
         yes_dir, bad_dir = self.mkdir()
 
         if self.branch == "remote":
-            solver.install(upgrade=True)
-            classifier = solver.BinaryClassifier()
-            results = classifier.execute(self.prompt, self._images)
-            for i, result in enumerate(results):
-                if result is True:
-                    shutil.move(self._images[i], yes_dir)
-                elif result is False:
-                    shutil.move(self._images[i], bad_dir)
-        elif self.branch == "local":
-            lbc = LocalBinaryClassifier(self.model_path)
-            for i, image_path in enumerate(self._images):
-                image = image_path.read_bytes()
-                result = lbc.parse_once(image)
-                if result is True:
-                    shutil.move(self._images[i], yes_dir)
-                elif result is False:
-                    shutil.move(self._images[i], bad_dir)
+            self.model_path = self.match_model()
+
+        if not isinstance(self.model_path, Path) or not self.model_path.exists():
+            return
+
+        print("labeling...")
+
+        lbc = LocalBinaryClassifier(self.model_path)
+        for i, image_path in enumerate(self._images):
+            image = image_path.read_bytes()
+            result = lbc.parse_once(image)
+            if result is True:
+                shutil.move(self._images[i], yes_dir)
+            elif result is False:
+                shutil.move(self._images[i], bad_dir)
 
         if "win32" in sys.platform:
             os.startfile(self.images_dir)
@@ -94,9 +108,8 @@ def run(prompt: str, model_name: str | None = None):
     images_dir = project_dir.joinpath("database2309", task_name)
 
     if model_name:
-        if Path(model_name).exists():
-            model_path = Path(model_name)
-        else:
+        model_path = Path(model_name)
+        if not model_path.exists():
             model_path = project_dir.joinpath("model", model_name, f"{model_name}.onnx")
         if model_path.exists():
             cl = ContinueLabeling.from_prompt(prompt, images_dir, model_path)
@@ -109,4 +122,4 @@ def run(prompt: str, model_name: str | None = None):
 
 
 if __name__ == "__main__":
-    run("entertainment_venue")
+    run("fresh fruit")

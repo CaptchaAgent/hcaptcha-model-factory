@@ -80,20 +80,10 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        # "steak": "steak2309",
-        # "sushi": "sushi2309",
-        # "pizza": "pizza2301",
-        # "main_course": "main_course2309",
-        # "something_you_can_eat": "something_you_can_eat2314",
-        # "trees": "trees2309",
-        # "industrial_scene": "industrial_scene2311",
-        # "steak":"steak2310",
-        # "sushi": "sushi2310",
-        # "car_without_a_roof": "car_without_a_roof2309",
-        "gnome": "gnome2309"
+        "fresh_fruit": "fresh_fruit2310"
     }
     # fmt:on
 
-    quick_train()
+    # quick_train()
     aid = quick_development()
     rolling_upgrade(aid)
