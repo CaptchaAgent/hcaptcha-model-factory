@@ -80,10 +80,12 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        "fresh_fruit": "fresh_fruit2310"
+        # "owl": "owl2309",
+        # "beverage": "beverage2309",
+        "food_or_beverage_item": "food_or_beverage_item2311"
     }
     # fmt:on
 
-    # quick_train()
+    quick_train()
     aid = quick_development()
     rolling_upgrade(aid)

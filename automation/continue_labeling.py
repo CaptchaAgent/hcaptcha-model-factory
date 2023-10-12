@@ -84,6 +84,7 @@ class ContinueLabeling:
         if not isinstance(self.model_path, Path) or not self.model_path.exists():
             return
 
+        print(f"match model - name={self.model_path.name}")
         print("labeling...")
 
         lbc = LocalBinaryClassifier(self.model_path)
@@ -122,4 +123,4 @@ def run(prompt: str, model_name: str | None = None):
 
 
 if __name__ == "__main__":
-    run("fresh fruit")
+    run("main_course")
