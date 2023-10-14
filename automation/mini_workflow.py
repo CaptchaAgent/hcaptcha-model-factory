@@ -9,7 +9,6 @@ from github.GithubException import GithubException
 from loguru import logger
 
 from apis.scaffold import Scaffold
-from automation.rolling_upgrade import rolling_upgrade
 
 project_dir = Path(__file__).parent.parent
 
@@ -81,11 +80,14 @@ if __name__ == "__main__":
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
         # "owl": "owl2309",
-        # "beverage": "beverage2309",
-        "food_or_beverage_item": "food_or_beverage_item2311"
+        "beverage": "beverage2312",
+        # "food_or_beverage_item": "food_or_beverage_item2311",
+        # "boat": "boat2310",
+        # "nested_elephant": "nested_elephant2309",
+        # "nested_largest_rabbit": "nested_largest_rabbit2309",
     }
     # fmt:on
 
     quick_train()
     aid = quick_development()
-    rolling_upgrade(aid)
+    # rolling_upgrade(aid)

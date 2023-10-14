@@ -9,7 +9,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 import yaml
 from github import Github, Auth
@@ -27,6 +27,7 @@ if not os.getenv("GITHUB_TOKEN"):
 @dataclass
 class Objects:
     branches: Dict[str, Any]
+    nested_categories: Dict[str, List[str]]
     ashes_of_war: Dict[str, Any]
     label_alias: Dict[str, Any]
 
