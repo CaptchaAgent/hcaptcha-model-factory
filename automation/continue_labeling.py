@@ -12,7 +12,12 @@ from pathlib import Path
 from typing import List, Tuple, Literal
 
 import hcaptcha_challenger as solver
-from hcaptcha_challenger import LocalBinaryClassifier, split_prompt_message, label_cleaning, ModelHub
+from hcaptcha_challenger import (
+    LocalBinaryClassifier,
+    split_prompt_message,
+    label_cleaning,
+    ModelHub,
+)
 
 
 @dataclass

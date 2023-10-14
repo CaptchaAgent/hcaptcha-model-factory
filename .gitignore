@@ -142,4 +142,5 @@ archive/
 .run
 **/assets_cache.txt
 **/tmp_dir**
-automation/zip_dir
+automation/zip_dir/
+automation/yolo_mocker/
