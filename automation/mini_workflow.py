@@ -9,7 +9,6 @@ from github.GithubException import GithubException
 from loguru import logger
 
 from apis.scaffold import Scaffold
-from automation.rolling_upgrade import rolling_upgrade
 
 project_dir = Path(__file__).parent.parent
 
@@ -71,6 +70,12 @@ def quick_development() -> int | None:
                 return asset.id
 
 
+def upgrade_objects(aid):
+    from automation.rolling_upgrade import rolling_upgrade
+
+    rolling_upgrade(aid)
+
+
 if __name__ == "__main__":
     # After Annotating, edit `focus_flags`
     # - Copy from: `[PROJECT]/database2309/<diagnosed_label_name>`
@@ -80,22 +85,15 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        # "owl": "owl2309",
-        # "beverage": "beverage2312",
-        # "food_or_beverage_item": "food_or_beverage_item2311",
-        # "boat": "boat2310",
-        # "nested_elephant": "nested_elephant2309",
-        # "nested_largest_rabbit": "nested_largest_rabbit2310",
-        # "nested_largest_hedgehog": "nested_largest_hedgehog2309",
-        # "nested_largest_raccoon": "nested_largest_raccoon2309",
-        # "bird": "bird2309",
-        # "drone": "drone2309",
-        # "meerkat": "meerkat2309",
         # "indoor_vertical_farm": "indoor_vertical_farm2309",
-        "smartwatch": "smartwatch2309"
+        # "smartwatch": "smartwatch2309",
+        # "hat": "hat2310",
+        # "vineyard": "vineyard2309",
+        "nested_electronic_device": "nested_electronic_device2309",
     }
     # fmt:on
 
     quick_train()
     aid = quick_development()
-    rolling_upgrade(aid)
+    # upgrade_objects(aid)
+    print(aid)

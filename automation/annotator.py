@@ -27,6 +27,7 @@ if not os.getenv("GITHUB_TOKEN"):
 @dataclass
 class Objects:
     branches: Dict[str, Any]
+    circle_seg: str
     nested_categories: Dict[str, List[str]]
     ashes_of_war: Dict[str, Any]
     label_alias: Dict[str, Any]
