@@ -50,6 +50,7 @@ class ModelFactory:
 
     BATCH_SIZE = 4
     EPOCHS = 200
+    EARLY_STOPPING = 0
 
     # Dir of ONNX output
     DIR_MODEL = "model"
@@ -69,6 +70,7 @@ class ModelFactory:
         dir_model: typing.Optional[str] = None,
         epochs: typing.Optional[int] = None,
         batch_size: typing.Optional[int] = None,
+        early_stopping: typing.Optional[int] = None,
     ):
         """
 
@@ -77,12 +79,14 @@ class ModelFactory:
         :param dir_model: hook to factory/model/
         :param epochs:
         :param batch_size:
+        :param early_stopping:
         """
         self._task_name = task_name
         self._dir_model = os.path.join(dir_model or self.DIR_MODEL, self._task_name)
         self._dir_dataset = os.path.join(dir_dataset, self._task_name)
         self._epochs = epochs or self.EPOCHS
         self._batch_size = batch_size or self.BATCH_SIZE
+        self._early_stopping = early_stopping or self.EARLY_STOPPING
 
         os.makedirs(self._dir_model, exist_ok=True)
 

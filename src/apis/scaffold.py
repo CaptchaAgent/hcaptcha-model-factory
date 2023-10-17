@@ -101,6 +101,7 @@ class Scaffold:
             batch_size=batch_size,
             dir_dataset=Config.DIR_DATABASE,
             dir_model=Config.DIR_MODEL,
+            early_stopping=Config.EARLY_STOPPING,
         )
         model.train()
         model.conv_pth2onnx(verbose=False)

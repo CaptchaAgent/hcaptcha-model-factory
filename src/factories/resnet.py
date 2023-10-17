@@ -175,6 +175,7 @@ class ResNet(ModelFactory):
     ):
         best_model = copy.deepcopy(model)
         best_acc = 0
+        ascend_count = 0
 
         for epoch in range(epochs):
             total_loss = 0
@@ -229,14 +230,28 @@ class ResNet(ModelFactory):
                 )
             )
 
-            if total_acc / dataset_length >= best_acc:
-                best_acc = total_acc / dataset_length
-                best_model = copy.deepcopy(model)
-
             if (epoch + 1) % self.SAVE_INTERVAL == 0:
                 fn_model_pth = f"{self._task_name}_{epoch + 1}.pth"
                 self._save_trained_model(model, fn_model_pth)
                 self.val(fn_model_pth)
+
+            if total_acc / dataset_length >= best_acc:
+                best_acc = total_acc / dataset_length
+                best_model = copy.deepcopy(model)
+                ascend_count = 0
+            else:
+                ascend_count += 1
+                if self._early_stopping and ascend_count >= self._early_stopping:
+                    logger.warning(
+                        ToolBox.runtime_report(
+                            motive="EARLY_STOPPING",
+                            action_name=_ACTION_NAME,
+                            task=self._task_name,
+                            epoch=f"[{epoch + 1}/{epochs}]",
+                            ascend_count=ascend_count,
+                        )
+                    )
+                    break
 
         model = best_model if self.USE_BEST_MODEL else model
 

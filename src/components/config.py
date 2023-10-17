@@ -20,6 +20,8 @@ class Config:
     # hook to factory/logs/
     DIR_LOG = join(PROJECT_ROOT, "logs")
 
+    EARLY_STOPPING = 10
+
 
 logger = ToolBox.init_log(
     error=join(Config.DIR_LOG, "error.log"), runtime=join(Config.DIR_LOG, "runtime.log")
