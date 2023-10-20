@@ -2,7 +2,7 @@
 # Time       : 2023/10/20 17:28
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
-# Description:
+# Description: zero-shot image classification
 import os
 import shutil
 import sys
@@ -43,8 +43,12 @@ class AutoLabeling:
             if image_path.is_file():
                 pending_tasks.append(image_path)
 
-        return cls(positive_label=positive_label, candidate_labels=candidate_labels, images_dir=images_dir,
-                   pending_tasks=pending_tasks)
+        return cls(
+            positive_label=positive_label,
+            candidate_labels=candidate_labels,
+            images_dir=images_dir,
+            pending_tasks=pending_tasks,
+        )
 
     def valid(self):
         if not self.pending_tasks:
@@ -81,7 +85,7 @@ class AutoLabeling:
         limit = limit or total
 
         with tqdm(total=total, desc=f"Labeling | {desc_in}") as progress:
-            for image_path in self.pending_tasks[: limit]:
+            for image_path in self.pending_tasks[:limit]:
                 image = Image.open(image_path)
 
                 # Binary Image classification
@@ -120,9 +124,7 @@ def run(prompt: str, negative_labels: List[str], **kwargs):
         os.startfile(output_dir)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run(
-        prompt="vr_headset",
-        negative_labels=["phone", "keyboard", "drone", "3d printer"],
-        limit=500,
+        prompt="vr_headset", negative_labels=["phone", "keyboard", "drone", "3d printer"], limit=500
     )
