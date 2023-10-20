@@ -16,7 +16,9 @@ install(upgrade=True)
 
 def run():
     model_name = "appears_only_once_2309_yolov8s-seg.onnx"
-    images_dir = "tmp_dir/image_label_area_select/please click on the object that appears only once/default"
+    images_dir = (
+        "tmp_dir/image_label_area_select/please click on the object that appears only once/default"
+    )
 
     this_dir = Path(__file__).parent
     output_dir = this_dir.joinpath("yolo_mocker")

@@ -5,8 +5,11 @@ torch>=2.0.1+cu118
 scikit-learn
 pillow
 onnx
-numpy~=1.24.1
+numpy~=1.26.0
 opencv-python~=4.8.0.76
 pyyaml
 loguru
 fire
+transformers
+hcaptcha-challenger[sentinel]
+bs4

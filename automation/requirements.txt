@@ -1,2 +1,0 @@
-hcaptcha-challenger[sentinel]
-bs4
