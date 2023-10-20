@@ -128,4 +128,4 @@ def run(prompt: str, model_name: str | None = None):
 
 
 if __name__ == "__main__":
-    run("hat")
+    run("pair_of_roller_skates")

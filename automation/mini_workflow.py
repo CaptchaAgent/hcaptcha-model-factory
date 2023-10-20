@@ -89,11 +89,12 @@ if __name__ == "__main__":
         # "smartwatch": "smartwatch2309",
         # "hat": "hat2310",
         # "vineyard": "vineyard2309",
-        "nested_electronic_device": "nested_electronic_device2309",
+        # "pair_of_roller_skates": "pair_of_roller_skates2310",
+        "motorized_machine": "motorized_machine2309"
     }
     # fmt:on
 
     quick_train()
     aid = quick_development()
-    # upgrade_objects(aid)
+    upgrade_objects(aid)
     print(aid)

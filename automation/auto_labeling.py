@@ -11,11 +11,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 
-import torch
 from PIL import Image
 from hcaptcha_challenger import split_prompt_message, prompt2task, label_cleaning
 from tqdm import tqdm
-from transformers import pipeline
 
 
 @dataclass
@@ -26,11 +24,16 @@ class AutoLabeling:
     pending_tasks: List[Path] = field(default_factory=list)
 
     checkpoint = "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    task = "zero-shot-image-classification"
 
     def load_zero_shot_model(self):
-        detector = pipeline(task=self.task, model=self.checkpoint, device=self.device, batch_size=8)
+        import torch
+        from transformers import pipeline
+
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        task = "zero-shot-image-classification"
+
+        detector = pipeline(task=task, model=self.checkpoint, device=device, batch_size=8)
+
         return detector
 
     @classmethod
@@ -120,11 +123,13 @@ def run(prompt: str, negative_labels: List[str], **kwargs):
     al = AutoLabeling.from_prompt(positive_label, candidate_labels, images_dir)
     output_dir = al.execute(limit=kwargs.get("limit"))
 
-    if "win32" in sys.platform:
+    if "win32" in sys.platform and output_dir:
         os.startfile(output_dir)
 
 
 if __name__ == "__main__":
-    run(
-        prompt="vr_headset", negative_labels=["phone", "keyboard", "drone", "3d printer"], limit=500
-    )
+    # prompt to negative labels
+    prompt2neg = {"motorized machine": ["plant", "mountain", "natural landscape"]}
+
+    for p, nl in prompt2neg.items():
+        run(p, nl, limit=500)
