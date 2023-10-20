@@ -30,7 +30,7 @@ class AutoLabeling:
     task = "zero-shot-image-classification"
 
     def load_zero_shot_model(self):
-        detector = pipeline(task=self.task, model=self.checkpoint, device=self.device, batch_size=4)
+        detector = pipeline(task=self.task, model=self.checkpoint, device=self.device, batch_size=8)
         return detector
 
     @classmethod
