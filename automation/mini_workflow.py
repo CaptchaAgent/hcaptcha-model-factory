@@ -60,7 +60,8 @@ def quick_development() -> int | None:
             except GithubException as err:
                 if err.status == 422:
                     logger.error(
-                        f"The model file already exists, please manually replace the file with the same name - url={repo.releases_url}",
+                        f"The model file already exists, "
+                        f"please manually replace the file with the same name - url={repo.releases_url}",
                         url=repo.releases_url,
                     )
             except Exception as err:
@@ -72,10 +73,10 @@ def quick_development() -> int | None:
                 return asset.id
 
 
-def upgrade_objects(aid):
+def upgrade_objects(aid_):
     from automation.rolling_upgrade import rolling_upgrade
 
-    rolling_upgrade(aid)
+    rolling_upgrade(aid_)
 
 
 if __name__ == "__main__":

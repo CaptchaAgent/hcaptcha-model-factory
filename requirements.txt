@@ -10,6 +10,11 @@ opencv-python~=4.8.0.76
 pyyaml
 loguru
 fire
+
 transformers
-hcaptcha-challenger[sentinel]
+hcaptcha-challenger
+PyGitHub
+playwright
 bs4
+tqdm
+httpx
