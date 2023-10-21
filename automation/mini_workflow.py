@@ -1,4 +1,6 @@
 # https://github.com/QIN2DIM/hcaptcha-challenger/releases/edit/model
+from __future__ import annotations
+
 import os
 import shutil
 from pathlib import Path
@@ -90,7 +92,7 @@ if __name__ == "__main__":
         # "hat": "hat2310",
         # "vineyard": "vineyard2309",
         # "pair_of_roller_skates": "pair_of_roller_skates2310",
-        "motorized_machine": "motorized_machine2309"
+        "motorized_machine": "motorized_machine2310"
     }
     # fmt:on
 

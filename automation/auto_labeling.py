@@ -3,6 +3,8 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description: zero-shot image classification
+from __future__ import annotations
+
 import os
 import shutil
 import sys

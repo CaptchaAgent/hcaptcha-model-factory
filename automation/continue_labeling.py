@@ -3,6 +3,8 @@
 # Author     : QIN2DIM
 # GitHub     : https://github.com/QIN2DIM
 # Description: Continue labeling images using the exported ONNX ResNet model
+from __future__ import annotations
+
 import os
 import shutil
 import sys
@@ -128,4 +130,4 @@ def run(prompt: str, model_name: str | None = None):
 
 
 if __name__ == "__main__":
-    run("pair_of_roller_skates")
+    run("motorized_machine")
