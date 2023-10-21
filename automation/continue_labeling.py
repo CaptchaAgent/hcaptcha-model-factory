@@ -130,4 +130,4 @@ def run(prompt: str, model_name: str | None = None):
 
 
 if __name__ == "__main__":
-    run("motorized_machine")
+    run("plant", "nested_plant")

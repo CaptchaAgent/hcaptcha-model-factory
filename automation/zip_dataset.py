@@ -42,7 +42,7 @@ def zip_dataset(prompt: str):
     print(f">> OUTPUT - {zip_path=}")
 
 
-zip_dataset(prompt="nested_largest_raccoon")
+zip_dataset(prompt="natural landscape")
 webbrowser.open(
     "https://colab.research.google.com/github/captcha-challenger/hcaptcha-model-factory/blob/main/automation/roboflow_resnet.ipynb"
 )

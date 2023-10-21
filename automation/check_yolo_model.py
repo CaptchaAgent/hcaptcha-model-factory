@@ -14,17 +14,19 @@ from hcaptcha_challenger.components.yolo_mocker import CcYOLO
 
 install(upgrade=True)
 
+# model_name = "burl_head_of_the_lion_2309_yolov8s.onnx"
+model_name = "head_of_the_animal_2310_yolov8s.onnx"
+images_dir = ""
+
+this_dir = Path(__file__).parent
+output_dir = this_dir.joinpath("yolo_mocker")
+
+if isinstance(images_dir, str):
+    images_dir = Path(images_dir)
+images_dir = images_dir.absolute()
+
 
 def run():
-    model_name = "appears_only_once_2309_yolov8s-seg.onnx"
-    images_dir = (
-        "tmp_dir/image_label_area_select/please click on the object that appears only once/default"
-    )
-
-    this_dir = Path(__file__).parent
-    output_dir = this_dir.joinpath("yolo_mocker")
-    images_dir = this_dir.joinpath(images_dir).absolute()
-
     ccy = CcYOLO(model_name, images_dir, output_dir)
     ccy.spawn()
 
