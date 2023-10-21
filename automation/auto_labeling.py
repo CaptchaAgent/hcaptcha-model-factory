@@ -8,14 +8,18 @@ from __future__ import annotations
 import os
 import shutil
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field
 from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 
 from PIL import Image
-from hcaptcha_challenger import split_prompt_message, prompt2task, label_cleaning
+from hcaptcha_challenger import split_prompt_message, label_cleaning
 from tqdm import tqdm
+
+project_dir = Path(__file__).parent.parent
+db_dir = project_dir.joinpath("database2309")
 
 
 @dataclass
@@ -26,6 +30,8 @@ class AutoLabeling:
     pending_tasks: List[Path] = field(default_factory=list)
 
     checkpoint = "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
+
+    output_dir: Path = None
 
     def load_zero_shot_model(self):
         import torch
@@ -73,9 +79,11 @@ class AutoLabeling:
         yes_dir.mkdir(parents=True, exist_ok=True)
         bad_dir.mkdir(parents=True, exist_ok=True)
 
+        self.output_dir = yes_dir.parent
+
         return yes_dir, bad_dir
 
-    def execute(self, limit: int = None):
+    def execute(self, limit: int | str = None):
         if not self.valid():
             return
 
@@ -87,7 +95,10 @@ class AutoLabeling:
 
         total = len(self.pending_tasks)
         desc_in = f'"{self.checkpoint}/{self.images_dir.name}"'
-        limit = limit or total
+        if isinstance(limit, str) and limit == "all":
+            limit = total
+        else:
+            limit = limit or total
 
         with tqdm(total=total, desc=f"Labeling | {desc_in}") as progress:
             for image_path in self.pending_tasks[:limit]:
@@ -106,32 +117,46 @@ class AutoLabeling:
 
                 progress.update(1)
 
-        return yes_dir.parent
+
+@dataclass
+class DataGroup:
+    positive: str
+    joined_dirs: List[str]
+    negative_labels: List[str]
+
+    def __post_init__(self):
+        self.positive = self.positive.replace("_", " ")
+
+    @property
+    def input_dir(self):
+        return db_dir.joinpath(*self.joined_dirs).absolute()
+
+    def auto_labeling(self, **kwargs):
+        positive_label = split_prompt_message(label_cleaning(self.positive), "en")
+        candidate_labels = [positive_label]
+        if isinstance(self.negative_labels, list) and len(self.negative_labels) != 0:
+            candidate_labels.extend(self.negative_labels)
+
+        al = AutoLabeling.from_prompt(positive_label, candidate_labels, self.input_dir)
+        al.execute(limit=kwargs.get("limit"))
+
+        return al.output_dir
 
 
-def run(prompt: str, negative_labels: List[str], **kwargs):
-    prompt = prompt.replace("_", " ")
+def edit_in_the_common_cases():
+    # prompt to negative labels
+    # input_dir = /[Project_dir]/database2309/*[joined_dirs]
+    plant = DataGroup(
+        positive="plant",
+        joined_dirs=["nested_plant"],
+        negative_labels=["phone", "laptop", "chess", "helicopter", "icecream"],
+    )
 
-    task_name = prompt2task(prompt)
-
-    project_dir = Path(__file__).parent.parent
-    images_dir = project_dir.joinpath("database2309", task_name)
-
-    positive_label = split_prompt_message(label_cleaning(prompt), "en")
-    candidate_labels = [positive_label]
-    if isinstance(negative_labels, list) and len(negative_labels) != 0:
-        candidate_labels.extend(negative_labels)
-
-    al = AutoLabeling.from_prompt(positive_label, candidate_labels, images_dir)
-    output_dir = al.execute(limit=kwargs.get("limit"))
+    output_dir = plant.auto_labeling(limit="all")
 
     if "win32" in sys.platform and output_dir:
         os.startfile(output_dir)
 
 
 if __name__ == "__main__":
-    # prompt to negative labels
-    prompt2neg = {"motorized machine": ["plant", "mountain", "natural landscape"]}
-
-    for p, nl in prompt2neg.items():
-        run(p, nl, limit=500)
+    edit_in_the_common_cases()
