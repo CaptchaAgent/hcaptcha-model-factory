@@ -124,8 +124,6 @@ class DataGroup:
     joined_dirs: List[str]
     negative_labels: List[str]
 
-    _labeler: AutoLabeling | None = None
-
     def __post_init__(self):
         self.positive = self.positive.replace("_", " ")
 
@@ -133,20 +131,16 @@ class DataGroup:
     def input_dir(self):
         return db_dir.joinpath(*self.joined_dirs).absolute()
 
-    @property
-    def output_dir(self):
-        return self._labeler.output_dir
-
     def auto_labeling(self, **kwargs):
         positive_label = split_prompt_message(label_cleaning(self.positive), "en")
         candidate_labels = [positive_label]
         if isinstance(self.negative_labels, list) and len(self.negative_labels) != 0:
             candidate_labels.extend(self.negative_labels)
 
-        self._labeler = AutoLabeling.from_prompt(positive_label, candidate_labels, self.input_dir)
-        self._labeler.execute(limit=kwargs.get("limit"))
+        al = AutoLabeling.from_prompt(positive_label, candidate_labels, self.input_dir)
+        al.execute(limit=kwargs.get("limit"))
 
-        return self
+        return al
 
 
 def edit_in_the_common_cases():
@@ -159,10 +153,23 @@ def edit_in_the_common_cases():
     #     negative_labels=["phone", "playground", "laptop", "chess", "helicopter", "icecream"],
     # ).auto_labeling(limit="all")
 
+    # nox = DataGroup(
+    #     positive="natural_landscape",
+    #     joined_dirs=["natural_landscape"],
+    #     negative_labels=["laptop", "helicopter", "chess", "playground"]
+    # ).auto_labeling(limit="all")
+
     nox = DataGroup(
-        positive="natural_landscape",
-        joined_dirs=["natural_landscape"],
-        negative_labels=["laptop", "helicopter", "chess", "playground"]
+        positive="electronic device",
+        joined_dirs=["electronic_device"],
+        negative_labels=[
+            "helicopter",
+            "chess",
+            "playground",
+            "natural landscape",
+            "plant",
+            "somthing can be eaten",
+        ],
     ).auto_labeling(limit="all")
 
     if "win32" in sys.platform and nox.output_dir:
