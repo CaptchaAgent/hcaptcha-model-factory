@@ -12,7 +12,7 @@ from loguru import logger
 from playwright.async_api import BrowserContext as ASyncContext, async_playwright
 
 collected = []
-per_times = 80
+per_times = 60
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 sitekey = SiteKey.user_easy
 
