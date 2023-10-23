@@ -1,0 +1,20 @@
+# https://clip-as-service.jina.ai/user-guides/server/#yaml-config
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+  monitoring: true
+  port_monitoring: 9000
+executors:
+  - name: clip_o
+    uses:
+      jtype: CLIPEncoder
+      with:
+#        name: 'ViT-H-14::laion2b-s32b-b79k'
+#        model_path: "custom-model"
+        device:
+      metas:
+        py_modules:
+          - clip_server.executors.clip_onnx
+    monitoring: true
+    port_monitoring: 9091

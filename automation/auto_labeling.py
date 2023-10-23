@@ -24,12 +24,13 @@ db_dir = project_dir.joinpath("database2309")
 
 @dataclass
 class AutoLabeling:
-    positive_label: str = field(default=str)
+    positive_labels: List[str] = field(default_factory=list)
     candidate_labels: List[str] = field(default_factory=list)
     images_dir: Path = field(default=Path)
     pending_tasks: List[Path] = field(default_factory=list)
 
-    checkpoint = "laion/CLIP-ViT-H-14-laion2B-s32B-b79K"
+    checkpoint = "laion/CLIP-ViT-L-14-DataComp.XL-s13B-b90K"
+    # checkpoint = "QuanSun/EVA-CLIP/EVA02_CLIP_L_psz14_224to336"
 
     output_dir: Path = None
 
@@ -45,7 +46,7 @@ class AutoLabeling:
         return detector
 
     @classmethod
-    def from_prompt(cls, positive_label: str, candidate_labels: List[str], images_dir: Path):
+    def from_prompt(cls, positive_labels: List[str], candidate_labels: List[str], images_dir: Path):
         images_dir.mkdir(parents=True, exist_ok=True)
 
         pending_tasks: List[Path] = []
@@ -55,7 +56,7 @@ class AutoLabeling:
                 pending_tasks.append(image_path)
 
         return cls(
-            positive_label=positive_label,
+            positive_labels=positive_labels,
             candidate_labels=candidate_labels,
             images_dir=images_dir,
             pending_tasks=pending_tasks,
@@ -109,7 +110,7 @@ class AutoLabeling:
 
                 # Move positive cases to yes/
                 # Move negative cases to bad/
-                if predictions[0]["label"] == self.positive_label:
+                if predictions[0]["label"] in self.positive_labels:
                     output_path = yes_dir.joinpath(image_path.name)
                 else:
                     output_path = bad_dir.joinpath(image_path.name)
@@ -120,24 +121,31 @@ class AutoLabeling:
 
 @dataclass
 class DataGroup:
-    positive: str
+    positive_labels: List[str] | str
     joined_dirs: List[str]
     negative_labels: List[str]
 
     def __post_init__(self):
-        self.positive = self.positive.replace("_", " ")
+        if isinstance(self.positive_labels, str):
+            self.positive_labels = [self.positive_labels]
 
     @property
     def input_dir(self):
         return db_dir.joinpath(*self.joined_dirs).absolute()
 
     def auto_labeling(self, **kwargs):
-        positive_label = split_prompt_message(label_cleaning(self.positive), "en")
-        candidate_labels = [positive_label]
+        pls = []
+        for pl in self.positive_labels:
+            pl = pl.replace("_", " ")
+            pl = split_prompt_message(label_cleaning(pl), "en")
+            pls.append(pl)
+
+        candidate_labels = pls.copy()
+
         if isinstance(self.negative_labels, list) and len(self.negative_labels) != 0:
             candidate_labels.extend(self.negative_labels)
 
-        al = AutoLabeling.from_prompt(positive_label, candidate_labels, self.input_dir)
+        al = AutoLabeling.from_prompt(pls, candidate_labels, self.input_dir)
         al.execute(limit=kwargs.get("limit"))
 
         return al
@@ -147,30 +155,12 @@ def edit_in_the_common_cases():
     # prompt to negative labels
     # input_dir = /[Project_dir]/database2309/*[joined_dirs]
 
-    # nox = DataGroup(
-    #     positive="plant",
-    #     joined_dirs=["plant"],
-    #     negative_labels=["phone", "playground", "laptop", "chess", "helicopter", "icecream"],
-    # ).auto_labeling(limit="all")
-
-    # nox = DataGroup(
-    #     positive="natural_landscape",
-    #     joined_dirs=["natural_landscape"],
-    #     negative_labels=["laptop", "helicopter", "chess", "playground"]
-    # ).auto_labeling(limit="all")
-
-    nox = DataGroup(
-        positive="electronic device",
-        joined_dirs=["electronic_device"],
-        negative_labels=[
-            "helicopter",
-            "chess",
-            "playground",
-            "natural landscape",
-            "plant",
-            "somthing can be eaten",
-        ],
-    ).auto_labeling(limit="all")
+    dg = DataGroup(
+        positive_labels=["helicopter", "excavator"],
+        joined_dirs=["motorized_machine"],
+        negative_labels=["laptop", "chess", "plant", "natural landscape", "mountain"],
+    )
+    nox = dg.auto_labeling(limit=1)
 
     if "win32" in sys.platform and nox.output_dir:
         os.startfile(nox.output_dir)
