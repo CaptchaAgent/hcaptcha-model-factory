@@ -42,7 +42,7 @@ def zip_dataset(prompt: str):
     print(f">> OUTPUT - {zip_path=}")
 
 
-zip_dataset(prompt="electronic_device")
+zip_dataset(prompt="motorized_machine")
 webbrowser.open(
     "https://colab.research.google.com/github/captcha-challenger/hcaptcha-model-factory/blob/main/automation/roboflow_resnet.ipynb"
 )
