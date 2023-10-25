@@ -14,14 +14,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Tuple, List
 
+import hcaptcha_challenger as solver
 from PIL import Image
-from hcaptcha_challenger import (
-    DataLake,
-    install,
-    ModelHub,
-    ZeroShotImageClassifier,
-    register_pipline,
-)
+from hcaptcha_challenger import DataLake, ModelHub, ZeroShotImageClassifier, register_pipline
 from tqdm import tqdm
 
 from flow_card import flow_card
@@ -30,7 +25,7 @@ logging.basicConfig(
     level=logging.INFO, stream=sys.stdout, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-install(upgrade=True)
+solver.install(upgrade=True)
 
 
 @dataclass
@@ -131,12 +126,14 @@ class AutoLabeling:
 
 
 def run():
+    images_dir = Path(__file__).parent.parent.joinpath("database2309")
+
     modelhub = ModelHub.from_github_repo()
     modelhub.parse_objects()
 
-    model = register_pipline(modelhub)
-
-    images_dir = Path(__file__).parent.parent.joinpath("database2309")
+    # Make sure you have torch and transformers installed and
+    # the NVIDIA graphics card is available
+    model = register_pipline(modelhub, fmt="transformers")
 
     for card in flow_card:
         # Filter out the task cards we care about
