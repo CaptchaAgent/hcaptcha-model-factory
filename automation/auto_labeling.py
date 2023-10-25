@@ -24,7 +24,7 @@ from hcaptcha_challenger import (
 )
 from tqdm import tqdm
 
-from flow_card import datalake_card
+from flow_card import flow_card
 
 logging.basicConfig(
     level=logging.INFO, stream=sys.stdout, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -138,7 +138,7 @@ def run():
 
     images_dir = Path(__file__).parent.parent.joinpath("database2309")
 
-    for card in datalake_card:
+    for card in flow_card:
         # Filter out the task cards we care about
         if "furniture" not in card["joined_dirs"]:
             continue
