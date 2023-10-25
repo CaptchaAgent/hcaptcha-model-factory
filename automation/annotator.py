@@ -33,6 +33,7 @@ class Objects:
     nested_categories: Dict[str, List[str]]
     ashes_of_war: Dict[str, Any]
     label_alias: Dict[str, Any]
+    datalake: dict
 
     @classmethod
     def from_modelhub(cls, modelhub: ModelHub):

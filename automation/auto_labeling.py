@@ -160,8 +160,14 @@ def edit_in_the_common_cases():
         joined_dirs=["motorized_machine"],
         negative_labels=["laptop", "chess", "plant", "natural landscape", "mountain"],
     )
-    nox = dg.auto_labeling(limit=1)
 
+    dg = DataGroup(
+        positive_labels=["off road vehicle"],
+        joined_dirs=["off_road_vehicle"],
+        negative_labels=["bicycle", "car"],
+    )
+
+    nox = dg.auto_labeling(limit="all")
     if "win32" in sys.platform and nox.output_dir:
         os.startfile(nox.output_dir)
 
