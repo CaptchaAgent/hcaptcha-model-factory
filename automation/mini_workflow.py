@@ -94,7 +94,10 @@ if __name__ == "__main__":
         # "vineyard": "vineyard2309",
         # "pair_of_roller_skates": "pair_of_roller_skates2310",
         # "nested_plant": "nested_plant2311",
-        "off_road_vehicle": "off_road_vehicle2309"
+        "off_road_vehicle": "off_road_vehicle2310",
+        # "nested_largest_turtle": "nested_largest_turtle2309",
+        # "pair_of_headphones": "pair_of_headphones2309",
+        # "furniture": "furniture2310",
     }
     # fmt:on
 
