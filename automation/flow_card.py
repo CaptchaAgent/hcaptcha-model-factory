@@ -16,4 +16,9 @@ flow_card = [
         "negative_labels": ["guitar", "keyboard", "game tool", "headphones"],
         "joined_dirs": ["furniture"],
     },
+    {
+        "positive_labels": ["sedan car"],
+        "negative_labels": ["bicycle", "off-road vehicle"],
+        "joined_dirs": ["sedan_car"],
+    },
 ]

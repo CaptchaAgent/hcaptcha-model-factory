@@ -88,16 +88,7 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        # "indoor_vertical_farm": "indoor_vertical_farm2309",
-        # "smartwatch": "smartwatch2309",
-        # "hat": "hat2310",
-        # "vineyard": "vineyard2309",
-        # "pair_of_roller_skates": "pair_of_roller_skates2310",
-        # "nested_plant": "nested_plant2311",
-        "off_road_vehicle": "off_road_vehicle2310",
-        # "nested_largest_turtle": "nested_largest_turtle2309",
-        # "pair_of_headphones": "pair_of_headphones2309",
-        # "furniture": "furniture2310",
+        "sedan_car": "sedan_car2309",
     }
     # fmt:on
 
