@@ -88,11 +88,12 @@ if __name__ == "__main__":
     # fmt:off
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
-        "sedan_car": "sedan_car2309",
+        # "sedan_car": "sedan_car2309",
+        "nested_smallest_turtle": "nested_smallest_turtle2309",
     }
     # fmt:on
 
     quick_train()
     aid = quick_development()
-    upgrade_objects(aid)
+    # upgrade_objects(aid)
     print(aid)

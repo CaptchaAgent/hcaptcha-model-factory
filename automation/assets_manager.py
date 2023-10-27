@@ -137,7 +137,7 @@ class AssetsManager:
 
 
 def run():
-    sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/872"
+    sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/826"
     am = AssetsManager.from_sources(sources)
     am.execute()
 

@@ -21,4 +21,9 @@ flow_card = [
         "negative_labels": ["bicycle", "off-road vehicle"],
         "joined_dirs": ["sedan_car"],
     },
+    {
+        "positive_labels": ["turtle"],
+        "negative_labels": ["horse", "bear", "giraffe", "dolphins"],
+        "joined_dirs": ["please_click_on_the_smallest_animal", "nested_smallest_turtle"],
+    },
 ]
