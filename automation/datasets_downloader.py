@@ -14,7 +14,7 @@ from playwright.async_api import BrowserContext as ASyncContext, async_playwrigh
 collected = []
 per_times = 60
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
-sitekey = SiteKey.user_easy
+sitekey = SiteKey.epic
 
 
 async def collete_datasets(context: ASyncContext):

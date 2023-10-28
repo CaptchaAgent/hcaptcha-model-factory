@@ -12,7 +12,7 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 import hcaptcha_challenger as solver
 from PIL import Image
@@ -26,6 +26,46 @@ logging.basicConfig(
 )
 
 solver.install(upgrade=True)
+
+
+@dataclass
+class SubStack:
+    nested_name: str
+    yes_seq: List[str]
+    bad_seq: List[str]
+
+    @classmethod
+    def from_tnf(cls, name: str, yes: List[str], bad: List[str]):
+        return cls(nested_name=name, yes_seq=yes, bad_seq=bad)
+
+    @staticmethod
+    def kt(x):
+        return f"This is a photo of the {x}"
+
+    def _offload(self, tag: str, dirname: str, tmp_case_dir: Path, *, to_dir: Path):
+        if self.kt(tag) == dirname:
+            logging.info(f"refactor - name={self.nested_name} {tag=}")
+            for image_name in os.listdir(tmp_case_dir):
+                image_path = tmp_case_dir.joinpath(image_name)
+                shutil.copyfile(image_path, to_dir.joinpath(image_name))
+
+    def transform(self, base_dir: Path):
+        logging.info(f"Startup substack - {base_dir=}")
+        yes_dir = base_dir.joinpath(self.nested_name, "yes")
+        bad_dir = base_dir.joinpath(self.nested_name, "bad")
+        yes_dir.mkdir(parents=True, exist_ok=True)
+        bad_dir.mkdir(parents=True, exist_ok=True)
+
+        # 将多目标分类结果二次移动到 yes/bad 的混合二分类终端
+        logging.info("Moving substack")
+        for dirname in os.listdir(base_dir):
+            if dirname == self.nested_name:
+                continue
+            tmp_case_dir = base_dir.joinpath(dirname)
+            for tag in self.yes_seq:
+                self._offload(tag, dirname, tmp_case_dir, to_dir=yes_dir)
+            for tag in self.bad_seq:
+                self._offload(tag, dirname, tmp_case_dir, to_dir=bad_dir)
 
 
 @dataclass
@@ -83,24 +123,30 @@ class AutoLabeling:
         tool = ZeroShotImageClassifier.from_datalake(dl)
         return cls(tool=tool, input_dir=input_dir, pending_tasks=pending_tasks, limit=limit)
 
-    def mkdir(self) -> Tuple[Path, Path]:
+    def mkdir(self, multi: bool = False) -> Tuple[Path, Path]:
         __formats = ("%Y-%m-%d %H:%M:%S.%f", "%Y%m%d%H%M")
         now = datetime.strptime(str(datetime.now()), __formats[0]).strftime(__formats[1])
-        yes_dir = self.input_dir.joinpath(now, "yes")
-        bad_dir = self.input_dir.joinpath(now, "bad")
+        tmp_dir = self.input_dir.joinpath(now)
+        yes_dir = tmp_dir.joinpath("yes")
+        bad_dir = tmp_dir.joinpath("bad")
         yes_dir.mkdir(parents=True, exist_ok=True)
         bad_dir.mkdir(parents=True, exist_ok=True)
 
-        self.output_dir = yes_dir.parent
+        if multi:
+            for label in self.tool.candidate_labels:
+                tmp_dir.joinpath(label).mkdir(parents=True, exist_ok=True)
+
+        self.output_dir = tmp_dir
 
         return yes_dir, bad_dir
 
-    def execute(self, model):
+    def execute(self, model, substack: Dict[str, Dict[str, List[str]]] = None, **kwargs):
         if not self.pending_tasks:
             logging.info("No pending tasks")
             return
 
-        yes_dir, bad_dir = self.mkdir()
+        multi = bool(substack)
+        yes_dir, bad_dir = self.mkdir(multi=multi)
 
         desc_in = f'"{self.input_dir.parent.name}/{self.input_dir.name}"'
         total = len(self.pending_tasks)
@@ -114,15 +160,25 @@ class AutoLabeling:
                 image = Image.open(image_path)
                 results = self.tool(model, image)
 
-                # we're only dealing with binary classification tasks here
-                if results[0]["label"] in self.tool.positive_labels:
-                    output_path = yes_dir.joinpath(image_path.name)
+                # we're dealing with multi-classification tasks here
+                trusted = results[0]["label"]
+                if multi:
+                    bk_path = self.output_dir.joinpath(trusted, image_path.name)
+                    shutil.move(image_path, bk_path)
+                elif trusted in self.tool.positive_labels:
+                    shutil.move(image_path, yes_dir.joinpath(image_path.name))
                 else:
-                    output_path = bad_dir.joinpath(image_path.name)
-
-                shutil.move(image_path, output_path)
+                    shutil.move(image_path, bad_dir.joinpath(image_path.name))
 
                 progress.update(1)
+
+        if multi:
+            # 遍历预分类的目录名，如果是在 yes-list，复制图片到 yes/，反之则复制到 bad/
+            # 跳过未匹配的目录名
+            logging.info("Multi-objective datasets being processed")
+            for nested_name, tnf in substack.items():
+                stk = SubStack.from_tnf(nested_name, yes=tnf["yes"], bad=tnf["bad"])
+                stk.transform(base_dir=self.output_dir)
 
 
 def run():
@@ -137,7 +193,7 @@ def run():
 
     for card in flow_card:
         # Filter out the task cards we care about
-        if "nested_smallest_turtle" not in card["joined_dirs"]:
+        if "the_largest_animal" not in card["joined_dirs"]:
             continue
         # Generating a dataclass from serialized data
         dl = DataLake(
@@ -147,7 +203,7 @@ def run():
         )
         # Starts an automatic labeling task
         al = AutoLabeling.from_datalake(dl)
-        al.execute(model)
+        al.execute(model, **card)
         # Automatically open output directory
         if "win32" in sys.platform and al.output_dir.is_dir():
             os.startfile(al.output_dir)
