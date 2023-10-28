@@ -8,6 +8,7 @@ from __future__ import annotations
 import inspect
 import os
 import sys
+import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -17,7 +18,7 @@ import yaml
 from github import Github, Auth
 from github.GitReleaseAsset import GitReleaseAsset
 from github.Repository import Repository
-from hcaptcha_challenger import ModelHub
+from hcaptcha_challenger import ModelHub, handle
 from hcaptcha_challenger.onnx.modelhub import request_resource
 from loguru import logger
 
@@ -122,10 +123,51 @@ class Annotator:
             del self.data.label_alias[old_onnx_archive]
             self.data.label_alias[onnx_archive] = i18n_mapping
 
-    def handle_yolov8_objects(self):
-        pass
+    def handle_nested_objects(self, model_pending: str):
+        """
+        Match nested cases:
+        - the largest animal
+        - the smallest animal
+        """
+        bond_nested_prompt = handle(self._matched_label)
+        if not bond_nested_prompt:
+            raise ValueError("Nested model requires binding prompt")
+
+        # nested_largest_dog2309.onnx nested_largest_elephant2309.onnx
+        prefix_tag_pending = self.parse_resnet_label(model_pending)
+
+        # Match: 已注册的嵌套类型（bond_nested_prompt）
+        if nested_models := self.modelhub.nested_categories.get(bond_nested_prompt, []):
+            # prompt已注册但被错误赋值
+            if not isinstance(nested_models, list):
+                # 如果存在确切的值，则返回错误
+                if nested_models:
+                    raise TypeError(
+                        f"NestedTypeError ({bond_nested_prompt}) 的模型映射列表应该是个 List[str] 类型，但实际上是 {type(nested_models)}"
+                    )
+                # 如果prompt存在但未被赋有效值，则尝试恢复程序重建秩序
+                nested_models = []
+            # 查询 prompt 对应的模型匹配列表，更新「同项模型」的版本索引
+            idx_old_points: List[int] = []
+            for i, model_name in enumerate(nested_models):
+                prefix_tag_in_the_slot = self.parse_resnet_label(model_name)
+                if prefix_tag_in_the_slot == prefix_tag_pending:
+                    idx_old_points.append(i)
+            # 若 prompt 对应的模型匹配列表找不到「同项模型」更旧的版本，则直接插入新的模型
+            for i in idx_old_points:
+                nested_models.pop(i)
+            nested_models.append(model_pending)
+        # Match: 未注册的嵌套模型
+        else:
+            nested_models = [model_pending]
+
+        # 恢复嵌套模型的上下文，更新模型索引
+        self.data.nested_categories[bond_nested_prompt] = nested_models
 
     def flush_remote_objects(self):
+        """
+        导出 YAML 文件，上传到仓库
+        """
         data_tmp_path = self.data.to_yaml()
 
         res = self.data.to_asset(
@@ -142,10 +184,30 @@ class Annotator:
         logger.debug(f"capture asset", name=self.asset.name, url=self.asset.browser_download_url)
 
         # Match: ResNet MoE models
-        if "yolov8" not in self.asset.name:
-            self.handle_resnet_objects()
-        else:
-            self.handle_yolov8_objects()
+        if "yolov8" in self.asset.name:
             return
+        if "nested_" in self.asset.name:
+            self.handle_nested_objects(self.asset.name)
+        else:
+            self.handle_resnet_objects()
 
         self.flush_remote_objects()
+
+
+def rolling_upgrade(asset_id=None, matched_label: str = ""):
+    """
+    当上传 nested 模型时需要指定该模型绑定的嵌套类型
+    """
+    if not asset_id:
+        return
+
+    try:
+        annotator = Annotator(asset_id, matched_label=matched_label)
+        annotator.execute()
+        webbrowser.open(Annotator.repo.html_url)
+    except Exception as err:
+        logger.warning(err)
+
+
+if __name__ == "__main__":
+    rolling_upgrade()

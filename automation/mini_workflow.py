@@ -74,9 +74,9 @@ def quick_development() -> int | None:
 
 
 def upgrade_objects(aid_):
-    from automation.rolling_upgrade import rolling_upgrade
+    import annotator
 
-    rolling_upgrade(aid_)
+    annotator.rolling_upgrade(aid_)
 
 
 if __name__ == "__main__":
@@ -89,7 +89,11 @@ if __name__ == "__main__":
     focus_flags = {
         # "<diagnosed_label_name>": "<model_name[flag]>"
         # "sedan_car": "sedan_car2309",
-        "nested_smallest_turtle": "nested_smallest_turtle2309",
+        # "nested_smallest_turtle": "nested_smallest_turtle2309",
+        # "nested_largest_dog": "nested_largest_dog2309",
+        # "bicycle": "bicycle2309",
+        "nested_largest_fox": "nested_largest_fox2309",
+
     }
     # fmt:on
 
