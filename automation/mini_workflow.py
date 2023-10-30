@@ -92,8 +92,7 @@ if __name__ == "__main__":
         # "nested_smallest_turtle": "nested_smallest_turtle2309",
         # "nested_largest_dog": "nested_largest_dog2309",
         # "bicycle": "bicycle2309",
-        "nested_largest_fox": "nested_largest_fox2309",
-
+        # "nested_largest_fox": "nested_largest_fox2309",
     }
     # fmt:on
 
