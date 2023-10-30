@@ -48,4 +48,32 @@ flow_card = [
             "nested_largest_fox": {"yes": ["fox"], "bad": ["crab", "bird", "dragonfly", "ant"]},
         },
     },
+    {
+        "positive_labels": ["red panda"],
+        "negative_labels": ["cactus", "door", "guinea pig", "meerkat"],
+        "joined_dirs": ["red_panda"],
+    },
+    {
+        "positive_labels": ["tiger", "squirrel"],
+        "negative_labels": ["dog", "bat", "raccoon", "ant", "ladybug"],
+        "joined_dirs": ["please_click_on_the_largest_animal", "fff"],
+        # = ↑↑ = 和常规情况一样，先对整体数据集进行多目标分类
+        # = ↓↓ = 再根据具体的 yes/bad 映射关系进行数据集二次移动
+        "substack": {
+            "nested_largest_tiger": {"yes": ["tiger"], "bad": ["dog", "bat", "raccoon"]},
+            "nested_largest_squirrel": {"yes": ["squirrel"], "bad": ["ant", "ladybug"]},
+        },
+    },
+    {
+        "positive_labels": ["natural landscape", "Mountain", "forest"],
+        "negative_labels": [
+            "chess",
+            "laptop",
+            "helicopter",
+            "meerkat",
+            "roller coaster",
+            "Recreational facilities",
+        ],
+        "joined_dirs": ["natural_landscape"],
+    },
 ]

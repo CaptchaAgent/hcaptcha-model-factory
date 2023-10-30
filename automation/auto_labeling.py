@@ -193,7 +193,7 @@ def run():
 
     for card in flow_card:
         # Filter out the task cards we care about
-        if "the_largest_animal" not in card["joined_dirs"]:
+        if "fff" not in card["joined_dirs"]:
             continue
         # Generating a dataclass from serialized data
         dl = DataLake(
