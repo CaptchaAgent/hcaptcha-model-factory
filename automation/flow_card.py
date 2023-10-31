@@ -76,4 +76,19 @@ flow_card = [
         ],
         "joined_dirs": ["natural_landscape"],
     },
+    {
+        "positive_labels": ["starfish"],
+        "negative_labels": ["panda", "dog", "cow", "elephant", "guinea pig", "dolphins",
+                            "bird", "goat", "lion", "bear", ""],
+        "joined_dirs": ["the_smallest_animal", "f1-star"],
+    },
+    {
+        "positive_labels": ["bird"],
+        "negative_labels": ["panda", "dog", "cow", "dolphins", "goat", "lion", "bear", "giraffe"],
+        "joined_dirs": ["the_smallest_animal", "f1-bird"],
+        "substack": {
+            "nested_smallest_bird": {"yes": ["bird"], "bad": ["panda", "dog", "cow", "dolphins", "goat", "lion", "bear", "giraffe"]},
+        },
+    },
+
 ]
