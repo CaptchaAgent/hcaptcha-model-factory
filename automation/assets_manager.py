@@ -110,7 +110,7 @@ class AssetsManager:
         return td
 
     def get_download_links(self, issue_url: str):
-        prefix = "https://github.com/CaptchaAgent/hcaptcha-whistleblower/releases/download/automation-archive/"
+        prefix = "hcaptcha-whistleblower/releases/download/automation-archive/"
 
         res = self.client.get(issue_url)
         soup = BeautifulSoup(res.text, "html.parser")
@@ -139,11 +139,10 @@ class AssetsManager:
 def run():
     # the largest animal https://github.com/QIN2DIM/hcaptcha-challenger/issues/797
     # red panda https://github.com/QIN2DIM/hcaptcha-challenger/issues/896
-    #
-    sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/797"
-    sources = "the largest animal"
-    sources = "please click on the largest animal"
-    # sources = "the smallest animal"
+    sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/826"  # the smallest animal
+    # sources = "the largest animal"
+    # sources = "please click on the largest animal"
+    sources = "the smallest animal"
     # sources = "natural landscape"
     am = AssetsManager.from_sources(sources)
     am.execute()

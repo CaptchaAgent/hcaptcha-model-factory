@@ -53,12 +53,63 @@ def zip_dataset(prompt: str):
     return task_name
 
 
+def parse_stander_model(modelhub, task_name):
+    label = task_name.replace("_", " ")
+    onnx_archive_name = ""
+
+    if onnx_archive := modelhub.label_alias.get(label):
+        oan = onnx_archive.replace(".onnx", "")
+        v = ""
+        for char in reversed(oan):
+            if char.isdigit():
+                v = char + v
+            else:
+                break
+        if v and v.isdigit():
+            v = int(v) + 1
+            onnx_archive_name = f"{task_name}{str(v)}"
+
+    return onnx_archive_name
+
+
+def parse_nested_model(modelhub, task_name, nested_prompt, ):
+    onnx_archive_name = ""
+
+    for i in modelhub.nested_categories.get(nested_prompt, []):
+        print(f"{nested_prompt} => {i}")
+
+    print(nested_prompt in modelhub.nested_categories)
+
+    if nested_models := modelhub.nested_categories.get(nested_prompt, []):
+        if not isinstance(nested_models, list):
+            if nested_models:
+                raise TypeError(
+                    f"NestedTypeError ({nested_prompt}) 的模型映射列表应该是个 List[str] 类型，但实际上是 {type(nested_models)}"
+                )
+            nested_models = []
+        v = ""
+        for i, model_name in enumerate(nested_models):
+            filter_chars = [".onnx", task_name]
+            for fc in filter_chars:
+                model_name = model_name.replace(fc, "")
+            if not model_name.isdigit():
+                continue
+
+            v = model_name
+            break
+
+        if v and v.isdigit():
+            v = int(v) + 1
+            onnx_archive_name = f"{task_name}{str(v)}"
+
+    return onnx_archive_name
+
+
 def print_quick_start_info(task_name: str, nested_prompt: str = ""):
     """
     task_name: like natural_landscape, nested_largest_tiger
     """
     diagnose_task(task_name)
-
     if task_name.startswith("nested_") and not nested_prompt:
         raise ValueError("生成嵌套类型模版需要提供其配对的提示词")
 
@@ -66,51 +117,16 @@ def print_quick_start_info(task_name: str, nested_prompt: str = ""):
     modelhub = ModelHub.from_github_repo()
     modelhub.parse_objects()
 
-    label = task_name.replace("_", " ")
-
-    onnx_archive_name = ""
-
+    # 常规模型
     if not nested_prompt:
-        if onnx_archive := modelhub.label_alias.get(label):
-            oan = onnx_archive.replace(".onnx", "")
-            v = ""
-            for char in reversed(oan):
-                if char.isdigit():
-                    v = char + v
-                else:
-                    break
-            if v and v.isdigit():
-                v = int(v) + 1
-                onnx_archive_name = f"{task_name}{str(v)}"
-        else:
-            onnx_archive_name = f"{task_name}2309"
-
+        onnx_archive_name = parse_stander_model(modelhub, task_name)
+    # 嵌套模型
     else:
-        for i in modelhub.nested_categories.get(nested_prompt, []):
-            print(f"{nested_prompt} => {i}")
+        onnx_archive_name = parse_nested_model(modelhub, task_name, nested_prompt)
 
-        if nested_models := modelhub.nested_categories.get(nested_prompt, []):
-            if not isinstance(nested_models, list):
-                if nested_models:
-                    raise TypeError(
-                        f"NestedTypeError ({nested_prompt}) 的模型映射列表应该是个 List[str] 类型，但实际上是 {type(nested_models)}"
-                    )
-                nested_models = []
-            v = ""
-            for i, model_name in enumerate(nested_models):
-                filter_chars = [".onnx", task_name]
-                for fc in filter_chars:
-                    model_name = model_name.replace(fc, "")
-                if not model_name.isdigit():
-                    continue
-                else:
-                    v = model_name
-                    break
-            if v and v.isdigit():
-                v = int(v) + 1
-                onnx_archive_name = f"{task_name}{str(v)}"
-        else:
-            onnx_archive_name = f"{task_name}2309"
+    if not onnx_archive_name:
+        onnx_archive_name = f"{task_name}2309"
+    onnx_archive_name = onnx_archive_name.replace(".onnx", "")
 
     _t = CELL_TEMPLATE.format(
         github_token=os.getenv("GITHUB_TOKEN", ""),
@@ -123,12 +139,13 @@ def print_quick_start_info(task_name: str, nested_prompt: str = ""):
 
 
 def run():
-    prompt = "nested_largest_squirrel"
+    prompt = "nested_smallest_bird"
 
     # 生成嵌套类型模版需要提供其配对的提示词
     # the smallest animal
     # please click on the largest animal
-    nested_prompt = "please click on the largest animal"
+    # the largest animal
+    nested_prompt = "the smallest animal"
 
     # 压缩数据集
     tn = zip_dataset(prompt=prompt)
@@ -136,9 +153,7 @@ def run():
     # 打印配置模版
     print_quick_start_info(task_name=tn, nested_prompt=nested_prompt)
 
-    import webbrowser
-
-    webbrowser.open(NOTEBOOK)
+    print(f"Open In Colab -> {NOTEBOOK}")
 
 
 if __name__ == "__main__":
