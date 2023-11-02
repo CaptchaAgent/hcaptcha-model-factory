@@ -49,7 +49,7 @@ class Objects:
     def to_yaml(self, path: Path | None = None):
         path = path or Path("objects-tmp.yaml")
         with open(path, "w", encoding="utf8") as file:
-            yaml.safe_dump(self.__dict__, file, sort_keys=False, allow_unicode=True)
+            yaml.safe_dump(self.__dict__, file, sort_keys=False, allow_unicode=True,)
         return path
 
     @staticmethod
@@ -209,5 +209,21 @@ def rolling_upgrade(asset_id=None, matched_label: str = ""):
         logger.warning(err)
 
 
+def find_asset_id(name_prefix: str):
+    """如果工作流在滚动更新前中断，可以通过此函数根据模型名前缀匹配到资源的 asset_id"""
+    repo = Annotator.repo
+    modelhub_title = "ONNX ModelHub"
+
+    for release in repo.get_releases():
+        if release.title != modelhub_title:
+            continue
+        for asset in release.get_assets():
+            if not asset.name.startswith(name_prefix):
+                continue
+            print(asset.name, asset.id)
+            break
+
+
 if __name__ == "__main__":
+    find_asset_id("nested_smallest_bird2310")
     rolling_upgrade()

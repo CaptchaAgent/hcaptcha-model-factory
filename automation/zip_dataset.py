@@ -72,7 +72,7 @@ def parse_stander_model(modelhub, task_name):
     return onnx_archive_name
 
 
-def parse_nested_model(modelhub, task_name, nested_prompt, ):
+def parse_nested_model(modelhub, task_name, nested_prompt):
     onnx_archive_name = ""
 
     for i in modelhub.nested_categories.get(nested_prompt, []):
@@ -112,6 +112,11 @@ def print_quick_start_info(task_name: str, nested_prompt: str = ""):
     diagnose_task(task_name)
     if task_name.startswith("nested_") and not nested_prompt:
         raise ValueError("生成嵌套类型模版需要提供其配对的提示词")
+    nested_prompt = nested_prompt.strip()
+    t2p = {"nested_smallest_": "smallest", "nested_largest_": "largest"}
+    for t, p in t2p.items():
+        if task_name.startswith(t) and p not in nested_prompt:
+            raise ValueError(f"请检查 task_name 与 prompt 是否匹配- {task_name=} {nested_prompt=}")
 
     install(upgrade=True)
     modelhub = ModelHub.from_github_repo()
@@ -139,18 +144,21 @@ def print_quick_start_info(task_name: str, nested_prompt: str = ""):
 
 
 def run():
+    """
+    # nested_largest_ => the largest animal
+    # nested_smallest_ => the smallest animal
+    """
     prompt = "nested_smallest_bird"
 
-    # 生成嵌套类型模版需要提供其配对的提示词
-    # the smallest animal
-    # please click on the largest animal
-    # the largest animal
+    # nested_prompt = ""
     nested_prompt = "the smallest animal"
+    # nested_prompt = "the largest animal"
 
     # 压缩数据集
     tn = zip_dataset(prompt=prompt)
 
     # 打印配置模版
+    # 生成嵌套类型模版需要提供其配对的提示词
     print_quick_start_info(task_name=tn, nested_prompt=nested_prompt)
 
     print(f"Open In Colab -> {NOTEBOOK}")

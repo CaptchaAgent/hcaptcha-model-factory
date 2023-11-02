@@ -12,18 +12,14 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, NoReturn
 
 import hcaptcha_challenger as solver
 from PIL import Image
 from hcaptcha_challenger import DataLake, ModelHub, ZeroShotImageClassifier, register_pipline
 from tqdm import tqdm
 
-from flow_card import flow_card
-
-logging.basicConfig(
-    level=logging.INFO, stream=sys.stdout, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+from flow_card import flow_card, flow_card_nested_animal
 
 solver.install(upgrade=True)
 
@@ -181,8 +177,45 @@ class AutoLabeling:
                 stk.transform(base_dir=self.output_dir)
 
 
-def run():
-    images_dir = Path(__file__).parent.parent.joinpath("database2309")
+def check_card(pending_card: list) -> NoReturn | bool:
+    require_keys = ["positive_labels", "negative_labels", "joined_dirs"]
+    ok = True
+    for i, card in enumerate(pending_card):
+        for rk in require_keys:
+            if rk not in card or not isinstance(card[rk], list):
+                logging.error(f"card 缺少必要的键值对 - {i=} key={rk} {card=}")
+                ok = False
+            elif len(card[rk]) == 0:
+                logging.error(f"card 的必要信息不能为空 - {i=} key={rk} {require_keys=}")
+                ok = False
+            elif len(card[rk]) < 2:
+                logging.error(f"CLIP 模型在二分类任务上的准确率可能会比较糟糕 - {i=} ")
+                ok = False
+
+            for label in card[rk]:
+                if not isinstance(label, str):
+                    logging.error(
+                        f"card 的 require_keys 的值必须是 List[str] 类型 - {i=} {label=} {type(label)=}"
+                    )
+                    ok = False
+                if len(label) <= 1:
+                    logging.error(f"这可能是一个异常输入 - {i=} {label=}")
+                    ok = False
+
+    if not ok:
+        raise ValueError("card 存在致命的写法问题，请逐一排查后再启动程序！")
+    return True
+
+
+def run(suffix_filter: str, cards: list, base_dirname: str = "database2309"):
+    if not suffix_filter:
+        return
+
+    logging.info("正在检查运行配置")
+    check_card(cards)
+    logging.info("运行配置准确无误！")
+
+    images_dir = Path(__file__).parent.parent.joinpath(base_dirname)
 
     modelhub = ModelHub.from_github_repo()
     modelhub.parse_objects()
@@ -191,9 +224,9 @@ def run():
     # the NVIDIA graphics card is available
     model = register_pipline(modelhub, fmt="transformers")
 
-    for card in flow_card:
+    for card in cards:
         # Filter out the task cards we care about
-        if "f1-bird" not in card["joined_dirs"]:
+        if suffix_filter not in card["joined_dirs"]:
             continue
         # Generating a dataclass from serialized data
         dl = DataLake(
@@ -210,4 +243,7 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    logging.info(f"Loading {len(flow_card)=}")
+    logging.info(f"Loading {len(flow_card_nested_animal)=}")
+
+    run("s1_bird", cards=flow_card_nested_animal)
