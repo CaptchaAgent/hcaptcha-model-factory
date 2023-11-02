@@ -148,3 +148,4 @@ automation/yolo_mocker/
 # frontend
 frontend/*.db
 frontend/.web
+**/__pycache__/
