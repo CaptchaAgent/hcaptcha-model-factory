@@ -188,9 +188,6 @@ def check_card(pending_card: list) -> NoReturn | bool:
             elif len(card[rk]) == 0:
                 logging.error(f"card 的必要信息不能为空 - {i=} key={rk} {require_keys=}")
                 ok = False
-            elif len(card[rk]) < 2:
-                logging.error(f"CLIP 模型在二分类任务上的准确率可能会比较糟糕 - {i=} ")
-                ok = False
 
             for label in card[rk]:
                 if not isinstance(label, str):
@@ -246,4 +243,4 @@ if __name__ == "__main__":
     logging.info(f"Loading {len(flow_card)=}")
     logging.info(f"Loading {len(flow_card_nested_animal)=}")
 
-    run("s1_bird", cards=flow_card_nested_animal)
+    run("l1_penguin", cards=flow_card_nested_animal)

@@ -140,11 +140,11 @@ def run():
     # the largest animal https://github.com/QIN2DIM/hcaptcha-challenger/issues/797
     # red panda https://github.com/QIN2DIM/hcaptcha-challenger/issues/896
     # sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/826"  # the smallest animal
-    sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/896"  # red panda
-    sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/897"  # keyboard
-    # sources = "the largest animal"
+    # sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/896"  # red panda
+    # sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/897"  # keyboard
+    sources = "the largest animal"
     # sources = "please click on the largest animal"
-    sources = "the smallest animal"
+    # sources = "the smallest animal"
     # sources = "natural landscape"
     # sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/857"  # flamingo
     # sources = "https://github.com/QIN2DIM/hcaptcha-challenger/issues/853"

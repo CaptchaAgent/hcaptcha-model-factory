@@ -148,11 +148,11 @@ def run():
     # nested_largest_ => the largest animal
     # nested_smallest_ => the smallest animal
     """
-    prompt = "nested_smallest_bird"
+    prompt = "nested_largest_penguin"
 
     # nested_prompt = ""
-    nested_prompt = "the smallest animal"
-    # nested_prompt = "the largest animal"
+    # nested_prompt = "the smallest animal"
+    nested_prompt = "the largest animal"
 
     # 压缩数据集
     tn = zip_dataset(prompt=prompt)
