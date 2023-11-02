@@ -144,3 +144,7 @@ archive/
 **/tmp_dir**
 automation/zip_dir/
 automation/yolo_mocker/
+
+# frontend
+frontend/*.db
+frontend/.web
