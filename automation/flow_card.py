@@ -96,4 +96,15 @@ flow_card_nested_animal = [
             }
         },
     },
+    {
+        "positive_labels": ["penguin"],
+        "negative_labels": ["ant", "crab", "ladybug"],
+        "joined_dirs": ["the_largest_animal", "l1_penguin"],
+        "substack": {
+            "nested_largest_penguin": {
+                "yes": ["penguin"],
+                "bad": ["ant", "crab", "ladybug"],
+            }
+        }
+    }
 ]
