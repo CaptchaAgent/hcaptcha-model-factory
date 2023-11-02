@@ -1,2 +1,2 @@
 *.png *.pt binary
-*.yaml text eol=crlf
+*.yaml eol=lf
