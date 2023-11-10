@@ -48,8 +48,8 @@ class Objects:
 
     def to_yaml(self, path: Path | None = None):
         path = path or Path("objects-tmp.yaml")
-        with open(path, "w", encoding="utf8") as file:
-            yaml.safe_dump(self.__dict__, file, sort_keys=False, allow_unicode=True,)
+        data = yaml.safe_dump(self.__dict__, sort_keys=False, allow_unicode=True)
+        path.write_text(data, encoding="utf8", newline="\n")
         return path
 
     @staticmethod
@@ -222,8 +222,3 @@ def find_asset_id(name_prefix: str):
                 continue
             print(asset.name, asset.id)
             break
-
-
-if __name__ == "__main__":
-    find_asset_id("nested_smallest_bird2310")
-    rolling_upgrade()

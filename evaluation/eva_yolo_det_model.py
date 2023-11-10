@@ -39,7 +39,7 @@ def execute(input_dir: Path | str, model_name: str, model_path: Path, classes: l
         image = cv2.imread(str(image_path))
         pt1 = int(ps[0]), int(ps[1])
         pt2 = int(pe[0]), int(pe[1])
-        cv2.rectangle(image, pt1, pt2, (87, 241, 126), 2)
+        cv2.rectangle(image, pt1, pt2, (255, 0, 126), 2)
         cv2.imwrite(str(output_path), image)
 
     if isinstance(input_dir, str):
@@ -83,12 +83,14 @@ def execute(input_dir: Path | str, model_name: str, model_path: Path, classes: l
 
 
 def run():
-    images_dir = r"zip_dir/click_on_the_turtle_s_head_default"
+    images_dir = r"zip_dir/please click on the lion's head/default"
 
     # model_name = "burl_head_of_the_lion_2309_yolov8s.onnx"
-    model_name = "head_of_the_animal_turtle_2309_yolov8s.onnx"
+    # model_name = "head_of_the_animal_turtle_2309_yolov8s.onnx"
+    # model_name = "head_of_the_animal_turtle_2309_yolov8s.onnx"
     # model_name = "head_of_the_meerkat_2311_yolov8n.onnx"
-    classes = ["animal-head"]
+    model_name = "head_of_the_jaguar_mask_2309_yolov8n.onnx"
+    classes = ["spiral_pattern"]
 
     output_dir = execute(
         input_dir=images_dir,
