@@ -18,3 +18,4 @@ playwright
 bs4
 tqdm
 httpx
+reflex==0.3.1

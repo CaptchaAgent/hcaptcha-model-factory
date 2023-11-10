@@ -15,11 +15,11 @@ from pathlib import Path
 from typing import Tuple, List, Dict, NoReturn
 
 import hcaptcha_challenger as solver
-from PIL import Image
+from PIL import Image, ImageFilter
 from hcaptcha_challenger import DataLake, ModelHub, ZeroShotImageClassifier, register_pipline
 from tqdm import tqdm
 
-from flow_card import flow_card, flow_card_nested_animal
+from _flow_card import flow_card, flow_card_nested_animal
 
 solver.install(upgrade=True)
 
@@ -34,12 +34,8 @@ class SubStack:
     def from_tnf(cls, name: str, yes: List[str], bad: List[str]):
         return cls(nested_name=name, yes_seq=yes, bad_seq=bad)
 
-    @staticmethod
-    def kt(x):
-        return f"This is a photo of the {x}"
-
     def _offload(self, tag: str, dirname: str, tmp_case_dir: Path, *, to_dir: Path):
-        if self.kt(tag) == dirname:
+        if DataLake.PREMISED_YES.format(tag) == dirname:
             logging.info(f"refactor - name={self.nested_name} {tag=}")
             for image_name in os.listdir(tmp_case_dir):
                 image_path = tmp_case_dir.joinpath(image_name)
@@ -136,7 +132,13 @@ class AutoLabeling:
 
         return yes_dir, bad_dir
 
-    def execute(self, model, substack: Dict[str, Dict[str, List[str]]] = None, **kwargs):
+    def execute(
+            self,
+            model,
+            substack: Dict[str, Dict[str, List[str]]] = None,
+            enable_gaussian: bool | None = None,
+            **kwargs,
+    ):
         if not self.pending_tasks:
             logging.info("No pending tasks")
             return
@@ -154,6 +156,11 @@ class AutoLabeling:
             for image_path in self.pending_tasks[: self.limit]:
                 # The label at position 0 is the highest scoring target
                 image = Image.open(image_path)
+
+                # 可选的高斯滤波器，用于降低彩噪
+                if enable_gaussian:
+                    image = image.filter(ImageFilter.GaussianBlur(radius=1.1))
+
                 results = self.tool(model, image)
 
                 # we're dealing with multi-classification tasks here
@@ -204,7 +211,12 @@ def check_card(pending_card: list) -> NoReturn | bool:
     return True
 
 
-def run(suffix_filter: str, cards: list, base_dirname: str = "database2309"):
+def run(
+        suffix_filter: str,
+        cards: list,
+        base_dirname: str = "database2309",
+        enable_gaussian: bool | None = None,
+):
     if not suffix_filter:
         return
 
@@ -233,7 +245,7 @@ def run(suffix_filter: str, cards: list, base_dirname: str = "database2309"):
         )
         # Starts an automatic labeling task
         al = AutoLabeling.from_datalake(dl)
-        al.execute(model, **card)
+        al.execute(model, enable_gaussian=enable_gaussian, **card)
         # Automatically open output directory
         if "win32" in sys.platform and al.output_dir.is_dir():
             os.startfile(al.output_dir)
@@ -243,4 +255,7 @@ if __name__ == "__main__":
     logging.info(f"Loading {len(flow_card)=}")
     logging.info(f"Loading {len(flow_card_nested_animal)=}")
 
-    run("l1_penguin", cards=flow_card_nested_animal)
+    run("e1_mouse", cards=flow_card_nested_animal)
+    # run("land_vehicle", cards=flow_card)
+    # run("w1_cactus", cards=flow_card_nested_animal)
+    # run("bus", cards=flow_card_recaptcha_challenge, enable_gaussian=True)

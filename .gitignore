@@ -142,8 +142,11 @@ archive/
 .run
 **/assets_cache.txt
 **/tmp_dir**
-automation/zip_dir/
-automation/yolo_mocker/
+**/zip_dir/
+**/yolo_mocker/
+**/model_zoo/
 
-frontend/.web
+# frontend
 frontend/*.db
+frontend/.web
+**/__pycache__/

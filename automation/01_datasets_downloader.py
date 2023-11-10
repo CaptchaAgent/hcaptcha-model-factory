@@ -14,7 +14,9 @@ from playwright.async_api import BrowserContext as ASyncContext, async_playwrigh
 collected = []
 per_times = 60
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
-sitekey = SiteKey.user
+
+# sitekey = "58366d97-3e8c-4b57-a679-4a41c8423be3"
+sitekey = SiteKey.epic
 
 
 async def collete_datasets(context: ASyncContext):
@@ -23,6 +25,8 @@ async def collete_datasets(context: ASyncContext):
 
     sitelink = SiteKey.as_sitelink(sitekey)
     await page.goto(sitelink)
+
+    logger.info("startup collector", url=sitelink)
 
     await agent.handle_checkbox()
 
