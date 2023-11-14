@@ -8,7 +8,7 @@ from pathlib import Path
 from hcaptcha_challenger import register_pipline, ModelHub
 from PIL import Image
 
-candidates = ['kitchen', 'bedroom', 'living_room']
+candidates = ["kitchen", "bedroom", "living_room"]
 image_path = Path("zip_dir/multi.jpg")
 
 modelhub = ModelHub.from_github_repo()

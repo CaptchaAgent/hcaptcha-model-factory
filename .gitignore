@@ -150,3 +150,4 @@ archive/
 frontend/*.db
 frontend/.web
 **/__pycache__/
+**/istock_tmp/

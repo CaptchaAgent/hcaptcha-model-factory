@@ -13,6 +13,34 @@ logging.basicConfig(
 
 flow_card = [
     {
+        "positive_labels": ["forest"],
+        "negative_labels": ["hedgehog", "city building", "laptop"],
+        "joined_dirs": ["forest"],
+    },
+    {
+        "positive_labels": ["car"],
+        "negative_labels": [
+            "flower",
+            "suit",
+            "plant",
+            "table",
+            "guitar",
+            "animal",
+            "tree",
+            "bicycle",
+            "bus",
+            "machine that flies",
+            "door",
+            "water vehicle",
+        ],
+        "joined_dirs": ["car"],
+    },
+    {
+        "positive_labels": ["city street"],
+        "negative_labels": ["electronic device", "plant", "laptop", "forest"],
+        "joined_dirs": ["city_street"],
+    },
+    {
         "positive_labels": ["off-road vehicle"],
         "negative_labels": ["car", "bicycle"],
         "joined_dirs": ["off_road_vehicle"],
@@ -127,8 +155,15 @@ flow_card = [
         "joined_dirs": ["volcano"],
     },
     {
-        "positive_labels": ["land vehicle"],
-        "negative_labels": ["flying vehicle", "water vehicle"],
+        "positive_labels": ["land vehicle", "truck"],
+        "negative_labels": [
+            "flying vehicle",
+            "helicopter",
+            "water vehicle",
+            "airplane",
+            "boat",
+            "seaplane",
+        ],
         "joined_dirs": ["land_vehicle"],
     },
     {
@@ -153,10 +188,41 @@ flow_card = [
     },
     {
         "positive_labels": ["suit"],
-        "negative_labels": ["vehicle", "paper", "factory", "machine", "neon light", "notebook", "boat"],
+        "negative_labels": [
+            "vehicle",
+            "paper",
+            "factory",
+            "machine",
+            "neon light",
+            "notebook",
+            "boat",
+        ],
         "joined_dirs": ["business_suit"],
     },
-
+    {
+        "positive_labels": ["dragon"],
+        "negative_labels": ["cat", "smartphone", "tiger", "elephant", "bird"],
+        "joined_dirs": ["dragon"],
+    },
+    {
+        "positive_labels": ["hatchback car"],
+        "negative_labels": ["cat", "server", "elephant"],
+        "joined_dirs": ["hatchback_car"],
+    },
+    {
+        "positive_labels": ["panda"],
+        "negative_labels": [
+            "keyboard",
+            "dragon",
+            "dog",
+            "bird",
+            "elephant",
+            "suitcase",
+            "electronic device",
+            "goat",
+        ],
+        "joined_dirs": ["panda"],
+    },
 ]
 
 flow_card_nested_animal = [
@@ -264,10 +330,60 @@ flow_card_nested_animal = [
         "negative_labels": ["door", "pen", "chair"],
         "joined_dirs": ["electronic_device", "e1_mouse"],
         "substack": {
-            "nested_electronic_device_mouse": {
-                "yes": ["mouse"],
-                "bad": ["door", "pen", "chair"]
+            "nested_electronic_device_mouse": {"yes": ["mouse"], "bad": ["door", "pen", "chair"]}
+        },
+    },
+    {
+        "positive_labels": ["helicopter"],
+        "negative_labels": ["truck", "boat", "water vehicle", "land vehicle"],
+        "joined_dirs": ["machine_that_flies"],
+        "substack": {
+            "nested_machine_that_flies_helicopter": {
+                "yes": ["helicopter"],
+                "bad": ["truck", "boat", "water vehicle", "land vehicle"],
             }
-        }
+        },
+    },
+    {
+        "positive_labels": ["circuit board"],
+        "negative_labels": ["animal", "forklift"],
+        "joined_dirs": ["electronic_device", "e1_circuit_board"],
+        "substack": {
+            "nested_electronic_device_circuit_board": {
+                "yes": ["circuit board"],
+                "bad": ["animal", "forklift"],
+            }
+        },
+    },
+    {
+        "positive_labels": ["squirrel"],
+        "negative_labels": ["bee", "ladybug"],
+        "joined_dirs": ["the_largest_animal_in_real_life", "l2_squirrel"],
+        "substack": {"nested_largest_squirrel": {"yes": ["squirrel"], "bad": ["bee", "ladybug"]}},
+    },
+    {
+        "positive_labels": ["owl"],
+        "negative_labels": ["land animal", "water animal"],
+        "joined_dirs": ["the_smallest_animal_species", "s2_owl"],
+        "substack": {"nested_smallest_owl": {"yes": ["squirrel"], "bad": ["bee", "ladybug"]}},
+    },
+    {
+        "positive_labels": ["lion"],
+        "negative_labels": ["cat", "dog", "goat", "fox", "ladybug", "bee"],
+        "joined_dirs": ["the_largest_animal_in_real_life", "l2_lion"],
+        "substack": {
+            "nested_largest_lion": {
+                "yes": ["lion"],
+                "bad": ["cat", "dog", "goat", "fox", "ladybug", "bee"],
+            }
+        },
+    },
+    {
+        "positive_labels": ["lion"],
+        "negative_labels": ["elephant", "whale", "panda"],
+        "joined_dirs": ["the_smallest_animal_in_real_life", "s2_lion"],
+        "substack": {
+            "nested_smallest_lion": {"yes": ["lion"], "bad": ["elephant", "whale", "panda"]}
+        },
     },
 ]

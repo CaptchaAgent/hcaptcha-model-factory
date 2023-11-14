@@ -16,11 +16,11 @@ modelhub = ModelHub.from_github_repo()
 modelhub.parse_objects()
 
 db_dir = Path(__file__).parent.parent.joinpath("database2309")
-input_dirname = "click_on_the_star_with_a_texture_of_bricks_default"
+input_dirname = "click_on_the_most_similar_object_to_the_following_reference_shape_default"
 
 # Select model
-model_name = "star_with_a_texture_of_bricks_2309_yolov8s-seg.onnx"
-classes = ["star-bricks"]
+model_name = "most_similar_object_hexagon_2309_yolov8n-seg.onnx"
+classes = ["hexagon"]
 
 
 def yolov8_segment(images_dir: Path, output_dir: Path):

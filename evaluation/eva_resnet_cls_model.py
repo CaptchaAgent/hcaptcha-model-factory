@@ -60,5 +60,5 @@ def run():
             shutil.copyfile(image_path, to_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

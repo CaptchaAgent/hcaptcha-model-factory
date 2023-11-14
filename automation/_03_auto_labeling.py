@@ -35,7 +35,7 @@ class SubStack:
         return cls(nested_name=name, yes_seq=yes, bad_seq=bad)
 
     def _offload(self, tag: str, dirname: str, tmp_case_dir: Path, *, to_dir: Path):
-        if DataLake.PREMISED_YES.format(tag) == dirname:
+        if dirname in DataLake.PREMISED_YES.format(tag):
             logging.info(f"refactor - name={self.nested_name} {tag=}")
             for image_name in os.listdir(tmp_case_dir):
                 image_path = tmp_case_dir.joinpath(image_name)
@@ -133,11 +133,11 @@ class AutoLabeling:
         return yes_dir, bad_dir
 
     def execute(
-            self,
-            model,
-            substack: Dict[str, Dict[str, List[str]]] = None,
-            enable_gaussian: bool | None = None,
-            **kwargs,
+        self,
+        model,
+        substack: Dict[str, Dict[str, List[str]]] = None,
+        enable_gaussian: bool | None = None,
+        **kwargs,
     ):
         if not self.pending_tasks:
             logging.info("No pending tasks")
@@ -212,10 +212,10 @@ def check_card(pending_card: list) -> NoReturn | bool:
 
 
 def run(
-        suffix_filter: str,
-        cards: list,
-        base_dirname: str = "database2309",
-        enable_gaussian: bool | None = None,
+    suffix_filter: str,
+    cards: list,
+    base_dirname: str = "database2309",
+    enable_gaussian: bool | None = None,
 ):
     if not suffix_filter:
         return
@@ -255,7 +255,7 @@ if __name__ == "__main__":
     logging.info(f"Loading {len(flow_card)=}")
     logging.info(f"Loading {len(flow_card_nested_animal)=}")
 
-    run("e1_mouse", cards=flow_card_nested_animal)
     # run("land_vehicle", cards=flow_card)
-    # run("w1_cactus", cards=flow_card_nested_animal)
+    # run("land_vehicle", cards=flow_card)
+    run("l2_lion", cards=flow_card_nested_animal)
     # run("bus", cards=flow_card_recaptcha_challenge, enable_gaussian=True)

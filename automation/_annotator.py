@@ -8,7 +8,6 @@ from __future__ import annotations
 import inspect
 import os
 import sys
-import webbrowser
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -192,33 +191,3 @@ class Annotator:
             self.handle_resnet_objects()
 
         self.flush_remote_objects()
-
-
-def rolling_upgrade(asset_id=None, matched_label: str = ""):
-    """
-    当上传 nested 模型时需要指定该模型绑定的嵌套类型
-    """
-    if not asset_id:
-        return
-
-    try:
-        annotator = Annotator(asset_id, matched_label=matched_label)
-        annotator.execute()
-        webbrowser.open(Annotator.repo.html_url)
-    except Exception as err:
-        logger.warning(err)
-
-
-def find_asset_id(name_prefix: str):
-    """如果工作流在滚动更新前中断，可以通过此函数根据模型名前缀匹配到资源的 asset_id"""
-    repo = Annotator.repo
-    modelhub_title = "ONNX ModelHub"
-
-    for release in repo.get_releases():
-        if release.title != modelhub_title:
-            continue
-        for asset in release.get_assets():
-            if not asset.name.startswith(name_prefix):
-                continue
-            print(asset.name, asset.id)
-            break

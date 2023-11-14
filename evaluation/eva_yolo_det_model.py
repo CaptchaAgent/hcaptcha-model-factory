@@ -20,7 +20,7 @@ install(upgrade=True)
 model_url = "https://github.com/QIN2DIM/hcaptcha-challenger/releases/download/model/"
 
 this_dir = Path(__file__).parent
-models_dir = this_dir.joinpath("tmp_models")
+models_dir = this_dir.joinpath("model_zoo")
 models_dir.mkdir(exist_ok=True)
 
 
@@ -83,14 +83,10 @@ def execute(input_dir: Path | str, model_name: str, model_path: Path, classes: l
 
 
 def run():
-    images_dir = r"zip_dir/please click on the lion's head/default"
+    images_dir = this_dir.parent.joinpath("evaluation/tmp_dir", "butterfly")
 
-    # model_name = "burl_head_of_the_lion_2309_yolov8s.onnx"
-    # model_name = "head_of_the_animal_turtle_2309_yolov8s.onnx"
-    # model_name = "head_of_the_animal_turtle_2309_yolov8s.onnx"
-    # model_name = "head_of_the_meerkat_2311_yolov8n.onnx"
-    model_name = "head_of_the_jaguar_mask_2309_yolov8n.onnx"
-    classes = ["spiral_pattern"]
+    model_name = "butterfly_2309_yolov8s.onnx"
+    classes = ["butterfly"]
 
     output_dir = execute(
         input_dir=images_dir,

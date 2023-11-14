@@ -18,7 +18,7 @@ solver.install(upgrade=True, clip=True)
 
 tmp_dir = Path(__file__).parent.joinpath("tmp_dir")
 
-sitekey = SiteKey.user_easy
+sitekey = SiteKey.epic
 
 
 @logger.catch

@@ -1,4 +1,4 @@
-# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+# todo pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 torchvision>=0.15.2+cu118
 torch>=2.0.1+cu118
 
@@ -11,11 +11,4 @@ pyyaml
 loguru
 fire
 
-transformers
-hcaptcha-challenger
-PyGitHub
-playwright
-bs4
-tqdm
-httpx
-reflex==0.3.1
+pydantic~=2.5.0
